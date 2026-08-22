@@ -1,0 +1,127 @@
+import type { Project } from "@/lib/types";
+
+export const projects: Project[] = [
+  {
+    name: "vitals",
+    description:
+      "Local-first archive and baseline-deviation detector for Google Health API v4 (Fitbit, Pixel Watch) data.",
+    stars: 1,
+    createdAt: "2026-08-06",
+    url: "https://github.com/mstuart/vitals",
+    role: "author",
+    icon: "Cloud",
+  },
+  {
+    name: "tare",
+    description:
+      "Lossless-by-default context compression for LLM coding agents: proxy, library, CLI, and MCP server. Local-first, cache-correct, reversible.",
+    stars: 1,
+    createdAt: "2026-06-22",
+    url: "https://github.com/mstuart/tare",
+    role: "author",
+    icon: "PlugsConnected",
+  },
+  {
+    name: "peek",
+    description:
+      "DevTools for coding agents: session composition, cost attribution, compaction forensics, and config A/B benchmarking across Claude Code, Codex, and pi.",
+    stars: 0,
+    createdAt: "2026-08-09",
+    url: "https://github.com/mstuart/peek",
+    role: "author",
+    icon: "Gauge",
+  },
+  {
+    name: "ai-statusline",
+    description:
+      "Customizable status line for AI coding assistants: real-time display of model, tokens, cost, git status, and more.",
+    stars: 0,
+    createdAt: "2026-02-16",
+    url: "https://github.com/mstuart/ai-statusline",
+    role: "author",
+    icon: "Package",
+  },
+  {
+    name: "mcp-prune",
+    description: "Audit MCP server usage from Claude Code transcripts. Find idle servers to prune.",
+    stars: 0,
+    createdAt: "2026-05-21",
+    url: "https://github.com/mstuart/mcp-prune",
+    role: "author",
+    icon: "PlugsConnected",
+  },
+  {
+    name: "graphql-agent-toolkit",
+    description: "Turn any GraphQL API into AI-agent-ready tools: MCP servers, LangChain tools, and standalone SDKs.",
+    stars: 0,
+    createdAt: "2026-02-15",
+    url: "https://github.com/mstuart/graphql-agent-toolkit",
+    role: "author",
+    icon: "Graph",
+  },
+  {
+    name: "zoid",
+    description: "Cross-domain component framework for embedding rich UI widgets across origins.",
+    stars: 2123,
+    createdAt: "2016-05-06",
+    url: "https://github.com/krakenjs/zoid",
+    role: "core contributor",
+    icon: "PlugsConnected",
+  },
+  {
+    name: "lusca",
+    description: "Application security middleware for Node.js, covering CSRF, CSP, and other common protections.",
+    stars: 1775,
+    createdAt: "2013-03-15",
+    url: "https://github.com/krakenjs/lusca",
+    role: "core contributor",
+    icon: "ShieldCheck",
+  },
+  {
+    name: "paypal-checkout-components",
+    description: "UI components powering the PayPal Checkout integration used across the web.",
+    stars: 1329,
+    createdAt: "2016-06-01",
+    url: "https://github.com/paypal/paypal-checkout-components",
+    role: "core contributor",
+    icon: "Package",
+  },
+  {
+    name: "post-robot",
+    description: "Cross domain post-messaging on the client side using a simple listener/client pattern.",
+    stars: 786,
+    createdAt: "2016-02-24",
+    url: "https://github.com/krakenjs/post-robot",
+    role: "core contributor",
+    icon: "Package",
+  },
+  {
+    name: "beaver-logger",
+    description: "Client-side logging with super powers.",
+    stars: 256,
+    createdAt: "2014-11-18",
+    url: "https://github.com/krakenjs/beaver-logger",
+    role: "core contributor",
+    icon: "Bug",
+  },
+  {
+    name: "jwt-csrf",
+    description: "Stateless CSRF protection using jsonwebtoken (JWT).",
+    stars: 108,
+    createdAt: "2014-12-16",
+    url: "https://github.com/krakenjs/jwt-csrf",
+    role: "core contributor",
+    icon: "ShieldCheck",
+  },
+];
+
+// Additional packages maintained on npm (registry API, maintainer "mstuart"),
+// mostly from the krakenjs ecosystem, not otherwise listed above.
+export const npmMaintained: string[] = [
+  "zoid",
+  "post-robot",
+  "beaver-logger",
+  "jwt-csrf",
+  "memcookies",
+  "13+ @krakenjs scoped packages",
+];

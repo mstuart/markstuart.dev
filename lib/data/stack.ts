@@ -29,14 +29,14 @@ export const stackSections: StackSection[] = [
       {
         name: 'MacBook Pro 14"',
         description: "M4 Max, 36 GB RAM. One machine for everything.",
-        url: "https://www.apple.com/macbook-pro/",
+        url: "https://www.amazon.com/dp/B0DMKZSTQH?tag=mstuartsite-20",
         iconSrc: "/stack/apple.png",
         tags: ["Physical"],
       },
       {
         name: "LG UltraGear 45GX950A",
         description: '45" 5K2K OLED at 330Hz. The whole workspace on one panel.',
-        url: "https://www.lg.com/",
+        url: "https://www.amazon.com/dp/B0DYG9DKX8?tag=mstuartsite-20",
         iconSrc: "/stack/lg.png",
         tags: ["Physical"],
       },

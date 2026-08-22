@@ -8,8 +8,10 @@ import { getRecentlyPlayed, type PlayedTrack } from "@/lib/spotify";
 const KEY = "listening:history";
 
 function redisConfig() {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  // Vercel's Upstash Marketplace integration provisions KV_REST_API_*; a
+  // direct Upstash setup uses UPSTASH_REDIS_REST_*. Accept either.
+  const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return null;
   return { url, token };
 }

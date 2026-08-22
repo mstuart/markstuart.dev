@@ -85,8 +85,8 @@ export default function PostsPage() {
               className="group flex items-center gap-3 rounded-md px-2 py-3 -mx-2 transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:hover:bg-zinc-900 dark:focus-visible:ring-teal-400"
             >
               <RowIcon src={row.iconSrc} />
-              <span className="flex min-w-0 flex-1 items-baseline justify-between gap-4">
-                <span className="truncate text-zinc-900 transition-colors group-hover:text-teal-600 dark:text-zinc-100 dark:group-hover:text-teal-400">
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                <span className="text-zinc-900 transition-colors group-hover:text-teal-600 sm:truncate dark:text-zinc-100 dark:group-hover:text-teal-400">
                   {row.title}
                 </span>
                 <time
@@ -107,9 +107,9 @@ export default function PostsPage() {
             >
               <RowIcon src={row.iconSrc} />
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="flex items-baseline justify-between gap-4">
-                  <span className="inline-flex min-w-0 items-center gap-1 truncate text-zinc-900 transition-colors group-hover:text-teal-600 dark:text-zinc-100 dark:group-hover:text-teal-400">
-                    <span className="truncate">{row.title}</span>
+                <span className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                  <span className="inline-flex min-w-0 items-center gap-1 text-zinc-900 transition-colors group-hover:text-teal-600 sm:truncate dark:text-zinc-100 dark:group-hover:text-teal-400">
+                    <span className="sm:truncate">{row.title}</span>
                     <ArrowUpRight size={14} weight="regular" className="shrink-0" />
                   </span>
                   <time

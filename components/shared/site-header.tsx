@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PixelMonogram2 } from "@/components/px/monogram2";
+import { MobileNav } from "@/components/shared/mobile-nav";
 import { SocialLinks } from "@/components/shared/social-links";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { site } from "@/lib/data/site";
@@ -29,22 +30,23 @@ export function SiteHeader() {
           </span>
           {site.name}
         </Link>
-        <nav className="flex items-center gap-2 sm:gap-5">
+        <nav className="hidden items-center gap-2 md:flex lg:gap-4">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="whitespace-nowrap text-zinc-500 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 rounded-md dark:text-zinc-400 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
+              className="whitespace-nowrap rounded-md px-1 py-2 text-zinc-500 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-400 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
             >
               {link.label}
             </Link>
           ))}
         </nav>
         <div className="flex shrink-0 items-center gap-1">
-          <div className="hidden sm:flex">
+          <div className="hidden lg:flex">
             <SocialLinks />
           </div>
           <ThemeToggle />
+          <MobileNav links={navLinks} />
         </div>
       </div>
     </header>

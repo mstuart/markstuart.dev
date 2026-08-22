@@ -96,7 +96,7 @@ export function TalksFilter({ rows }: { rows: TalkListRow[] }) {
               </span>
             ) : null}
             <div className="min-w-0 flex-1">
-              <div className="flex items-baseline justify-between gap-4">
+              <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
                 {row.url ? (
                   <a
                     href={row.url}
@@ -104,11 +104,11 @@ export function TalksFilter({ rows }: { rows: TalkListRow[] }) {
                     rel="noopener noreferrer"
                     className="group inline-flex min-w-0 items-center gap-1 rounded-md text-zinc-900 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-100 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
                   >
-                    <span className="truncate">{row.title}</span>
+                    <span className="sm:truncate">{row.title}</span>
                     <ArrowUpRight size={14} weight="regular" className="shrink-0" />
                   </a>
                 ) : (
-                  <span className="truncate text-zinc-900 dark:text-zinc-100">{row.title}</span>
+                  <span className="text-zinc-900 sm:truncate dark:text-zinc-100">{row.title}</span>
                 )}
                 <time
                   dateTime={row.date}

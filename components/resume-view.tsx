@@ -95,7 +95,7 @@ export function ResumeView() {
             <div key={`${role.company}-${role.title}`} className="flex gap-3 py-4">
               <CompanyTile company={role.company} />
               <div className="min-w-0 flex-1">
-                <div className="flex items-baseline justify-between gap-4">
+                <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
                   <p className="min-w-0 text-zinc-900 dark:text-zinc-100">
                     <span className="font-medium">{role.title}</span>
                     <span className="text-zinc-500 dark:text-zinc-400"> at {role.company}</span>

@@ -99,22 +99,12 @@ export function HomePage() {
                 train.
               </p>
               <p>
-                For 15+ years I&apos;ve built those rails at PayPal, eBay, and now Rocket, with one
-                consistent through-line: turning fragmented systems and teams into composable
-                platforms that accelerate everyone around them.
-              </p>
-              <p>
-                At Rocket, I led our shift to AI-native development: an agent skills marketplace,
-                reusable agentic workflows, and the guardrail framework that governs what agents do
-                autonomously. Agents built on that platform now open 80% of our pull requests.
-              </p>
-              <p>
-                My open source work lives on{" "}
+                For 15+ years I&apos;ve built those rails at PayPal, eBay, and now Rocket. Most of
+                what I build in the open lives on{" "}
                 <a href="https://github.com/mstuart" target="_blank" rel="noopener noreferrer" className={inlineLinkClass}>
                   GitHub
                 </a>
-                : current experiments in agent tooling, alongside PayPal-era projects like zoid and
-                lusca that are still widely used today.
+                .
               </p>
             </div>
 

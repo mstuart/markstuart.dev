@@ -18,6 +18,10 @@ export default function StackPage() {
       <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
         The hardware, apps, and tools I reach for every day.
       </p>
+      <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">
+        Hardware links are Amazon affiliate links. As an Amazon Associate I earn from qualifying
+        purchases.
+      </p>
 
       {stackSections.map((section) => (
         <section key={section.heading} className="mt-10">

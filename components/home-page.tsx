@@ -92,15 +92,15 @@ export function HomePage() {
 
             <div className="mt-8 space-y-4 leading-relaxed text-zinc-600 dark:text-zinc-400">
               <p>
-                I build platforms, guardrails, and engineering cultures that let organizations ship
-                faster at higher quality. My thesis: the highest-leverage engineering skill is no
-                longer writing code. It&apos;s writing the specifications, paved roads, and agentic
-                workflows that let AI agents execute against them. Invest in the rails, not the
-                train.
+                Hey! I&apos;m Mark, a Distinguished Engineer at Rocket. For 15+ years I&apos;ve built
+                platforms at some of the highest-scale consumer companies in tech: PayPal, eBay, and
+                now Rocket. Checkout, SDKs, and API platforms used by millions of people and
+                thousands of engineers.
               </p>
               <p>
-                For 15+ years I&apos;ve built those rails at PayPal, eBay, and now Rocket. Most of
-                what I build in the open lives on{" "}
+                My through-line is turning fragmented systems and teams into composable platforms
+                that accelerate everyone around them. Lately that means AI-native development. Most
+                of what I build in the open lives on{" "}
                 <a href="https://github.com/mstuart" target="_blank" rel="noopener noreferrer" className={inlineLinkClass}>
                   GitHub
                 </a>

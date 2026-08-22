@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #fafafa;
+  --foreground: #18181b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+}
+
+.dark {
+  --background: #09090b;
+  --foreground: #f4f4f5;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* sugar-high syntax highlighting tokens */
+.sh-code {
+  --sh-class: #0d6b64;
+  --sh-identifier: #27272a;
+  --sh-sign: #71717a;
+  --sh-property: #0e7490;
+  --sh-entity: #0d6b64;
+  --sh-jsxliterals: #0d6b64;
+  --sh-string: #0f766e;
+  --sh-keyword: #b45309;
+  --sh-comment: #a1a1aa;
+}
+
+.dark .sh-code {
+  --sh-class: #5eead4;
+  --sh-identifier: #e4e4e7;
+  --sh-sign: #a1a1aa;
+  --sh-property: #67e8f9;
+  --sh-entity: #5eead4;
+  --sh-jsxliterals: #5eead4;
+  --sh-string: #2dd4bf;
+  --sh-keyword: #fbbf24;
+  --sh-comment: #71717a;
+}
+
+.sh__line {
+  display: block;
+}
+
+/* Ported from anandchowdhary.com (MIT licensed), app/globals.css. Used by
+   the vendored /v3 generic-section.tsx to make an entire section card
+   clickable via its heading link. */
+.full-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+/* Print styles for the /work resume page: hide site chrome and force a
+   clean black-on-white document regardless of the on-screen theme. Sizing
+   is compacted so the short view prints to one page and the long view to
+   about two at 100% browser zoom. */
+@media print {
+  @page {
+    margin: 0.55in;
+  }
+  html,
+  body {
+    background: #ffffff !important;
+  }
+  body:has([data-resume-page]) header,
+  body:has([data-resume-page]) footer,
+  body:has([data-resume-page]) [data-print-hide] {
+    display: none !important;
+  }
+  html:has([data-resume-page]),
+  body:has([data-resume-page]) {
+    background: #ffffff !important;
+  }
+  [data-resume-page] {
+    max-width: none !important;
+    padding: 0 !important;
+    zoom: 0.75;
+  }
+  [data-resume-page] .mt-10 {
+    margin-top: 0.9rem !important;
+  }
+  [data-resume-page] .mt-8 {
+    margin-top: 0.9rem !important;
+  }
+  [data-resume-page] .mt-4 {
+    margin-top: 0.5rem !important;
+  }
+  [data-resume-page] .py-4 {
+    padding-top: 0.45rem !important;
+    padding-bottom: 0.45rem !important;
+  }
+  [data-resume-page] ul {
+    line-height: 1.5 !important;
+  }
+  [data-resume-page] h1 {
+    font-size: 1.3rem;
+  }
+  [data-resume-page] section .py-4 {
+    break-inside: avoid;
+  }
+  [data-resume-page] * {
+    color: #18181b !important;
+    border-color: #d4d4d8 !important;
+  }
+  [data-resume-page] a {
+    text-decoration: none !important;
+  }
+}

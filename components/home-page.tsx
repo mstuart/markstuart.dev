@@ -328,6 +328,13 @@ export function HomePage() {
               </a>
               .
             </p>
+            <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
+              Prefer a terminal?{" "}
+              <Link href="/tui" className={inlineLinkClass}>
+                Launch the CLI
+              </Link>
+              .
+            </p>
           </SectionV1>
         </div>
       </div>

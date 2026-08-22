@@ -13,7 +13,6 @@ export function SiteFooter() {
   return (
     <footer>
       <div className="flex flex-col items-center px-6 pb-16 pt-6">
-        <span aria-hidden="true" className="h-28 w-px bg-zinc-300 dark:bg-zinc-700" />
         <p
           className={`${signatureFont.className} mt-16 -rotate-2 text-5xl text-zinc-900 dark:text-zinc-100`}
         >

@@ -1,6 +1,7 @@
 import {
   Bug,
   Cloud,
+  Desk,
   GitBranch,
   Monitor,
   Database,
@@ -11,6 +12,7 @@ import {
   ShieldCheck,
   Stack,
   Terminal,
+  Tray,
   Waveform,
 } from "@phosphor-icons/react/dist/ssr";
 import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
@@ -19,6 +21,7 @@ import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 export const projectIconMap: Record<string, PhosphorIcon> = {
   Bug,
   Cloud,
+  Desk,
   GitBranch,
   Monitor,
   Database,
@@ -29,6 +32,7 @@ export const projectIconMap: Record<string, PhosphorIcon> = {
   ShieldCheck,
   Stack,
   Terminal,
+  Tray,
   Waveform,
 };
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { ArrowUpRight, Terminal } from "@phosphor-icons/react/dist/ssr";
+import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { cliTools, PLATFORM_ORDER, stackSections, type Platform } from "@/lib/data/stack";
+import { getProjectIcon } from "@/lib/project-icons";
 
 export const metadata: Metadata = {
   title: "Stack",
@@ -27,7 +28,9 @@ export default function StackPage() {
         <section key={section.heading} className="mt-10">
           <h2 className="text-sm font-medium text-zinc-400 dark:text-zinc-500">{section.heading}</h2>
           <ul className="mt-4 flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
-            {section.items.map((item) => (
+            {section.items.map((item) => {
+              const FallbackIcon = getProjectIcon(item.icon);
+              return (
               <li key={item.name}>
                 <a
                   href={item.url}
@@ -40,7 +43,7 @@ export default function StackPage() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={item.iconSrc} alt="" width={32} height={32} className="h-full w-full object-contain" />
                     ) : (
-                      <Terminal size={16} weight="regular" className="text-zinc-400 dark:text-zinc-500" />
+                      <FallbackIcon size={16} weight="regular" className="text-zinc-400 dark:text-zinc-500" />
                     )}
                   </span>
                   <span className="min-w-0 flex-1">
@@ -62,7 +65,8 @@ export default function StackPage() {
                   </span>
                 </a>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </section>
       ))}

@@ -14,6 +14,8 @@ export interface StackItem {
   url?: string;
   /** Path under /public for a real app or brand icon tile. */
   iconSrc?: string;
+  /** Phosphor icon name, used when the item has no brand logo. */
+  icon?: string;
   tags: Platform[];
 }
 
@@ -42,30 +44,35 @@ export const stackSections: StackSection[] = [
       },
       {
         name: "Keychron K2",
+        iconSrc: "/stack/keychron.png",
         description: "75% mechanical, Gateron Reds. Loud enough to be satisfying, quiet enough for calls.",
         url: "https://www.amazon.com/dp/B07QBPCGY2?tag=mstuartsite-20",
         tags: ["Physical"],
       },
       {
         name: "Anker 7-in-2 USB-C Hub",
+        iconSrc: "/stack/anker.png",
         description: "One cable to the desk. I have bought this three times, which tells you how it goes.",
         url: "https://www.amazon.com/dp/B0BNZ5V1TF?tag=mstuartsite-20",
         tags: ["Physical"],
       },
       {
         name: "USB 3.0 KVM Switch",
+        icon: "Monitor",
         description: "4K at 60Hz across machines, so the big panel and one keyboard serve everything.",
         url: "https://www.amazon.com/dp/B0BWNDX4VL?tag=mstuartsite-20",
         tags: ["Physical"],
       },
       {
         name: "AirPods Pro 3",
+        iconSrc: "/stack/airpods.png",
         description: "Noise cancelling for focus blocks, and the only headphones I never forget.",
         url: "https://www.amazon.com/dp/B0FQFB8FMG?tag=mstuartsite-20",
         tags: ["Physical"],
       },
       {
         name: "Fitbit Air",
+        iconSrc: "/stack/fitbit.png",
         description: "Feeds the health data my vitals project archives through the Google Health API.",
         url: "https://www.amazon.com/dp/B0GTMTZF3V?tag=mstuartsite-20",
         tags: ["Physical"],
@@ -91,6 +98,7 @@ export const stackSections: StackSection[] = [
       },
       {
         name: "agent-browser",
+        iconSrc: "/stack/agentbrowser.png",
         description: "Browser automation CLI my agents use to see and click what they build.",
         url: "https://github.com/vercel-labs/agent-browser",
         tags: ["macOS"],
@@ -104,6 +112,7 @@ export const stackSections: StackSection[] = [
       },
       {
         name: "Ollama",
+        iconSrc: "/stack/ollama.png",
         description: "Local models without a UI, for scripts and experiments.",
         url: "https://ollama.com/",
         tags: ["macOS", "Windows"],
@@ -136,18 +145,21 @@ export const stackSections: StackSection[] = [
       },
       {
         name: "zsh + Oh My Zsh",
+        iconSrc: "/stack/ohmyzsh.png",
         description: "Stock-ish shell: eza over ls, bat over cat, fd over find, difftastic for diffs.",
         url: "https://ohmyz.sh/",
         tags: ["macOS"],
       },
       {
         name: "tmux",
+        iconSrc: "/stack/tmux.png",
         description: "Sessions that survive whatever the terminal is doing.",
         url: "https://github.com/tmux/tmux",
         tags: ["macOS"],
       },
       {
         name: "lazygit",
+        icon: "GitBranch",
         description: "Git UI in the terminal, aliased to lg.",
         url: "https://github.com/jesseduffield/lazygit",
         tags: ["macOS"],

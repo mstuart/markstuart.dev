@@ -60,23 +60,22 @@ export async function sendNewPostEmails(post: PostMeta, subscribers: string[]): 
   if (subscribers.length === 0) return 0;
   const resend = new Resend(process.env.RESEND_API_KEY);
   const postUrl = `${site.url}/posts/${post.slug}`;
-  // Resend's batch endpoint caps at 100 emails per call.
+  // Individual sends, paced under Resend's rate limit. Gmail discarded a
+  // same-second batch from this young domain; the single-send path delivers.
   let sent = 0;
-  for (let i = 0; i < subscribers.length; i += 100) {
-    const batch = subscribers.slice(i, i + 100).map((email) => {
-      const f = footer(email);
-      return {
-        from: FROM,
-        to: email,
-        subject: `New post: ${post.title}`,
-        headers: headers(email),
-        text: `${post.title}\n\n${post.description}\n\nRead it: ${postUrl}${f.text}`,
-        html: `<div style="font-family:-apple-system,Segoe UI,sans-serif;max-width:560px"><h2 style="margin-bottom:4px">${post.title}</h2><p style="color:#52525b">${post.description}</p><p><a href="${postUrl}" style="color:#0d9488">Read it on markstuart.dev</a></p>${f.html}</div>`,
-      };
+  for (const email of subscribers) {
+    const f = footer(email);
+    const { error } = await resend.emails.send({
+      from: FROM,
+      to: email,
+      subject: `New post: ${post.title}`,
+      headers: headers(email),
+      text: `${post.title}\n\n${post.description}\n\nRead it: ${postUrl}${f.text}`,
+      html: `<div style="font-family:-apple-system,Segoe UI,sans-serif;max-width:560px"><h2 style="margin-bottom:4px">${post.title}</h2><p style="color:#52525b">${post.description}</p><p><a href="${postUrl}" style="color:#0d9488">Read it on markstuart.dev</a></p>${f.html}</div>`,
     });
-    const { error } = await resend.batch.send(batch);
     if (error) throw new Error(error.message);
-    sent += batch.length;
+    sent += 1;
+    await new Promise((resolve) => setTimeout(resolve, 600));
   }
   return sent;
 }

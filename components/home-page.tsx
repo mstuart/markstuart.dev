@@ -295,7 +295,7 @@ export function HomePage() {
                 LinkedIn
               </a>
               , or{" "}
-              <a href="https://x.com/mark__stu" target="_blank" rel="noopener noreferrer" className={inlineLinkClass}>
+              <a href="https://x.com/markstuartdev" target="_blank" rel="noopener noreferrer" className={inlineLinkClass}>
                 X
               </a>
               .

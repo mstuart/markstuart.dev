@@ -8,6 +8,31 @@ import { COMMAND_NAMES, runCommand } from "@/lib/tui-commands";
 interface HistoryEntry {
   input?: string;
   lines: string[];
+  art?: string[];
+}
+
+// Each art row packs 12 hex chars per cell: RRGGBB (top pixel) + RRGGBB
+// (bottom pixel), drawn as a half-block so one character shows two pixels.
+function ArtBlock({ rows }: { rows: string[] }) {
+  return (
+    <div aria-hidden="true" className="my-2 leading-none">
+      {rows.map((row, y) => (
+        <div key={y} className="flex">
+          {Array.from({ length: row.length / 12 }, (_, x) => {
+            const cell = row.slice(x * 12, x * 12 + 12);
+            return (
+              <span
+                key={x}
+                style={{ color: `#${cell.slice(0, 6)}`, backgroundColor: `#${cell.slice(6)}` }}
+              >
+                {"\u2580"}
+              </span>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 const BOOT: HistoryEntry[] = [
@@ -52,7 +77,10 @@ export function TuiTerminal() {
       setHistory([]);
       return;
     }
-    setHistory((current) => [...current, { input: value, lines: result.lines }]);
+    setHistory((current) => [
+      ...current,
+      { input: value, lines: result.lines, art: result.art },
+    ]);
     if (result.toggleTheme) {
       setTheme(resolvedTheme === "dark" ? "light" : "dark");
     }
@@ -104,6 +132,7 @@ export function TuiTerminal() {
                 <span className="text-teal-400">$</span> {entry.input}
               </p>
             ) : null}
+            {entry.art ? <ArtBlock rows={entry.art} /> : null}
             {entry.lines.map((line, lineIndex) => (
               <p key={lineIndex} className="whitespace-pre-wrap break-words">
                 {line || " "}

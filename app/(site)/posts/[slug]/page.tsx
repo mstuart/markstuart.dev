@@ -29,9 +29,21 @@ export async function generateMetadata(props: PageProps<"/posts/[slug]">): Promi
     return {};
   }
 
+  const url = `https://markstuart.dev/posts/${post.slug}`;
+
   return {
     title: post.title,
     description: post.description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      type: "article",
+      url,
+      publishedTime: post.date,
+    },
   };
 }
 

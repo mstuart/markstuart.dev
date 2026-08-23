@@ -4,7 +4,7 @@ import type { Attended } from "@/lib/types";
 // or took part without giving a talk of his own.
 export const community: Attended[] = [
   {
-    event: "JS @ PayPal 2021 Online Conference",
+    event: "JS@PayPal 2021 Online Conference",
     date: "2021-05-19",
     note: "Co-host of PayPal's public JavaScript conference, streamed live May 19 through 21 on the PayPal Developer channel.",
     url: "https://www.youtube.com/watch?v=3_73S7kOW8U",

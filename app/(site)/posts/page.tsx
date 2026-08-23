@@ -7,6 +7,7 @@ import { writing } from "@/lib/data/writing";
 
 export const metadata: Metadata = {
   title: "Writing",
+  description: "Blog posts written here and elsewhere, read more than 410K times.",
 };
 
 function formatDate(date: string) {

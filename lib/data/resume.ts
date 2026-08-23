@@ -14,7 +14,7 @@ export interface ResumeRole {
 }
 
 export const resumeSummary =
-  "Distinguished Engineer with 15+ years at PayPal, eBay, and Rocket, currently leading Rocket's shift to AI-native software development alongside federated GraphQL and API platform architecture.";
+  "Nearly two decades building platforms at PayPal, eBay, and now Rocket. These days that means leading Rocket's shift to AI-native development, plus federated GraphQL and API platform architecture.";
 
 export const focusAreas = [
   "AI-Native Engineering & Autonomous Development",
@@ -32,14 +32,11 @@ export const awards = [
 ];
 
 export const industryContributions = [
-  "Published author on AI-native engineering, API platforms, GraphQL, and Node.js across Rocket Engineering, PayPal Engineering, and industry publications (1M+ views).",
-  "Founding board member of the GraphQL Foundation (Linux Foundation).",
+  "Published author on AI-native engineering, API platforms, GraphQL, and Node.js across Rocket Engineering, PayPal Engineering, and industry publications (400K+ views).",
+  "Represented PayPal on the GraphQL Foundation's founding board (Linux Foundation).",
   "Featured engineer in Apollo GraphQL's flagship customer case study on API platform transformation at scale.",
   "Invited speaker and podcast guest on Node.js security, API platforms, GraphQL, and AI-driven product development.",
 ];
-
-export const education =
-  "Bachelor of Science, Information Systems, Magna Cum Laude, Illinois State University";
 
 export const resumeRoles: ResumeRole[] = [
   {
@@ -51,7 +48,7 @@ export const resumeRoles: ResumeRole[] = [
       "Rocket's first Distinguished Engineer: AI-native development platform, federated GraphQL API platform, and the Mr. Cooper integration.",
     bullets: [
       "Built Rocket's AI-native development platform: a company-wide agent skills marketplace (a shared, contributable library the org builds on), a library of reusable agentic workflows, and the evaluation and guardrail framework governing what agents can do autonomously versus what stays human-reviewed.",
-      "As technical lead for the autonomous development pipeline built on that platform, architected agents that now open 80% of PRs. Agents pick up work items, resolve CI failures, and remediate production errors. Built tooling that keeps PRs mergeable by resolving conflicts and responding to review feedback, plus reusable workflows for vulnerability remediation and error healing.",
+      "As technical lead for the autonomous development pipeline built on that platform, architected the agents that now open pull requests across the org. Agents pick up work items, resolve CI failures, and remediate production errors. Built tooling that keeps PRs mergeable by resolving conflicts and responding to review feedback, plus reusable workflows for vulnerability remediation and error healing.",
       "Architected the federated GraphQL platform that serves as Rocket.com's unified API layer for Web, Mobile, IVR/Phone, and AI agents, consolidating mortgage, payments, and identity services into a single graph via Apollo Federation. Designed the facade so product surfaces integrate once while underlying services can be swapped beneath them without re-integrating every consumer.",
       "Led the engineering effort to integrate Mr. Cooper (the largest US mortgage servicer) into Rocket's stack post-acquisition. Onboarded hundreds of thousands of clients, merged core mortgage and identity systems, resolved cross-system boundary issues that would have failed at scale, and built per-client data access controls and cache invalidation for real-time consistency.",
       "Audited core API platforms and built shared libraries covering lifecycle, resiliency, health checks, and observability. Drove code quality and security scanning enforcement org-wide.",
@@ -68,14 +65,14 @@ export const resumeRoles: ResumeRole[] = [
     bullets: [
       "Set technical direction for eBay's consumer Web and Mobile platforms across Payments, Identity, and Risk, influencing architecture decisions across 800+ engineers.",
       "Led architecture and technical strategy for eBay Live, a real-time video commerce and auction platform integrating live streaming, interactive bidding, and mobile-first UX. Partnered across product, design, and marketing to bring the format to market.",
-      "Drove tens of millions in incremental GMV through web performance optimization. Reduced TTFB, LCP, FCP, and FID by 50-60% across flagship products.",
+      "Drove tens of millions in incremental GMV (gross merchandise value) through web performance optimization. Cut key web performance metrics 50-60% across flagship products.",
       "Scaled CI/CD automation from 55% to 95% across 300+ Node.js applications in one year.",
       "Chaired the Web Virtual Architecture Team (VAT), setting architectural standards for Node.js and web development across eBay. Authored and reviewed ADRs covering testing infrastructure, release tooling, and platform standards.",
     ],
   },
   {
     company: "PayPal",
-    title: "Sr. Principal Engineer",
+    title: "Director of Engineering",
     start: "2021-02",
     end: "2022-09",
     short: "Built and led a new developer-platform org responsible for PayPal's SDKs.",

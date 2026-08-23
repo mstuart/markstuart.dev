@@ -3,7 +3,7 @@
 // from the pages. Hidden commands are real but deliberately absent from
 // `help`, for people who poke around.
 
-import { resumeRoles, resumeSummary, awards } from "@/lib/data/resume";
+import { resumeRoles, awards } from "@/lib/data/resume";
 import { projects } from "@/lib/data/projects";
 import { writing } from "@/lib/data/writing";
 import { talks } from "@/lib/data/talks";
@@ -61,7 +61,7 @@ export const COMMANDS: Record<string, Command> = {
       lines: [
         site.name,
         "",
-        resumeSummary,
+        "Distinguished Engineer at Rocket. Before that PayPal and eBay. Nearly two decades turning fragmented platforms into ones that scale.",
         "",
         "AWARDS",
         ...awards.map((a) => `  ${a}`),
@@ -298,8 +298,8 @@ export const COMMANDS: Record<string, Command> = {
         "Uploading...           done",
         "Deployed to production in 18s.",
         "",
-        "  At Rocket, agents now open about 80% of our pull requests.",
-        "  This one was mine.",
+        "  At Rocket I taught the agents to ship.",
+        "  This one I shipped myself.",
       ],
     }),
   },

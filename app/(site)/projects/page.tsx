@@ -9,6 +9,7 @@ import type { Project } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Projects",
+  description: "Open source I'm building now, and the projects I helped make big.",
 };
 
 // Muted cover-tile palette, hashed per project name so every card gets a
@@ -27,7 +28,7 @@ function formatMonthYear(date?: string): string | null {
   if (!date || !/^\d{4}-\d{2}/.test(date)) return null;
   return new Date(`${date.slice(0, 7)}-01T00:00:00Z`).toLocaleDateString("en-US", {
     year: "numeric",
-    month: "long",
+    month: "short",
     timeZone: "UTC",
   });
 }

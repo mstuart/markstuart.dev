@@ -15,7 +15,7 @@ export const work: WorkEntry[] = [
     role: "Distinguished Engineer",
     period: "2022 to 2025",
     summary:
-      "Led architecture and technical strategy for eBay Live, eBay's real-time video commerce platform, and drove tens of millions in incremental GMV by cutting core web vitals 50-60% across flagship products.",
+      "Led architecture and technical strategy for eBay Live, eBay's real-time video commerce platform, and drove tens of millions in incremental GMV (gross merchandise value) by cutting core web vitals 50-60% across flagship products.",
   },
   {
     company: "PayPal",

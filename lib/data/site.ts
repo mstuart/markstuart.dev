@@ -6,7 +6,7 @@ export const site: SiteConfig = {
   tagline: "Distinguished Engineer at Rocket, working on GraphQL, API platforms, and developer experience.",
   url: "https://markstuart.dev",
   description:
-    "Notes on GraphQL, API platforms, developer experience, and AI tooling from Mark Stuart, Distinguished Engineer at Rocket.",
+    "Mark Stuart, Distinguished Engineer at Rocket. Nearly two decades of platform engineering at PayPal, eBay, and Rocket — open source, talks, and occasional writing on GraphQL, API platforms, and AI tooling.",
   social: [
     { name: "GitHub", href: "https://github.com/mstuart", icon: "github" },
     { name: "LinkedIn", href: "https://www.linkedin.com/in/markastuart/", icon: "linkedin" },

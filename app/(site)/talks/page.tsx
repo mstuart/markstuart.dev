@@ -6,6 +6,8 @@ import { TalksFilter, type TalkListRow } from "@/components/talks-filter";
 
 export const metadata: Metadata = {
   title: "Talks",
+  description:
+    "Talks, panels, and appearances — web security, GraphQL, and API platforms, from PayPal's early Node.js days through today.",
 };
 
 export default function TalksPage() {
@@ -42,7 +44,7 @@ export default function TalksPage() {
     <div className="mx-auto max-w-2xl px-6 py-16">
       <h1 className="text-2xl font-medium text-zinc-900 dark:text-zinc-100">Talks</h1>
       <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-        Talks on web security, GraphQL, and API platforms, from PayPal&apos;s early Node.js days through today.
+        Talks, panels, and appearances — web security, GraphQL, and API platforms, from PayPal&apos;s early Node.js days through today.
       </p>
       <div className="mt-8">
         <TalksFilter rows={rows} />

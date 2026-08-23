@@ -5,6 +5,15 @@ import type { Mention, MentionKind } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Press",
+  description: "Newsletters, books, courses, and community coverage of my work.",
+};
+
+// Short labels for multi-URL mentions (e.g. the Hacker News threads), keyed
+// by URL so mentions.ts doesn't need a data-model change for display text.
+const THREAD_LABELS: Record<string, string> = {
+  "https://news.ycombinator.com/item?id=21420027": "Scaling GraphQL at PayPal",
+  "https://news.ycombinator.com/item?id=20627481": "GraphQL Resolvers: Best Practices",
+  "https://news.ycombinator.com/item?id=18311741": "GraphQL: A Success Story for PayPal Checkout",
 };
 
 function compareByDateDesc(a: Mention, b: Mention): number {
@@ -77,7 +86,7 @@ function MentionRow({ mention }: { mention: Mention }) {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 rounded-sm text-xs text-teal-600 transition-colors hover:text-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-teal-400 dark:hover:text-teal-300 dark:focus-visible:ring-teal-400"
                 >
-                  Thread {index + 1}
+                  {THREAD_LABELS[url] ?? `Thread ${index + 1}`}
                   <ArrowUpRight size={12} weight="regular" />
                 </a>
               ))}

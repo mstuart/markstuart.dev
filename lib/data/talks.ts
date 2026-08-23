@@ -13,7 +13,7 @@ export const talks: Talk[] = [
     event: "JS@PayPal",
     date: "2015-12-14",
     url: "https://speakerdeck.com/mstuart/service-workers-and-early-flushing",
-    note: "Internal PayPal series",
+    note: "Internal PayPal series.",
     iconSrc: "/talks/paypal.png",
   },
   {
@@ -28,7 +28,7 @@ export const talks: Talk[] = [
     event: "enterJS",
     date: "2014-07-01",
     url: "https://speakerdeck.com/mstuart/enterjs-2014-securing-your-node-dot-js-and-single-page-apps",
-    note: "enterJS's inaugural year, Cologne",
+    note: "enterJS's inaugural year, Cologne.",
     iconSrc: "/talks/enterjs.png",
   },
   {

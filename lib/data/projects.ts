@@ -1,5 +1,6 @@
 import type { Project } from "@/lib/types";
 
+// Star counts captured 2026-08-20 via GitHub; refresh alongside all-projects.ts.
 export const projects: Project[] = [
   {
     name: "vitals",
@@ -123,5 +124,5 @@ export const npmMaintained: string[] = [
   "beaver-logger",
   "jwt-csrf",
   "memcookies",
-  "13+ @krakenjs scoped packages",
+  "plus more @krakenjs scoped packages",
 ];

@@ -5,7 +5,7 @@ import { getProjectIcon } from "@/lib/project-icons";
 
 export const metadata: Metadata = {
   title: "Stack",
-  description: "The hardware, apps, and tools Mark Stuart uses every day.",
+  description: "The hardware, apps, and tools I use every day.",
 };
 
 function sortTags(tags: Platform[]): Platform[] {

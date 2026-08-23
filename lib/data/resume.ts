@@ -14,7 +14,7 @@ export interface ResumeRole {
 }
 
 export const resumeSummary =
-  "Distinguished Engineer with 15+ years at PayPal, eBay, and Rocket, currently leading Rocket's shift to AI-native software development alongside federated GraphQL and API platform architecture.";
+  "Nearly two decades building platforms at PayPal, eBay, and now Rocket. These days that means leading Rocket's shift to AI-native development, plus federated GraphQL and API platform architecture.";
 
 export const focusAreas = [
   "AI-Native Engineering & Autonomous Development",
@@ -37,9 +37,6 @@ export const industryContributions = [
   "Featured engineer in Apollo GraphQL's flagship customer case study on API platform transformation at scale.",
   "Invited speaker and podcast guest on Node.js security, API platforms, GraphQL, and AI-driven product development.",
 ];
-
-export const education =
-  "Bachelor of Science, Information Systems, Magna Cum Laude, Illinois State University";
 
 export const resumeRoles: ResumeRole[] = [
   {
@@ -68,7 +65,7 @@ export const resumeRoles: ResumeRole[] = [
     bullets: [
       "Set technical direction for eBay's consumer Web and Mobile platforms across Payments, Identity, and Risk, influencing architecture decisions across 800+ engineers.",
       "Led architecture and technical strategy for eBay Live, a real-time video commerce and auction platform integrating live streaming, interactive bidding, and mobile-first UX. Partnered across product, design, and marketing to bring the format to market.",
-      "Drove tens of millions in incremental GMV through web performance optimization. Reduced TTFB, LCP, FCP, and FID by 50-60% across flagship products.",
+      "Drove tens of millions in incremental GMV (gross merchandise value) through web performance optimization. Cut key web performance metrics 50-60% across flagship products.",
       "Scaled CI/CD automation from 55% to 95% across 300+ Node.js applications in one year.",
       "Chaired the Web Virtual Architecture Team (VAT), setting architectural standards for Node.js and web development across eBay. Authored and reviewed ADRs covering testing infrastructure, release tooling, and platform standards.",
     ],

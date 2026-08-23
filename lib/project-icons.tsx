@@ -1,6 +1,8 @@
 import {
   Bug,
   Cloud,
+  GitBranch,
+  Monitor,
   Database,
   Gauge,
   Graph,
@@ -17,6 +19,8 @@ import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 export const projectIconMap: Record<string, PhosphorIcon> = {
   Bug,
   Cloud,
+  GitBranch,
+  Monitor,
   Database,
   Gauge,
   Graph,

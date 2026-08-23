@@ -14,7 +14,7 @@ export const community: Attended[] = [
     event: "Hacktoberfest at PayPal",
     date: "2020-10",
     note: "Organized PayPal's Hacktoberfest program on GitHub: curated issues across the PayPal and krakenjs SDK repos, with PayPal socks for early contributors. PayPal ran it again in 2021.",
-    url: "https://x.com/mark__stu/status/1312151005652377601",
+    url: "https://x.com/markstuartdev/status/1312151005652377601",
     iconSrc: "/talks/github.png",
   },
   {

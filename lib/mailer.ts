@@ -55,11 +55,22 @@ export async function sendWelcomeEmail(email: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
-/** Send one new-post announcement to every subscriber. Returns count sent. */
+/**
+ * Send one new-post announcement to every subscriber. Returns count sent.
+ *
+ * Template follows the researched conventions of real developer newsletters:
+ * the title itself is the subject (no "New post:" prefix) with a reading-time
+ * tag, a hidden preheader extends the subject, the teaser is authored
+ * first-person copy in full-strength text, and the single click target is one
+ * plain teal link. No images, no buttons, no logo.
+ */
 export async function sendNewPostEmails(post: PostMeta, subscribers: string[]): Promise<number> {
   if (subscribers.length === 0) return 0;
   const resend = new Resend(process.env.RESEND_API_KEY);
   const postUrl = `${site.url}/posts/${post.slug}`;
+  const subject = `${post.title} — ${post.minutes} min read`;
+  const teaser = post.teaser ?? post.description;
+  const preheader = post.description;
   // Individual sends, paced under Resend's rate limit. Gmail discarded a
   // same-second batch from this young domain; the single-send path delivers.
   let sent = 0;
@@ -68,10 +79,10 @@ export async function sendNewPostEmails(post: PostMeta, subscribers: string[]): 
     const { error } = await resend.emails.send({
       from: FROM,
       to: email,
-      subject: `New post: ${post.title}`,
+      subject,
       headers: headers(email),
-      text: `${post.title}\n\n${post.description}\n\nRead it: ${postUrl}${f.text}`,
-      html: `<div style="font-family:-apple-system,Segoe UI,sans-serif;max-width:560px"><h2 style="margin-bottom:4px">${post.title}</h2><p style="color:#52525b">${post.description}</p><p><a href="${postUrl}" style="color:#0d9488">Read it on markstuart.dev</a></p>${f.html}</div>`,
+      text: `${post.title}\n\n${teaser}\n\nRead it (${post.minutes} min): ${postUrl}${f.text}`,
+      html: `<div style="font-family:-apple-system,'Segoe UI',sans-serif;max-width:560px;color:#18181b"><span style="display:none;max-height:0;overflow:hidden">${preheader}</span><h2 style="margin:0 0 12px;font-size:20px">${post.title}</h2><p style="margin:0 0 16px;line-height:1.6">${teaser}</p><p style="margin:0"><a href="${postUrl}" style="color:#0d9488">Read it on markstuart.dev</a> <span style="color:#a1a1aa">· ${post.minutes} min</span></p>${f.html}</div>`,
     });
     if (error) throw new Error(error.message);
     sent += 1;

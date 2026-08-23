@@ -10,6 +10,6 @@ export const site: SiteConfig = {
   social: [
     { name: "GitHub", href: "https://github.com/mstuart", icon: "github" },
     { name: "LinkedIn", href: "https://www.linkedin.com/in/markastuart/", icon: "linkedin" },
-    { name: "X", href: "https://x.com/mark__stu", icon: "x" },
+    { name: "X", href: "https://x.com/markstuartdev", icon: "x" },
   ],
 };

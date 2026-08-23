@@ -9,6 +9,7 @@ import { writing } from "@/lib/data/writing";
 import { talks } from "@/lib/data/talks";
 import { stackSections } from "@/lib/data/stack";
 import { site } from "@/lib/data/site";
+import { CAT_ART } from "@/lib/tui-art";
 
 export interface CommandOutput {
   lines: string[];
@@ -16,6 +17,8 @@ export interface CommandOutput {
   navigateTo?: string;
   clear?: boolean;
   toggleTheme?: boolean;
+  /** Rows of packed hex pixels rendered as half-block color art. */
+  art?: string[];
 }
 
 interface Command {
@@ -29,47 +32,6 @@ interface Command {
 function year(date: string): string {
   return date.slice(0, 4);
 }
-
-// Rendered from public/poster-cat-8bit.png, Mark's own pixel artwork.
-const CAT = [
-  ":::.............::-.............::",
-  "::...........:-:........:--==--:.:",
-  "::.......-=*%#:....-:..-===-====:.",
-  "::.....-#@@@@*:....:...===:..-=+-.",
-  "::....:@@@%#++=--==:-:.:==---===:.",
-  ":.... =@@@%#%%%##@%=*=..:--==-:...",
-  "::...-@@@@@@@@@%**+==:............",
-  ":.:+%@@%**#@@%*+#*=:-*:...........",
-  ".-%@@@@#**+*#+**+-+:..............",
-  ".#@@@@@+*%*-+%*+..................",
-  "::*@@@@++*#*:=::.................:",
-  "=--@@@@#++#@=::-.................:",
-  "==+@@@@#+*@@===-::..............::",
-  "==+@@@@*+%@%=+-:---:-::::::::....:",
-  "==*@@@@+=#@%+#=-=-----------------",
-  "==*@@@@@*-=#*%-.----=====--=======",
-  "==#@@@@@#*==+%#:-===-------=======",
-  "==*@@@@@%#%##%=-:======--=========",
-  "===+%@@@@@@@@@%+:-================",
-];
-
-const MONOGRAM = [
-  "  ███▄ ▄███▓  ██████ ",
-  " ▓██▒▀█▀ ██▒▒██    ▒ ",
-  " ▓██    ▓██░░ ▓██▄   ",
-  " ▒██    ▒██   ▒   ██▒",
-  " ▒██▒   ░██▒▒██████▒▒",
-];
-
-const FORTUNES = [
-  "The best platform work is invisible. Nobody thanks you for the outage that never happened.",
-  "Every API is a promise you have to keep for a decade.",
-  "If your paved road is slower than the dirt path, engineers will take the dirt path.",
-  "Deprecation is the hardest feature to ship.",
-  "The fastest code review is the one an agent already fixed.",
-  "Ship the boring thing. Boring scales.",
-  "A migration nobody notices is the highest form of engineering.",
-];
 
 function careerYears(): number {
   // Career started at State Farm, May 2007.
@@ -227,36 +189,12 @@ export const COMMANDS: Record<string, Command> = {
   },
 
   // ---- hidden ----
-  neofetch: {
-    description: "System info",
-    hidden: true,
-    run: () => {
-      const info = [
-        `mark@markstuart.dev`,
-        `-------------------`,
-        `Role: Distinguished Engineer @ Rocket`,
-        `Uptime: ${careerYears()} years in industry`,
-        `Shell: zsh + oh-my-zsh`,
-        `Editor: VS Code`,
-        `Terminal: Ghostty`,
-        `Agents: Codex, Claude Code`,
-        `Lang: TypeScript, Node.js, GraphQL`,
-        `Coffee: yes`,
-      ];
-      const height = Math.max(MONOGRAM.length, info.length);
-      const lines: string[] = [];
-      for (let i = 0; i < height; i++) {
-        const left = (MONOGRAM[i] ?? "").padEnd(24);
-        lines.push(`${left}${info[i] ?? ""}`);
-      }
-      return { lines };
-    },
-  },
   coffee: {
     description: "Brew something",
     hidden: true,
     run: () => ({
-      lines: [...CAT, "", "  I drew this. It is also the wallpaper on the homepage.", ""],
+      lines: ["", "  I drew this. It is also the wallpaper on the homepage.", ""],
+      art: CAT_ART,
     }),
   },
   nowplaying: {
@@ -288,67 +226,81 @@ export const COMMANDS: Record<string, Command> = {
       }
     },
   },
-  uptime: {
-    description: "Years in the industry",
-    hidden: true,
-    run: () => ({
-      lines: [
-        `up ${careerYears()} years, 3 companies, 1 very long checkout flow`,
-      ],
-    }),
-  },
-  fortune: {
-    description: "A hard-won opinion",
-    hidden: true,
-    run: () => ({
-      lines: ["", `  "${FORTUNES[Math.floor(Math.random() * FORTUNES.length)]}"`, ""],
-    }),
-  },
   theme: {
     description: "Toggle light and dark",
     hidden: true,
     run: () => ({ lines: ["Flipping the lights."], toggleTheme: true }),
   },
-  sudo: {
-    description: "Elevate privileges",
+  graphql: {
+    description: "Query me like an API",
+    hidden: true,
+    run: () => {
+      const core = projects.filter((p) => p.role === "core contributor");
+      const stars = core.reduce((sum, p) => sum + p.stars, 0);
+      const current = resumeRoles[0];
+      const payload = {
+        data: {
+          me: {
+            name: site.name,
+            role: current.title,
+            company: current.company,
+            since: current.start,
+            openSource: { repos: projects.length, stars },
+            writing: { posts: writing.length },
+          },
+        },
+      };
+      return {
+        lines: [
+          "query { me { name role company since openSource writing } }",
+          "",
+          ...JSON.stringify(payload, null, 2).split("\n").map((l) => `  ${l}`),
+          "",
+          "  I brought GraphQL to PayPal in 2018. It seemed rude not to offer one.",
+        ],
+      };
+    },
+  },
+  "git": {
+    description: "Career history, as commits",
+    hidden: true,
+    usage: "git log",
+    run: (args) => {
+      if (args[0] && args[0] !== "log") {
+        return { lines: [`git: '${args[0]}' is not something I implemented. Try 'git log'.`] };
+      }
+      // Stable pseudo-hashes derived from the role, so output never churns.
+      function hash(input: string): string {
+        let h = 0;
+        for (const ch of input) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+        return h.toString(16).padStart(7, "0").slice(0, 7);
+      }
+      return {
+        lines: resumeRoles.flatMap((role) => [
+          `commit ${hash(role.company + role.title)}`,
+          `Author: ${site.name} <hi@markstuart.dev>`,
+          `Date:   ${role.start}`,
+          "",
+          `    ${role.title} at ${role.company}`,
+          `    ${role.short}`,
+          "",
+        ]),
+      };
+    },
+  },
+  deploy: {
+    description: "Ship something",
     hidden: true,
     run: () => ({
       lines: [
-        "mark is not in the sudoers file. This incident has been reported.",
-        "(It has not been reported. But I appreciate the ambition.)",
+        "Building...            done",
+        "Running checks...      done",
+        "Uploading...           done",
+        "Deployed to production in 18s.",
+        "",
+        "  At Rocket, agents now open about 80% of our pull requests.",
+        "  This one was mine.",
       ],
-    }),
-  },
-  vim: {
-    description: "Open vim",
-    hidden: true,
-    run: () => ({
-      lines: [
-        "You are already trapped in one terminal. I would not do this to you.",
-        "Type 'exit' to leave. See? Easy.",
-      ],
-    }),
-  },
-  ls: {
-    description: "List sections",
-    hidden: true,
-    run: () => ({
-      lines: [
-        "whoami.txt   work/        projects/    writing/",
-        "talks/       stack/       contact.txt  listening/",
-      ],
-    }),
-  },
-  hello: {
-    description: "Say hi",
-    hidden: true,
-    run: () => ({ lines: ["Hey! Type 'whoami' to start, or 'contact' to reach me for real."] }),
-  },
-  "42": {
-    description: "The answer",
-    hidden: true,
-    run: () => ({
-      lines: ["The answer to life, the universe, and whether to rewrite it in Rust."],
     }),
   },
 };
@@ -359,16 +311,6 @@ export async function runCommand(input: string): Promise<CommandOutput> {
   const [rawName, ...args] = trimmed.split(/\s+/);
   const name = rawName.toLowerCase();
 
-  // A couple of joke inputs that are not real command names.
-  if (name === "rm" && args.join(" ").includes("-rf")) {
-    return {
-      lines: [
-        "rm: refusing to remove '/': it has my whole career on it",
-        "Nice try though.",
-      ],
-    };
-  }
-  if (name === "hi") return COMMANDS.hello.run([]);
   if (name === "about") return COMMANDS.whoami.run([]);
   if (name === "cd") return COMMANDS.open.run(args);
 

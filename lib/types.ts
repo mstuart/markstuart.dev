@@ -3,6 +3,10 @@ export interface PostMeta {
   title: string;
   date: string;
   description: string;
+  /** Two authored first-person sentences for the announcement email; falls back to description. */
+  teaser?: string;
+  /** Reading time in minutes, computed from the post body. */
+  minutes: number;
   sample?: boolean;
 }
 

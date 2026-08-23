@@ -43,6 +43,13 @@ export const stackSections: StackSection[] = [
         tags: ["Physical"],
       },
       {
+        name: "SHW Electric Standing Desk",
+        icon: "Desk",
+        description: '48" walnut top that goes up and down. Holding the whole setup since 2020.',
+        url: "https://www.amazon.com/dp/B07MHVXHT7?tag=mstuartsite-20",
+        tags: ["Physical"],
+      },
+      {
         name: "Keychron K2",
         iconSrc: "/stack/keychron.png",
         description: "75% mechanical, Gateron Reds. Loud enough to be satisfying, quiet enough for calls.",
@@ -64,10 +71,31 @@ export const stackSections: StackSection[] = [
         tags: ["Physical"],
       },
       {
+        name: "Logitech Brio 4K",
+        iconSrc: "/stack/logitech.png",
+        description: "The webcam on the monitor mount, for the calls that need a face.",
+        url: "https://www.amazon.com/dp/B09NBWWP79?tag=mstuartsite-20",
+        tags: ["Physical"],
+      },
+      {
         name: "AirPods Pro 3",
         iconSrc: "/stack/airpods.png",
         description: "Noise cancelling for focus blocks, and the only headphones I never forget.",
         url: "https://www.amazon.com/dp/B0FQFB8FMG?tag=mstuartsite-20",
+        tags: ["Physical"],
+      },
+      {
+        name: "Sennheiser HD 6XX",
+        iconSrc: "/stack/sennheiser.png",
+        description: "Open-back cans from Drop, already on their second set of ear pads.",
+        url: "https://www.amazon.com/dp/B00018MSNI?tag=mstuartsite-20",
+        tags: ["Physical"],
+      },
+      {
+        name: "LUKETURE Under-Desk Organizer",
+        icon: "Tray",
+        description: "Clamp-on steel tray that gets the laptop off the desk. Bought twice, once per desk edge.",
+        url: "https://www.amazon.com/dp/B0C995H5S4?tag=mstuartsite-20",
         tags: ["Physical"],
       },
       {

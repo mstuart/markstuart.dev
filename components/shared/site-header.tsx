@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TerminalWindow } from "@phosphor-icons/react/dist/ssr";
 import { PixelMonogram2 } from "@/components/px/monogram2";
 import { MobileNav } from "@/components/shared/mobile-nav";
 import { SocialLinks } from "@/components/shared/social-links";
@@ -45,6 +46,14 @@ export function SiteHeader() {
           <div className="hidden lg:flex">
             <SocialLinks />
           </div>
+          <Link
+            href="/tui"
+            aria-label="Launch terminal mode"
+            title="Launch terminal mode"
+            className="flex h-9 w-9 items-center justify-center rounded-md text-zinc-500 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-400 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
+          >
+            <TerminalWindow size={18} weight="regular" />
+          </Link>
           <ThemeToggle />
           <MobileNav links={navLinks} />
         </div>

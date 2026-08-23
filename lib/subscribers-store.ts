@@ -43,3 +43,23 @@ export async function addSubscriber(email: string): Promise<boolean> {
   const result = await redisCommand(["SADD", KEY, normalized]);
   return Number(result) === 1;
 }
+
+export async function listSubscribers(): Promise<string[]> {
+  return (await redisCommand(["SMEMBERS", KEY])) as string[];
+}
+
+/** Remove an email from the set. Returns true if it was present. */
+export async function removeSubscriber(email: string): Promise<boolean> {
+  const result = await redisCommand(["SREM", KEY, email.trim().toLowerCase()]);
+  return Number(result) === 1;
+}
+
+const NOTIFIED_KEY = "notified_posts";
+
+export async function getNotifiedSlugs(): Promise<string[]> {
+  return (await redisCommand(["SMEMBERS", NOTIFIED_KEY])) as string[];
+}
+
+export async function markNotified(slug: string): Promise<void> {
+  await redisCommand(["SADD", NOTIFIED_KEY, slug]);
+}

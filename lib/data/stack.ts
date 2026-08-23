@@ -99,6 +99,13 @@ export const stackSections: StackSection[] = [
         tags: ["Physical"],
       },
       {
+        name: "UREVO Walking Pad",
+        icon: "PersonSimpleWalk",
+        description: "Slow walks under the standing desk. The Fitbit keeps score.",
+        url: "https://www.amazon.com/dp/B0BVQMSVM1?tag=mstuartsite-20",
+        tags: ["Physical"],
+      },
+      {
         name: "Fitbit Air",
         iconSrc: "/stack/fitbit.png",
         description: "Feeds the health data my vitals project archives through the Google Health API.",

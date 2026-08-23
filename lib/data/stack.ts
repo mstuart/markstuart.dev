@@ -40,6 +40,36 @@ export const stackSections: StackSection[] = [
         iconSrc: "/stack/lg.png",
         tags: ["Physical"],
       },
+      {
+        name: "Keychron K2",
+        description: "75% mechanical, Gateron Reds. Loud enough to be satisfying, quiet enough for calls.",
+        url: "https://www.amazon.com/dp/B07QBPCGY2?tag=mstuartsite-20",
+        tags: ["Physical"],
+      },
+      {
+        name: "Anker 7-in-2 USB-C Hub",
+        description: "One cable to the desk. I have bought this three times, which tells you how it goes.",
+        url: "https://www.amazon.com/dp/B0BNZ5V1TF?tag=mstuartsite-20",
+        tags: ["Physical"],
+      },
+      {
+        name: "USB 3.0 KVM Switch",
+        description: "4K at 60Hz across machines, so the big panel and one keyboard serve everything.",
+        url: "https://www.amazon.com/dp/B0BWNDX4VL?tag=mstuartsite-20",
+        tags: ["Physical"],
+      },
+      {
+        name: "AirPods Pro 3",
+        description: "Noise cancelling for focus blocks, and the only headphones I never forget.",
+        url: "https://www.amazon.com/dp/B0FQFB8FMG?tag=mstuartsite-20",
+        tags: ["Physical"],
+      },
+      {
+        name: "Fitbit Air",
+        description: "Feeds the health data my vitals project archives through the Google Health API.",
+        url: "https://www.amazon.com/dp/B0GTMTZF3V?tag=mstuartsite-20",
+        tags: ["Physical"],
+      },
     ],
   },
   {

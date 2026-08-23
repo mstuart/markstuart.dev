@@ -41,10 +41,21 @@ function LogoChip({ name, src, href }: { name: string; src: string; href: string
   );
 }
 
-function ProjectChip({ name, icon, href }: { name: string; icon?: string; href: string }) {
+function ProjectChip({
+  name,
+  icon,
+  href,
+  description,
+}: {
+  name: string;
+  icon?: string;
+  href: string;
+  description: string;
+}) {
   const Icon = getProjectIcon(icon);
+  const label = `${name} — ${description}`;
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={chipClass}>
+    <a href={href} target="_blank" rel="noopener noreferrer" className={chipClass} title={label} aria-label={label}>
       <Icon size={14} weight="regular" className="shrink-0 text-zinc-400 dark:text-zinc-500" />
       {name}
     </a>
@@ -92,8 +103,8 @@ export function HomePage() {
 
             <div className="mt-8 space-y-4 leading-relaxed text-zinc-600 dark:text-zinc-400">
               <p>
-                Hey! I&apos;m Mark, a Distinguished Engineer at Rocket. For 15+ years I&apos;ve built
-                platforms at some of the highest-scale consumer companies in tech: PayPal, eBay, and
+                Hey! I&apos;m Mark, a Distinguished Engineer at Rocket. For nearly two decades I&apos;ve
+                built platforms at some of the highest-scale consumer companies in tech: PayPal, eBay, and
                 now Rocket. Checkout, SDKs, and API platforms used by millions of people and
                 thousands of engineers.
               </p>
@@ -113,23 +124,49 @@ export function HomePage() {
                 <span>Now at</span>
                 <LogoChip name="Rocket" src="/work/rocket.png" href="https://www.rocketcompanies.com/" />
                 <span>previously</span>
-                <LogoChip name="PayPal" src="/work/paypal.png" href="https://www.paypal.com/" />
                 <LogoChip name="eBay" src="/work/ebay.png" href="https://www.ebay.com/" />
+                <LogoChip name="PayPal" src="/work/paypal.png" href="https://www.paypal.com/" />
               </p>
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
                 <span>Building</span>
-                <ProjectChip name="peek" icon="Gauge" href="https://github.com/mstuart/peek" />
-                <ProjectChip name="vitals" icon="Cloud" href="https://github.com/mstuart/vitals" />
-                <ProjectChip name="tare" icon="PlugsConnected" href="https://github.com/mstuart/tare" />
+                <ProjectChip
+                  name="peek"
+                  icon="Gauge"
+                  href="https://github.com/mstuart/peek"
+                  description="DevTools for coding agents: session composition, cost attribution, compaction forensics, and config A/B benchmarking."
+                />
+                <ProjectChip
+                  name="vitals"
+                  icon="Cloud"
+                  href="https://github.com/mstuart/vitals"
+                  description="Local-first archive and baseline-deviation detector for Google Health API v4 (Fitbit, Pixel Watch) data."
+                />
+                <ProjectChip
+                  name="tare"
+                  icon="PlugsConnected"
+                  href="https://github.com/mstuart/tare"
+                  description="Lossless-by-default context compression for LLM coding agents: proxy, library, CLI, and MCP server."
+                />
               </p>
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
                 <span>Core contributor to</span>
-                <ProjectChip name="zoid" icon="PlugsConnected" href="https://github.com/krakenjs/zoid" />
-                <ProjectChip name="lusca" icon="ShieldCheck" href="https://github.com/krakenjs/lusca" />
+                <ProjectChip
+                  name="zoid"
+                  icon="PlugsConnected"
+                  href="https://github.com/krakenjs/zoid"
+                  description="Cross-domain component framework for embedding rich UI widgets across origins."
+                />
+                <ProjectChip
+                  name="lusca"
+                  icon="ShieldCheck"
+                  href="https://github.com/krakenjs/lusca"
+                  description="Application security middleware for Node.js, covering CSRF, CSP, and other common protections."
+                />
                 <ProjectChip
                   name="paypal-checkout-components"
                   icon="Package"
                   href="https://github.com/paypal/paypal-checkout-components"
+                  description="UI components powering the PayPal Checkout integration used across the web."
                 />
               </p>
             </div>
@@ -282,6 +319,10 @@ export function HomePage() {
           <SectionV1 heading="Reach me" index={5}>
             <p className="leading-relaxed text-zinc-600 dark:text-zinc-400">
               Find me on{" "}
+              <a href="mailto:mark@markstuart.dev" target="_blank" rel="noopener noreferrer" className={inlineLinkClass}>
+                Email
+              </a>
+              ,{" "}
               <a href="https://github.com/mstuart" target="_blank" rel="noopener noreferrer" className={inlineLinkClass}>
                 GitHub
               </a>

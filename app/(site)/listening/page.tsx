@@ -5,7 +5,7 @@ import { getTopArtists, getTopTracks, isSpotifyConfigured } from "@/lib/spotify"
 
 export const metadata: Metadata = {
   title: "Listening",
-  description: "What Mark Stuart has been playing on Spotify.",
+  description: "What I've been playing on Spotify.",
 };
 
 // Top sections re-render at most every 3 hours; visitors share the cache.

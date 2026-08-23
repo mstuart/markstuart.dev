@@ -7,7 +7,7 @@ export const appearances: Appearance[] = [
     date: "2025-12-09",
     url: "https://codetv.dev/series/web-dev-challenge/s2/e12-better-ecommerce",
     description:
-      "Contestant, paired with Shruti Kapoor as \"Coding for the Vibes\"",
+      "Contestant, paired with Shruti Kapoor as \"Coding for the Vibes\".",
     iconSrc: "/talks/codetv.png",
   },
   {
@@ -16,7 +16,7 @@ export const appearances: Appearance[] = [
     date: "2021-05-14",
     url: "https://www.youtube.com/watch?v=tgdTC-EZKMg",
     description:
-      "Platform.sh video podcast; Mark joined Shruti Kapoor to discuss GraphQL as an API-orchestration layer, credited as Director of Engineering, Checkout at PayPal.",
+      "Platform.sh video podcast; discussed GraphQL as an API-orchestration layer at PayPal scale.",
     iconSrc: "/talks/platformsh.png",
   },
   {
@@ -25,7 +25,7 @@ export const appearances: Appearance[] = [
     date: "2020-04-21",
     url: "https://www.youtube.com/watch?v=tiV-dLrSLAY",
     description:
-      "Hasura-hosted livestreamed panel; Mark joined Jon Wong (Coursera) and host Tanmai Gopal.",
+      "Hasura-hosted livestreamed panel; joined Jon Wong (Coursera) and host Tanmai Gopal.",
     iconSrc: "/talks/hasura.png",
   },
 ];

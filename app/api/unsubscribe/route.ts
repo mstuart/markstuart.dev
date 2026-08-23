@@ -6,7 +6,21 @@ import { verifyUnsubscribeToken } from "@/lib/mailer";
 
 function page(title: string, body: string, status = 200): Response {
   return new Response(
-    `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><body style="font-family:-apple-system,Segoe UI,sans-serif;background:#09090b;color:#e4e4e7;display:grid;place-items:center;min-height:100dvh;margin:0"><div style="text-align:center;padding:24px"><h1 style="font-size:20px;font-weight:500">${title}</h1><p style="color:#a1a1aa">${body}</p><p><a href="https://markstuart.dev" style="color:#2dd4bf">markstuart.dev</a></p></div>`,
+    `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title}</title>
+</head>
+<body style="font-family:-apple-system,'Segoe UI',sans-serif;background:#09090b;color:#e4e4e7;margin:0">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:24px;box-sizing:border-box">
+<h1 style="font-size:20px;font-weight:500;margin:0 0 8px">${title}</h1>
+<p style="color:#a1a1aa;margin:0 0 16px">${body}</p>
+<a href="https://markstuart.dev" style="color:#2dd4bf">markstuart.dev</a>
+</div>
+</body>
+</html>`,
     { status, headers: { "Content-Type": "text/html; charset=utf-8" } }
   );
 }

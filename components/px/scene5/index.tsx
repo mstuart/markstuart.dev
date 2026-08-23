@@ -10,7 +10,7 @@ export function PixelScene5() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute -top-6 right-0 -z-10 hidden select-none overflow-hidden sm:block"
+      className="pointer-events-none absolute top-0 right-0 -z-10 hidden select-none overflow-hidden sm:block"
     >
       <div className="relative">
         {/* eslint-disable-next-line @next/next/no-img-element */}

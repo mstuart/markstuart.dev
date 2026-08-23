@@ -16,12 +16,14 @@ export function getAllPosts(): PostMeta[] {
   return readSlugs()
     .map((slug) => {
       const raw = fs.readFileSync(path.join(POSTS_DIR, `${slug}.mdx`), "utf8");
-      const { data } = matter(raw);
+      const { data, content } = matter(raw);
       return {
         slug,
         title: data.title as string,
         date: data.date as string,
         description: data.description as string,
+        teaser: data.teaser as string | undefined,
+        minutes: Math.max(1, Math.round(content.trim().split(/\s+/).length / 200)),
         sample: Boolean(data.sample),
       };
     })
@@ -40,6 +42,8 @@ export function getPost(slug: string): Post | null {
     title: data.title as string,
     date: data.date as string,
     description: data.description as string,
+    teaser: data.teaser as string | undefined,
+    minutes: Math.max(1, Math.round(content.trim().split(/\s+/).length / 200)),
     sample: Boolean(data.sample),
     content,
   };

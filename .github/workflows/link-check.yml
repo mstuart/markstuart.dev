@@ -33,7 +33,8 @@ jobs:
             --max-retries 3
             --retry-wait-time 2
             --timeout 20
-            --exclude '^https://(www\.)?(linkedin\.com|x\.com)/'
+            --exclude '^https://([^/]+\.)?(linkedin\.com|x\.com|medium\.com|npmjs\.com|ebay\.com|rocketcompanies\.com|statefarm\.com|openai\.com)/'
+            --exclude '^file://.*/(posts|projects|talks)$'
             './*.md'
             './docs/**/*.md'
             './content/**/*.mdx'

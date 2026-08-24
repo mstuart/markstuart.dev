@@ -56,6 +56,9 @@ describe("repository quality contract", () => {
       uses: "lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8",
       with: { lycheeVersion: "v0.24.2", fail: true },
     });
-    expect((steps[1].with as { args: string }).args).toContain("--extensions md,mdx,ts,tsx");
+    const args = (steps[1].with as { args: string }).args;
+    expect(args).toContain("--extensions md,mdx,ts,tsx");
+    expect(args).toContain("medium\\.com|npmjs\\.com");
+    expect(args).toContain("^file://.*/(posts|projects|talks)$");
   });
 });

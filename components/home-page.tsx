@@ -129,6 +129,7 @@ export function HomePage() {
                 <span>previously</span>
                 <LogoChip name="eBay" src="/work/ebay.png" href="https://www.ebay.com/" />
                 <LogoChip name="PayPal" src="/work/paypal.png" href="https://www.paypal.com/" />
+                <LogoChip name="State Farm" src="/work/statefarm.png" href="https://www.statefarm.com/" />
               </p>
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
                 <span>Building</span>

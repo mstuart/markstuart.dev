@@ -8,14 +8,14 @@ export const work: WorkEntry[] = [
     role: "Distinguished Engineer",
     period: "May 2025 to now",
     summary:
-      "Leads AI-enabled engineering and API platform strategy, including post-acquisition integration work.",
+      "Architected Rocket's federated GraphQL platform, which powers every key Web, Mobile, and AI assistant experience, and enabled the integration of Mr. Cooper into Rocket.",
   },
   {
     company: "eBay",
     role: "Distinguished Engineer",
     period: "Oct 2022 to May 2025",
     summary:
-      "Led technical strategy for eBay Live and improved performance across flagship Web experiences.",
+      "Led technical strategy for eBay Live and scaled CI/CD across eBay's applications and platforms.",
   },
   {
     company: "PayPal",

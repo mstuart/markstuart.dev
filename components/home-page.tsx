@@ -95,9 +95,8 @@ export function HomePage() {
                 eBay, and Rocket.
               </p>
               <p>
-                I build developer platforms that make complex systems composable—from PayPal Checkout
-                and federated GraphQL to tools for AI coding agents. Most of what I build in the open
-                lives on{" "}
+                I build developer platforms that make complex systems composable. Most of what I
+                build in the open lives on{" "}
                 <a href="https://github.com/mstuart" target="_blank" rel="noopener noreferrer" className={inlineLinkClass}>
                   GitHub
                 </a>

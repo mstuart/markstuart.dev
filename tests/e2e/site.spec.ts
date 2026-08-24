@@ -55,11 +55,12 @@ test("theme control updates the document theme", async ({ page }) => {
   }
 });
 
-test("homepage source link points to Mark's GitHub", async ({ page }) => {
+test("footer source link points to this site's repository", async ({ page }) => {
   await page.goto("/");
-  const sourceLink = page.locator('a[href="https://github.com/mstuart"]').first();
+  const sourceLink = page.getByRole("contentinfo").getByRole("link", { name: "Source" });
 
   await expect(sourceLink).toBeVisible();
+  await expect(sourceLink).toHaveAttribute("href", "https://github.com/mstuart/markstuart.dev");
   await expect(sourceLink).toHaveAttribute("target", "_blank");
 });
 

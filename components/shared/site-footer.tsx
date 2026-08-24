@@ -11,7 +11,17 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-line">
         <div className="mx-auto flex max-w-2xl flex-col items-center gap-4 px-6 py-8 text-sm text-muted sm:flex-row sm:justify-between">
-          <p>&copy; {new Date().getFullYear()} {site.name}</p>
+          <p className="flex items-center gap-3">
+            <span>&copy; {new Date().getFullYear()} {site.name}</span>
+            <a
+              href="https://github.com/mstuart/markstuart.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center rounded-sm underline decoration-zinc-400 underline-offset-4 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              Source
+            </a>
+          </p>
           <SocialLinks />
         </div>
       </div>

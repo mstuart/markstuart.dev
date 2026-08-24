@@ -31,6 +31,38 @@ The Redis adapter accepts Vercel KV-compatible and direct Upstash REST credentia
 
 Before a deploy, check the provider dashboard for availability and confirm that the selected database is the intended production database. After a deploy, exercise one non-destructive read path and inspect function logs for authentication, timeout, or rate-limit errors. Do not delete keys as part of a smoke test or rollback.
 
+## Production provider smoke
+
+Run `npm run smoke:providers` after a production deployment. Pass a different
+origin only when checking an isolated environment:
+
+```bash
+npm run smoke:providers -- https://markstuart.dev
+```
+
+The command performs unauthenticated GET requests only. It checks the retained
+listening window and read-only vote state, confirms that an invalid unsubscribe
+token remains inert, verifies that live Spotify presence stays unavailable,
+and tests both cron authorization and the method boundaries on subscription and
+inbound-email routes. It never prints response bodies or cookies, follows no
+subscription or confirmation flow, and sends no authorization header.
+
+Before calling the result complete, compare Vercel environment variable names,
+never values. Require one complete Redis pair plus the variables for each
+enabled capability. Confirm that the deployed cron definitions match
+`vercel.json`. In Resend, read only domain and webhook configuration: the
+sending and receiving domain must be verified, and one enabled
+`email.received` webhook must point exactly to
+`https://markstuart.dev/api/email/inbound`.
+
+Routine smoke must never invoke an authenticated cron route, write a vote,
+submit a subscription, or post an inbound event. End-to-end mail verification
+requires a controlled test inbox and deliberate approval. Inbound verification
+also requires one controlled signed event and one controlled forwarding
+destination. Do not test `/api/notify` against production subscribers. A
+preview mail test must first use a disposable Redis database or an explicitly
+isolated key namespace.
+
 ## Spotify OAuth and sync
 
 Register only `http://127.0.0.1:8888/callback` for the local helper. Then run:

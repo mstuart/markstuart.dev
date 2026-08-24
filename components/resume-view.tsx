@@ -22,6 +22,7 @@ function formatMonth(value: string): string {
 function CompanyTile({ company }: { company: string }) {
   return (
     <span
+      aria-hidden="true"
       data-print-hide
       className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-muted ring-1 ring-line/20"
     >

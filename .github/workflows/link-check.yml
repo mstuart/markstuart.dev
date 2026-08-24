@@ -1,0 +1,44 @@
+name: Link check
+
+on:
+  schedule:
+    - cron: "30 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: link-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check public links
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          lycheeVersion: v0.24.2
+          fail: true
+          failIfEmpty: true
+          jobSummary: true
+          format: markdown
+          args: >-
+            --root-dir .
+            --no-progress
+            --extensions md,mdx,ts,tsx
+            --max-retries 3
+            --retry-wait-time 2
+            --timeout 20
+            --exclude-mail
+            --exclude '^https://(www\.)?(linkedin\.com|x\.com)/'
+            './*.md'
+            './docs/**/*.md'
+            './content/**/*.mdx'
+            './lib/data/**/*.ts'
+            './lib/metadata.ts'
+            './app/sitemap.ts'
+            './components/home-page.tsx'

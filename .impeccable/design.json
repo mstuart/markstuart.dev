@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-24T21:50:31Z",
+  "title": "Design System: markstuart.dev",
+  "extensions": {
+    "colorMeta": {
+      "paper": { "role": "neutral", "displayName": "Paper", "canonical": "#fafafa", "tonalRamp": ["#18181b", "#27272a", "#3f3f46", "#71717a", "#a1a1aa", "#d4d4d8", "#f4f4f5", "#fafafa"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#18181b", "tonalRamp": ["#18181b", "#27272a", "#3f3f46", "#71717a", "#a1a1aa", "#d4d4d8", "#f4f4f5", "#fafafa"] },
+      "muted-ink": { "role": "neutral", "displayName": "Muted Ink", "canonical": "#52525b", "tonalRamp": ["#18181b", "#27272a", "#3f3f46", "#52525b", "#71717a", "#a1a1aa", "#d4d4d8", "#f4f4f5"] },
+      "interactive-teal": { "role": "primary", "displayName": "Interactive Teal", "canonical": "#0f766e", "tonalRamp": ["#042f2e", "#134e4a", "#115e59", "#0f766e", "#0d9488", "#14b8a6", "#5eead4", "#ccfbf1"] },
+      "rule": { "role": "neutral", "displayName": "Rule", "canonical": "#71717a", "tonalRamp": ["#18181b", "#27272a", "#3f3f46", "#52525b", "#71717a", "#a1a1aa", "#d4d4d8", "#f4f4f5"] },
+      "soft-paper": { "role": "neutral", "displayName": "Soft Paper", "canonical": "#f4f4f5", "tonalRamp": ["#18181b", "#27272a", "#3f3f46", "#71717a", "#a1a1aa", "#d4d4d8", "#e4e4e7", "#f4f4f5"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Homepage identity only." },
+      "title": { "displayName": "Title", "purpose": "Page and principal content headings." },
+      "body": { "displayName": "Body", "purpose": "Interface and descriptive copy." },
+      "article": { "displayName": "Article", "purpose": "Long-form MDX reading." },
+      "label": { "displayName": "Metadata", "purpose": "Dates, counts, and technical identifiers." },
+      "micro-label": { "displayName": "Micro label", "purpose": "Compact tags and tiny identity marks." }
+    },
+    "shadows": [
+      {
+        "name": "overlay-navigation",
+        "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+        "purpose": "Desktop overflow-navigation popover only."
+      }
+    ],
+    "motion": [
+      { "name": "section-entry", "value": "550ms ease-out", "purpose": "Reduced-motion-safe fade and rise for homepage sections." },
+      { "name": "section-stagger", "value": "80ms", "purpose": "Delay between consecutive homepage sections." },
+      { "name": "press", "value": "scale(0.98)", "purpose": "Subtle tactile confirmation for controls." }
+    ],
+    "breakpoints": [
+      { "name": "narrow", "value": "360px" },
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action",
+      "kind": "button",
+      "refersTo": "action",
+      "description": "Principal form action with a quiet tactile press state.",
+      "html": "<button class=\"ds-action\">Subscribe</button>",
+      "css": ".ds-action { min-height: 44px; cursor: pointer; border: 0; border-radius: 6px; background: var(--control, #0f766e); color: var(--control-foreground, #ffffff); padding: 6px 12px; font: 500 14px/20px Geist, ui-sans-serif, system-ui, sans-serif; transition: background-color 150ms, transform 150ms; } .ds-action:hover { background: var(--accent-hover, #115e59); } .ds-action:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background, #fafafa), 0 0 0 4px var(--accent, #0f766e); } .ds-action:active { transform: scale(0.98); }"
+    },
+    {
+      "name": "Email Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Neutral subscription field with the shared focus treatment.",
+      "html": "<input class=\"ds-field\" type=\"email\" placeholder=\"you@example.com\" aria-label=\"Email address\">",
+      "css": ".ds-field { min-height: 44px; border: 1px solid var(--control-border, #71717a); border-radius: 6px; background: var(--background, #fafafa); color: var(--foreground, #18181b); padding: 6px 12px; font: 400 16px/24px Geist, ui-sans-serif, system-ui, sans-serif; } .ds-field::placeholder { color: var(--placeholder, #52525b); } .ds-field:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--accent, #0f766e); }"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Full-pill filter that keeps a touch-friendly target.",
+      "html": "<button class=\"ds-chip\" aria-pressed=\"false\">Writing</button>",
+      "css": ".ds-chip { min-height: 44px; border: 1px solid var(--line, #71717a); border-radius: 9999px; background: var(--background, #fafafa); color: var(--muted, #52525b); padding: 6px 12px; font: 500 14px/20px Geist, ui-sans-serif, system-ui, sans-serif; } .ds-chip:hover { color: var(--accent, #0f766e); } .ds-chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--accent, #0f766e); } .ds-chip:active { transform: scale(0.98); }"
+    },
+    {
+      "name": "Muted Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Flat grouped surface for forms and quiet supporting content.",
+      "html": "<section class=\"ds-card\"><strong>Subscribe</strong><p>Get an email when a new post is published.</p></section>",
+      "css": ".ds-card { border-radius: 8px; background: var(--surface-muted, #f4f4f5); color: var(--foreground, #18181b); padding: 16px; font: 400 14px/20px Geist, ui-sans-serif, system-ui, sans-serif; } .ds-card strong { font-weight: 500; } .ds-card p { margin: 4px 0 0; color: var(--muted, #52525b); }"
+    },
+    {
+      "name": "Editorial Row",
+      "kind": "custom",
+      "description": "Evidence row with compact mono metadata and a restrained hover surface.",
+      "html": "<a class=\"ds-row\" href=\"#\"><span>Project or article title</span><time>2026</time></a>",
+      "css": ".ds-row { display: flex; min-height: 48px; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #e4e4e7; border-radius: 6px; color: var(--foreground, #18181b); padding: 8px; text-decoration: none; font: 400 14px/20px Geist, ui-sans-serif, system-ui, sans-serif; transition: background-color 150ms; } .ds-row time { color: var(--muted, #52525b); font: 400 12px/16px \"Geist Mono\", ui-monospace, monospace; } .ds-row:hover { background: var(--surface-muted, #f4f4f5); } .ds-row:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--accent, #0f766e); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Lab Notebook",
+    "overview": "Quiet ink is a text-first, evidence-led visual system. Near-white and near-black surfaces create the paper, zinc typography provides the ink, and teal is reserved for links, focus, selection, and action. Content sits in a narrow editorial column with modest headings, compact monospaced metadata, light dividers, and generous vertical rhythm.\n\nPersonality comes from a restrained pixel-art identity system: Mark's portrait, animated monogram, and poster-cat scene. These elements provide a distinctive digital signature while remaining subordinate to the work, writing, and evidence.",
+    "keyCharacteristics": [
+      "Evidence before ornament.",
+      "Teal communicates interaction, not decoration.",
+      "Narrow editorial reading columns use whitespace and hairlines for structure.",
+      "Small monospaced metadata stays compact and secondary.",
+      "One pixel-art gesture carries a page's character."
+    ],
+    "rules": [
+      { "name": "The One Voice Rule", "body": "Teal communicates interaction, never ambient decoration.", "section": "colors" },
+      { "name": "The Quiet Hierarchy Rule", "body": "Use weight, spacing, and type family before adding size or color.", "section": "typography" },
+      { "name": "The Flat-by-Default Rule", "body": "Create separation with paper, rules, and rhythm. Reserve the large shadow for temporary overlay navigation, never content cards.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do reserve teal for links, focus, selection, and action.",
+      "Do organize document-like content with whitespace, soft surfaces, and light dividers.",
+      "Do keep metadata compact, monospaced, and secondary.",
+      "Do preserve 44px interactive targets, visible focus, dark-mode parity, and reduced-motion behavior.",
+      "Do let one pixel-art element provide the page's personality."
+    ],
+    "donts": [
+      "Don't add decorative gradients, shadows, or accent washes.",
+      "Don't turn every content block into a bordered card.",
+      "Don't use teal for noninteractive emphasis.",
+      "Don't add oversized marketing typography or dense dashboard chrome.",
+      "Don't animate essential information or ignore reduced-motion preferences."
+    ]
+  }
+}

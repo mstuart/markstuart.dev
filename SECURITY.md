@@ -7,10 +7,10 @@ third-party forks are not supported.
 
 ## Reporting a vulnerability
 
-Do not open a public issue or discussion for a suspected vulnerability. If you
-have repository access, create a private draft security advisory under
-**Security > Advisories**. Otherwise, contact the maintainer privately through
-a verified contact method on the maintainer's GitHub profile and ask for a
+Do not open a public issue or discussion for a suspected vulnerability. Use
+GitHub's private vulnerability reporting under **Security > Advisories > Report
+a vulnerability**. If that form is unavailable, contact the maintainer through
+a verified private method on the maintainer's GitHub profile and ask for a
 secure reporting channel before sending technical details.
 
 Include the affected route or component, impact, minimal reproduction steps,

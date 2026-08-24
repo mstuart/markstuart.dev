@@ -11,5 +11,7 @@ console.log(`markstuart.dev commands
   npm run runtime   Verify the exact Node and npm toolchain.
   npm run build     Create a production Next.js build.
   npm run smoke     Start the build with next start and probe 200/404 routes.
+  npm run smoke:providers
+                    Probe production provider boundaries with read-only GETs.
   npm run check     Run the complete local and CI quality gate.
 `);

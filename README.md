@@ -2,15 +2,17 @@
 
 [![CI](https://github.com/mstuart/markstuart.dev/actions/workflows/ci.yml/badge.svg)](https://github.com/mstuart/markstuart.dev/actions/workflows/ci.yml)
 [![Security audit](https://github.com/mstuart/markstuart.dev/actions/workflows/security-audit.yml/badge.svg)](https://github.com/mstuart/markstuart.dev/actions/workflows/security-audit.yml)
+[![Link check](https://github.com/mstuart/markstuart.dev/actions/workflows/link-check.yml/badge.svg)](https://github.com/mstuart/markstuart.dev/actions/workflows/link-check.yml)
 
 The source for [markstuart.dev](https://markstuart.dev), Mark Stuart's personal
 site. It is built with Next.js 16, React 19, TypeScript, and Tailwind CSS.
 
-This repository is private while it is prepared for possible publication. The
-source code is available under the MIT License, but that license does not cover
-personal content, photographs, other images, third-party marks, or the site's
-identity. Read [NOTICE](NOTICE) and the [asset rights ledger](docs/asset-rights.md)
-before copying or publishing any part of the repository.
+The source code, tests, build configuration, automation, and project
+documentation are available under the MIT License. This remains a personal
+site: that license does not cover Mark's identity, biography, editorial
+writing, or original artwork. Read [NOTICE](NOTICE) and the
+[asset-rights ledger](docs/asset-rights.md) before copying or publishing any
+part of the repository.
 
 ## Local setup
 
@@ -19,6 +21,7 @@ Use exactly Node 24.19.0 and npm 11.19.0. The versions are declared in
 
 ```bash
 npm ci
+npx playwright install chromium
 cp .env.example .env.local
 npm run runtime
 npm run dev
@@ -40,8 +43,14 @@ Run `npm run help` for the command index. The primary commands are:
 | `npm run typecheck` | Generate Next.js route types and check TypeScript. |
 | `npm run policy` | Reject prohibited tracked repository artifacts. |
 | `npm run build` | Create the production build. |
+| `npm run e2e` | Run desktop and mobile Chromium checks against the production build. |
 | `npm run smoke` | Start that build and probe successful and missing routes. |
+| `npm run smoke:providers` | Probe production provider boundaries with read-only GET requests. |
 | `npm run check` | Run the complete repository gate. |
+
+CI runs the complete gate and uploads Playwright diagnostics. Separate weekly
+workflows audit production dependencies and check public links. Action versions
+are pinned to immutable commits and maintained by Dependabot.
 
 ## Content sources
 
@@ -50,6 +59,8 @@ Run `npm run help` for the command index. The primary commands are:
 - Local writing lives in `content/posts/*.mdx`; external writing links live in
   `lib/data/writing.ts`.
 - Static assets live under `public/` and require a corresponding rights review.
+- [PRODUCT.md](PRODUCT.md) records durable product truth, and
+  [DESIGN.md](DESIGN.md) records the incumbent visual system and tokens.
 
 To publish an MDX post, create `content/posts/<slug>.mdx` with `title`, `date`,
 `description`, and `sample` frontmatter. Use an ISO `YYYY-MM-DD` date. A sample

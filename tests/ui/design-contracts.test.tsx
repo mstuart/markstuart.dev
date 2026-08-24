@@ -99,10 +99,11 @@ describe("Press design contracts", () => {
     expect(within(manuscripts as HTMLElement).getByText(/Federated GraphQL on \.NET/i)).toBeInTheDocument();
   });
 
-  it("renders local mention artwork through the Next image component", () => {
+  it("uses generic interface icons instead of stored third-party press artwork", () => {
     const { container } = render(<PressPage />);
 
-    expect(container.querySelector("img")).toHaveAttribute("data-nimg", "1");
+    expect(container.querySelector("img")).not.toBeInTheDocument();
+    expect(container.querySelector("svg")).toBeInTheDocument();
   });
 });
 
@@ -133,5 +134,14 @@ describe("shared visual recipes", () => {
     const signOff = screen.getByText(/^Mark Stuart$/);
     expect(signOff).toHaveClass("font-mono");
     expect(signOff).not.toHaveClass("text-5xl");
+  });
+
+  it("links the public site footer to its source repository", () => {
+    render(<SiteFooter />);
+
+    expect(screen.getByRole("link", { name: "Source" })).toHaveAttribute(
+      "href",
+      "https://github.com/mstuart/markstuart.dev",
+    );
   });
 });

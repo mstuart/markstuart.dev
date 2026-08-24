@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import PressPage from "@/app/(site)/press/page";
@@ -23,6 +23,12 @@ describe("public-release asset policy", () => {
     for (const directory of removedAssetDirectories) {
       expect(existsSync(directory), `${directory} should not exist`).toBe(false);
     }
+
+    const retainedPublicVisuals = readdirSync("public", { recursive: true })
+      .map(String)
+      .filter((path) => /\.(?:avif|gif|ico|jpe?g|png|svg|webp)$/i.test(path))
+      .sort();
+    expect(retainedPublicVisuals).toEqual(["avatar.png", "poster-cat-8bit.png"]);
   });
 
   it("keeps employer names and links after removing employer logos", () => {

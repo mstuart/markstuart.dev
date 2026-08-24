@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { parse } from "yaml";
 
 describe("repository quality contract", () => {
   it("pins the supported runtime and exposes every verification script", () => {
@@ -20,6 +21,7 @@ describe("repository quality contract", () => {
       policy: "node scripts/check-repository-policy.mjs",
       runtime: "node scripts/verify-runtime.mjs",
       smoke: "node scripts/smoke-start.mjs",
+      "smoke:providers": "node scripts/provider-smoke.mjs",
       check:
         "npm run policy && npm run runtime && npm run lint && npm run typecheck && npm test && npm run coverage && npm run build && npm run e2e && npm run smoke",
     });
@@ -36,5 +38,24 @@ describe("repository quality contract", () => {
     expect(vitestConfig).toContain("branches: 60");
     expect(vitestConfig).toContain("functions: 70");
     expect(vitestConfig).toContain("lines: 70");
+  });
+
+  it("runs a pinned, read-only external link check every week", () => {
+    const workflow = parse(readFileSync(".github/workflows/link-check.yml", "utf8"));
+
+    expect(workflow.permissions).toEqual({ contents: "read" });
+    expect(workflow.on.schedule).toEqual([{ cron: "30 9 * * 1" }]);
+    expect(workflow.on).toHaveProperty("workflow_dispatch");
+
+    const steps = workflow.jobs.links.steps as Array<Record<string, unknown>>;
+    expect(steps[0]).toHaveProperty(
+      "uses",
+      "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+    );
+    expect(steps[1]).toMatchObject({
+      uses: "lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8",
+      with: { lycheeVersion: "v0.24.2", fail: true },
+    });
+    expect((steps[1].with as { args: string }).args).toContain("--extensions md,mdx,ts,tsx");
   });
 });

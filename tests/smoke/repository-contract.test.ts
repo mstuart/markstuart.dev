@@ -15,18 +15,26 @@ describe("repository quality contract", () => {
       lint: "eslint --max-warnings=0",
       test: "vitest run",
       coverage: "vitest run --coverage",
+      e2e: "playwright test",
       typecheck: "next typegen && tsc --noEmit",
       policy: "node scripts/check-repository-policy.mjs",
       runtime: "node scripts/verify-runtime.mjs",
       smoke: "node scripts/smoke-start.mjs",
       check:
-        "npm run policy && npm run runtime && npm run lint && npm run typecheck && npm test && npm run coverage && npm run build && npm run smoke",
+        "npm run policy && npm run runtime && npm run lint && npm run typecheck && npm test && npm run coverage && npm run build && npm run e2e && npm run smoke",
     });
     expect(pkg.dependencies).not.toHaveProperty("resend");
-    expect(pkg.devDependencies).not.toHaveProperty("@axe-core/playwright");
+    expect(pkg.devDependencies).toHaveProperty("@axe-core/playwright");
+    expect(pkg.devDependencies).toHaveProperty("@playwright/test");
     expect(pkg.devDependencies).not.toHaveProperty("axe-core");
     expect(pkg.devDependencies).toHaveProperty("@types/node");
     expect(pkg.devDependencies).toHaveProperty("@vitest/coverage-v8");
     expect(pkg.devDependencies).toHaveProperty("yaml");
+
+    const vitestConfig = readFileSync("vitest.config.mts", "utf8");
+    expect(vitestConfig).toContain("statements: 70");
+    expect(vitestConfig).toContain("branches: 60");
+    expect(vitestConfig).toContain("functions: 70");
+    expect(vitestConfig).toContain("lines: 70");
   });
 });

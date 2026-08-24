@@ -27,11 +27,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
+    "e2e": "playwright test",
     "typecheck": "next typegen && tsc --noEmit",
     "policy": "node scripts/check-repository-policy.mjs",
     "runtime": "node scripts/verify-runtime.mjs",
     "smoke": "node scripts/smoke-start.mjs",
-    "check": "npm run policy && npm run runtime && npm run lint && npm run typecheck && npm test && npm run coverage && npm run build && npm run smoke"
+    "check": "npm run policy && npm run runtime && npm run lint && npm run typecheck && npm test && npm run coverage && npm run build && npm run e2e && npm run smoke"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
@@ -46,6 +47,8 @@
     "svix": "^2.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.62.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.2",

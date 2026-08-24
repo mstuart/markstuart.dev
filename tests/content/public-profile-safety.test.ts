@@ -56,6 +56,9 @@ describe("public profile content safety", () => {
     expect(work.at(-1)?.summary).toBe(
       "Led Checkout Web, PayPal SDKs, and Web Platform; drove GraphQL adoption company-wide and led a large engineering organization.",
     );
+    expect(work.find(({ company }) => company === "eBay")?.summary).toBe(
+      "Led technical strategy for eBay Live, a live auction video streaming platform, and scaled CI/CD across eBay's applications and platforms.",
+    );
     expect(
       resumeRoles.map(({ company, title, start, end }) => ({ company, title, start, end })),
     ).toEqual(

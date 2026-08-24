@@ -18,8 +18,6 @@ const HOVER_FRAMES = 4;
 const HOVER_FRAME_MS = 100; // ~400ms total
 const HOVER_NOISE_START = 10;
 
-const AMBIENT_HOLD_MS = 3500; // static hold between ambient decode cycles
-
 function isDarkTheme() {
   return document.documentElement.classList.contains("dark");
 }
@@ -56,6 +54,7 @@ export function MonogramDecodeCanvas() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    const replayTarget = canvas.closest<HTMLElement>("a, button, [tabindex]") ?? canvas;
 
     const dpr = Math.max(1, window.devicePixelRatio || 1);
     canvas.width = Math.round(TILE_SIZE * dpr);
@@ -76,15 +75,6 @@ export function MonogramDecodeCanvas() {
     let sequenceFrameMs = ENTRANCE_FRAME_MS;
     let sequenceNoiseStart = 0;
     let sequenceOrder: number[] = [];
-
-    // Ambient loop: after any decode sequence finishes, hold static for
-    // AMBIENT_HOLD_MS then replay the entrance-style decode, forever. A
-    // setTimeout (one-shot) rather than setInterval since each hold fires
-    // once; pause/resume tracks elapsed time so a backgrounded tab neither
-    // loses nor double-fires the pending hold.
-    let holdTimerId: ReturnType<typeof setTimeout> | null = null;
-    let holdRemainingMs = 0;
-    let holdStartedAt = 0;
 
     function draw(state: FrameState) {
       if (!ctx) return;
@@ -117,42 +107,6 @@ export function MonogramDecodeCanvas() {
       timerId = null;
     }
 
-    function cancelHold() {
-      if (holdTimerId !== null) {
-        clearTimeout(holdTimerId);
-        holdTimerId = null;
-      }
-      holdRemainingMs = 0;
-    }
-
-    function pauseHold() {
-      if (holdTimerId === null) return;
-      clearTimeout(holdTimerId);
-      holdTimerId = null;
-      holdRemainingMs = Math.max(0, holdRemainingMs - (Date.now() - holdStartedAt));
-    }
-
-    function resumeHold() {
-      if (holdTimerId !== null || holdRemainingMs <= 0 || reducedMotionQuery.matches) return;
-      holdStartedAt = Date.now();
-      holdTimerId = setTimeout(runAmbientCycle, holdRemainingMs);
-    }
-
-    function startHold() {
-      if (reducedMotionQuery.matches) return;
-      holdRemainingMs = AMBIENT_HOLD_MS;
-      if (document.hidden) return;
-      holdStartedAt = Date.now();
-      holdTimerId = setTimeout(runAmbientCycle, AMBIENT_HOLD_MS);
-    }
-
-    function runAmbientCycle() {
-      holdTimerId = null;
-      holdRemainingMs = 0;
-      if (reducedMotionQuery.matches) return;
-      startSequence(ENTRANCE_FRAMES, ENTRANCE_FRAME_MS, ENTRANCE_NOISE_START);
-    }
-
     function tick() {
       sequenceFrame += 1;
       if (sequenceFrame >= sequenceTotal) {
@@ -160,7 +114,6 @@ export function MonogramDecodeCanvas() {
         draw(current);
         stopTimer();
         sequenceActive = false;
-        startHold();
         return;
       }
       renderSequenceFrame();
@@ -168,7 +121,6 @@ export function MonogramDecodeCanvas() {
 
     function startSequence(totalFrames: number, frameMs: number, noiseStart: number) {
       stopTimer();
-      cancelHold();
       sequenceTotal = totalFrames;
       sequenceFrameMs = frameMs;
       sequenceNoiseStart = noiseStart;
@@ -186,7 +138,6 @@ export function MonogramDecodeCanvas() {
     function handleReducedMotionChange() {
       if (!reducedMotionQuery.matches) return;
       stopTimer();
-      cancelHold();
       sequenceActive = false;
       current = finalFrame();
       draw(current);
@@ -195,16 +146,14 @@ export function MonogramDecodeCanvas() {
     function handleVisibility() {
       if (document.hidden) {
         stopTimer();
-        pauseHold();
         return;
       }
       if (sequenceActive && timerId === null) {
         timerId = setInterval(tick, sequenceFrameMs);
       }
-      resumeHold();
     }
 
-    function handleMouseEnter() {
+    function handleReplay() {
       if (reducedMotionQuery.matches) return;
       startSequence(HOVER_FRAMES, HOVER_FRAME_MS, HOVER_NOISE_START);
     }
@@ -230,14 +179,15 @@ export function MonogramDecodeCanvas() {
 
     document.addEventListener("visibilitychange", handleVisibility);
     reducedMotionQuery.addEventListener("change", handleReducedMotionChange);
-    canvas.addEventListener("mouseenter", handleMouseEnter);
+    canvas.addEventListener("mouseenter", handleReplay);
+    replayTarget.addEventListener("focus", handleReplay);
 
     return () => {
       stopTimer();
-      cancelHold();
       document.removeEventListener("visibilitychange", handleVisibility);
       reducedMotionQuery.removeEventListener("change", handleReducedMotionChange);
-      canvas.removeEventListener("mouseenter", handleMouseEnter);
+      canvas.removeEventListener("mouseenter", handleReplay);
+      replayTarget.removeEventListener("focus", handleReplay);
       themeObserver.disconnect();
     };
   }, []);

@@ -124,5 +124,4 @@ export const npmMaintained: string[] = [
   "beaver-logger",
   "jwt-csrf",
   "memcookies",
-  "plus more @krakenjs scoped packages",
 ];

@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Star } from "@phosphor-icons/react/dist/ssr";
 import { SocialLinks } from "@/components/shared/social-links";
@@ -52,11 +53,14 @@ function ProjectChip({
   href: string;
   description: string;
 }) {
-  const Icon = getProjectIcon(icon);
-  const label = `${name} — ${description}`;
+  const label = `${name}: ${description}`;
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" className={chipClass} title={label} aria-label={label}>
-      <Icon size={14} weight="regular" className="shrink-0 text-zinc-400 dark:text-zinc-500" />
+      {createElement(getProjectIcon(icon), {
+        size: 14,
+        weight: "regular",
+        className: "shrink-0 text-muted",
+      })}
       {name}
     </a>
   );
@@ -119,7 +123,7 @@ export function HomePage() {
               </p>
             </div>
 
-            <div className="mt-6 space-y-2 text-sm text-zinc-500 dark:text-zinc-400">
+            <div className="mt-6 space-y-2 text-sm text-muted">
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
                 <span>Now at</span>
                 <LogoChip name="Rocket" src="/work/rocket.png" href="https://www.rocketcompanies.com/" />
@@ -179,19 +183,19 @@ export function HomePage() {
                   <div className="min-w-0">
                     <p className="text-zinc-900 dark:text-zinc-100">
                       <span className="font-medium">{entry.role}</span>
-                      <span className="text-zinc-500 dark:text-zinc-400"> at {entry.company}</span>
+                      <span className="text-muted"> at {entry.company}</span>
                     </p>
                     {entry.summary ? (
-                      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{entry.summary}</p>
+                      <p className="mt-1 text-sm text-muted">{entry.summary}</p>
                     ) : null}
                   </div>
-                  <span className="shrink-0 text-xs text-zinc-400 dark:text-zinc-500">{entry.period}</span>
+                  <span className="shrink-0 text-xs text-muted">{entry.period}</span>
                 </div>
               ))}
             </div>
             <Link
               href="/work"
-              className="group mt-6 inline-flex items-center gap-1 rounded-lg text-sm text-zinc-500 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-400 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
+              className="group mt-6 inline-flex items-center gap-1 rounded-lg text-sm text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               Full resume
               <ArrowRight size={14} weight="regular" className="transition-transform group-hover:translate-x-0.5" />
@@ -224,7 +228,7 @@ export function HomePage() {
                       <ArrowUpRight size={12} weight="regular" className="shrink-0" />
                     </span>
                     {item.views ? (
-                      <span className="shrink-0 font-mono text-xs tabular-nums text-zinc-400 dark:text-zinc-500">
+                      <span className="shrink-0 font-mono text-xs tabular-nums text-muted">
                         {formatViews(item.views)} views
                       </span>
                     ) : null}
@@ -234,7 +238,7 @@ export function HomePage() {
             </div>
             <Link
               href="/posts"
-              className="group mt-6 inline-flex items-center gap-1 rounded-lg text-sm text-zinc-500 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-400 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
+              className="group mt-6 inline-flex items-center gap-1 rounded-lg text-sm text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               All writing
               <ArrowRight size={14} weight="regular" className="transition-transform group-hover:translate-x-0.5" />
@@ -245,7 +249,6 @@ export function HomePage() {
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {selectedProjects.map((project) => {
                 const starCount = formatStarCount(project.stars);
-                const Icon = getProjectIcon(project.icon);
                 return (
                   <a
                     key={project.name}
@@ -256,19 +259,23 @@ export function HomePage() {
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="inline-flex min-w-0 items-center gap-1.5 font-medium text-zinc-900 transition-colors group-hover:text-teal-600 dark:text-zinc-100 dark:group-hover:text-teal-400">
-                        <Icon size={14} weight="regular" className="shrink-0 text-zinc-400 dark:text-zinc-500" />
+                        {createElement(getProjectIcon(project.icon), {
+                          size: 14,
+                          weight: "regular",
+                          className: "shrink-0 text-muted",
+                        })}
                         <span className="truncate">{project.name}</span>
                       </span>
                       {starCount ? (
-                        <span className="flex shrink-0 items-center gap-1 font-mono text-xs tabular-nums text-zinc-400 dark:text-zinc-500">
+                        <span className="flex shrink-0 items-center gap-1 font-mono text-xs tabular-nums text-muted">
                           <Star size={12} weight="regular" />
                           {starCount}
                         </span>
                       ) : null}
                     </div>
-                    <p className="mt-1 line-clamp-2 text-sm text-zinc-500 dark:text-zinc-400">{project.description}</p>
+                    <p className="mt-1 line-clamp-2 text-sm text-muted">{project.description}</p>
                     {project.role === "core contributor" ? (
-                      <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">core contributor</p>
+                      <p className="mt-1 text-xs text-muted">core contributor</p>
                     ) : null}
                   </a>
                 );
@@ -276,7 +283,7 @@ export function HomePage() {
             </div>
             <Link
               href="/projects"
-              className="group mt-6 inline-flex items-center gap-1 rounded-lg text-sm text-zinc-500 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-400 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
+              className="group mt-6 inline-flex items-center gap-1 rounded-lg text-sm text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               All projects
               <ArrowRight size={14} weight="regular" className="transition-transform group-hover:translate-x-0.5" />
@@ -284,31 +291,34 @@ export function HomePage() {
           </SectionV1>
 
           <SectionV1 heading="More" index={4}>
-            <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <Link
                 href="/press"
-                className="group inline-flex items-center gap-1 rounded-lg text-sm text-zinc-500 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-400 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
+                prefetch={false}
+                className="group inline-flex items-center gap-1 rounded-lg text-sm text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 Press: books, quotes, and newsletters that cite my work
                 <ArrowRight size={14} weight="regular" className="transition-transform group-hover:translate-x-0.5" />
               </Link>
               <Link
                 href="/talks"
-                className="group inline-flex items-center gap-1 rounded-lg text-sm text-zinc-500 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-400 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
+                className="group inline-flex items-center gap-1 rounded-lg text-sm text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 Talks: conference talks, appearances, and community panels
                 <ArrowRight size={14} weight="regular" className="transition-transform group-hover:translate-x-0.5" />
               </Link>
               <Link
                 href="/listening"
-                className="group inline-flex items-center gap-1 rounded-lg text-sm text-zinc-500 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-400 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
+                prefetch={false}
+                className="group inline-flex items-center gap-1 rounded-lg text-sm text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 Listening: what I have been playing on Spotify lately
                 <ArrowRight size={14} weight="regular" className="transition-transform group-hover:translate-x-0.5" />
               </Link>
               <Link
                 href="/stack"
-                className="group inline-flex items-center gap-1 rounded-lg text-sm text-zinc-500 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-400 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
+                prefetch={false}
+                className="group inline-flex items-center gap-1 rounded-lg text-sm text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 Stack: the hardware, apps, and tools I use every day
                 <ArrowRight size={14} weight="regular" className="transition-transform group-hover:translate-x-0.5" />
@@ -344,7 +354,7 @@ export function HomePage() {
             <div className="mt-4">
               <SocialLinks />
             </div>
-            <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="mt-3 text-sm text-muted">
               Elsewhere:{" "}
               <a
                 href="https://speakerdeck.com/mstuart"
@@ -369,7 +379,7 @@ export function HomePage() {
               </a>
               .
             </p>
-            <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="mt-3 text-sm text-muted">
               Prefer a terminal?{" "}
               <Link href="/tui" className={inlineLinkClass}>
                 Launch the CLI

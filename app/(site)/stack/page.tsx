@@ -6,7 +6,7 @@ import { getProjectIcon } from "@/lib/project-icons";
 
 export const metadata = pageMetadata({
   title: "Stack",
-  description: "A curated toolkit for design and development.",
+  description: "The hardware, apps, and tools I use every day.",
   path: "/stack",
 });
 
@@ -19,7 +19,11 @@ export default function StackPage() {
     <div className="mx-auto max-w-2xl px-6 py-16">
       <h1 className="text-2xl font-medium text-zinc-900 dark:text-zinc-100">Stack</h1>
       <p className="mt-2 text-sm text-muted">
-        A curated toolkit for design and development.
+        The hardware, apps, and tools I reach for every day.
+      </p>
+      <p className="mt-2 text-sm text-muted">
+        Some hardware links are paid links, which means I may earn a commission. As an Amazon
+        Associate I earn from qualifying purchases.
       </p>
 
       {stackSections.map((section) => (

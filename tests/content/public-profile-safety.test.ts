@@ -9,8 +9,9 @@ import { cliTools, stackSections } from "@/lib/data/stack";
 import { work } from "@/lib/data/work";
 
 describe("public profile content safety", () => {
-  it("publishes a representative toolkit without a live device, purchase, health, or secret inventory", () => {
+  it("publishes the exact hardware stack without health or purchase-history details", () => {
     const publicStack = JSON.stringify({ cliTools, stackSections });
+    const hardware = stackSections.find((section) => section.heading === "Hardware")?.items ?? [];
     const codex = stackSections
       .find((section) => section.heading === "AI")
       ?.items.find((item) => item.name === "Codex");
@@ -21,8 +22,34 @@ describe("public profile content safety", () => {
       "Editor and terminal",
       "Apps",
     ]);
+    expect(hardware.map((item) => item.name)).toEqual([
+      'MacBook Pro 14"',
+      "LG UltraGear 45GX950A",
+      "SHW Electric Standing Desk",
+      "Keychron K2",
+      "Anker 7-in-2 USB-C Hub",
+      "USB 3.0 KVM Switch",
+      "Logitech Brio 4K",
+      "AirPods Pro 3",
+      "Sennheiser HD 6XX",
+      "LUKETURE Under-Desk Organizer",
+      "UREVO Walking Pad",
+    ]);
+    expect(hardware.find((item) => item.name === 'MacBook Pro 14"')).toMatchObject({
+      description: expect.stringContaining("M4 Max, 36 GB RAM"),
+      url: "https://www.amazon.com/dp/B0DMKZSTQH?tag=mstuartsite-20",
+    });
+    expect(hardware.find((item) => item.name === "LG UltraGear 45GX950A")).toMatchObject({
+      description: expect.stringContaining('45" 5K2K OLED'),
+      url: "https://www.amazon.com/dp/B0DYG9DKX8?tag=mstuartsite-20",
+    });
+    expect(
+      hardware
+        .filter((item) => item.url?.startsWith("https://www.amazon.com/"))
+        .every((item) => item.url?.endsWith("?tag=mstuartsite-20")),
+    ).toBe(true);
     expect(publicStack).not.toMatch(
-      /amazon\.com|mstuartsite-20|M4 Max|36 GB|45GX950A|bought|Fitbit|Google Health|vitals project|1Password|Every secret|live inventory|installed app bundles|all installed via Homebrew/i,
+      /bought|purchased|second set|Fitbit|Google Health|vitals project|1Password|Every secret|all installed via Homebrew/i,
     );
     expect(codex?.iconSrc).toBeUndefined();
     expect(codex?.icon).toBeUndefined();

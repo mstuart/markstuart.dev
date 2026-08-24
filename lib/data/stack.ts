@@ -1,5 +1,5 @@
-// A representative selection of tools and workspace categories. This is a
-// public toolkit, not an inventory of a particular machine or account.
+// The hardware, apps, and tools Mark actually uses. Hardware entries omit
+// health details and purchase history while retaining useful model specifics.
 
 export type Platform = "macOS" | "iOS" | "Windows" | "Web" | "Physical";
 
@@ -27,31 +27,81 @@ export const stackSections: StackSection[] = [
     heading: "Hardware",
     items: [
       {
-        name: "Laptop",
-        description: "A portable workstation for software development and design.",
-        url: "https://www.apple.com/macbook-pro/",
+        name: 'MacBook Pro 14"',
+        description: "M4 Max, 36 GB RAM. One machine for everything.",
+        url: "https://www.amazon.com/dp/B0DMKZSTQH?tag=mstuartsite-20",
         iconSrc: "/stack/apple.png",
         tags: ["Physical"],
       },
       {
-        name: "Ultrawide display",
-        description: "A wide canvas for code, documentation, and design work.",
-        url: "https://www.lg.com/us/monitors",
+        name: "LG UltraGear 45GX950A",
+        description: '45" 5K2K OLED at 165Hz, or 330Hz in WFHD. The whole workspace on one panel.',
+        url: "https://www.amazon.com/dp/B0DYG9DKX8?tag=mstuartsite-20",
         iconSrc: "/stack/lg.png",
         tags: ["Physical"],
       },
       {
-        name: "Mechanical keyboard",
-        iconSrc: "/stack/keychron.png",
-        description: "A compact keyboard for writing and development.",
-        url: "https://www.keychron.com/",
+        name: "SHW Electric Standing Desk",
+        description: '48" walnut top that goes up and down. Holding the whole setup since 2020.',
+        url: "https://www.amazon.com/dp/B07MHVXHT7?tag=mstuartsite-20",
+        icon: "Desk",
         tags: ["Physical"],
       },
       {
-        name: "Headphones",
+        name: "Keychron K2",
+        description:
+          "75% mechanical, Gateron Reds. Loud enough to be satisfying, quiet enough for calls.",
+        url: "https://www.amazon.com/dp/B07QBPCGY2?tag=mstuartsite-20",
+        iconSrc: "/stack/keychron.png",
+        tags: ["Physical"],
+      },
+      {
+        name: "Anker 7-in-2 USB-C Hub",
+        description: "One cable connects the desk setup to power, display, and peripherals.",
+        url: "https://www.amazon.com/dp/B0BNZ5V1TF?tag=mstuartsite-20",
+        iconSrc: "/stack/anker.png",
+        tags: ["Physical"],
+      },
+      {
+        name: "USB 3.0 KVM Switch",
+        description: "4K at 60Hz across machines, so the big panel and one keyboard serve everything.",
+        url: "https://www.amazon.com/dp/B0BWNDX4VL?tag=mstuartsite-20",
+        icon: "Monitor",
+        tags: ["Physical"],
+      },
+      {
+        name: "Logitech Brio 4K",
+        description: "The webcam on the monitor mount, for the calls that need a face.",
+        url: "https://www.amazon.com/dp/B09NBWWP79?tag=mstuartsite-20",
+        iconSrc: "/stack/logitech.png",
+        tags: ["Physical"],
+      },
+      {
+        name: "AirPods Pro 3",
+        description: "Noise cancelling for focus blocks, and the only headphones I never forget.",
+        url: "https://www.amazon.com/dp/B0FQFB8FMG?tag=mstuartsite-20",
         iconSrc: "/stack/airpods.png",
-        description: "Focused listening for calls and deep work.",
-        url: "https://www.apple.com/airpods/",
+        tags: ["Physical"],
+      },
+      {
+        name: "Sennheiser HD 6XX",
+        description: "Open-back headphones from Drop with replaceable ear pads.",
+        url: "https://drop.com/buy/massdrop-sennheiser-hd6xx",
+        iconSrc: "/stack/sennheiser.png",
+        tags: ["Physical"],
+      },
+      {
+        name: "LUKETURE Under-Desk Organizer",
+        description: "A clamp-on steel tray that keeps the laptop off the desktop.",
+        url: "https://www.amazon.com/dp/B0C995H5S4?tag=mstuartsite-20",
+        icon: "Tray",
+        tags: ["Physical"],
+      },
+      {
+        name: "UREVO Walking Pad",
+        description: "A compact treadmill for slow walks under the standing desk.",
+        url: "https://www.amazon.com/dp/B0BVQMSVM1?tag=mstuartsite-20",
+        icon: "PersonSimpleWalk",
         tags: ["Physical"],
       },
     ],

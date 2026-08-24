@@ -15,7 +15,7 @@ export const work: WorkEntry[] = [
     role: "Distinguished Engineer",
     period: "Oct 2022 to May 2025",
     summary:
-      "Led technical strategy for eBay Live, a live auction video streaming platform, and scaled CI/CD across eBay's applications and platforms.",
+      "Led technical strategy for eBay Live, a live auction video streaming platform, and scaled CI/CD across eBay’s applications and platforms.",
   },
   {
     company: "PayPal",

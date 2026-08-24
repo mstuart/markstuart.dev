@@ -57,7 +57,7 @@ describe("public profile content safety", () => {
       "Led Checkout Web, PayPal SDKs, and Web Platform; drove GraphQL adoption company-wide and led a large engineering organization.",
     );
     expect(work.find(({ company }) => company === "eBay")?.summary).toBe(
-      "Led technical strategy for eBay Live, a live auction video streaming platform, and scaled CI/CD across eBay's applications and platforms.",
+      "Led technical strategy for eBay Live, a live auction video streaming platform, and scaled CI/CD across eBay’s applications and platforms.",
     );
     expect(work.find(({ company }) => company === "Rocket")?.summary).toBe(
       "Architected Rocket’s federated GraphQL platform, which powers every key Web, Mobile, and AI assistant experience, and enabled the integration of Mr. Cooper into Rocket.",

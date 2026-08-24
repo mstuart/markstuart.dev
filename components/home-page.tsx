@@ -96,7 +96,7 @@ export function HomePage() {
       <div className="mx-auto max-w-2xl px-6 py-16 sm:py-20">
         <div className="space-y-20">
           <header className={`${styles.fadeUp} relative`}>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
               <PixelAvatar />
               <div>
                 <h1 className="text-3xl font-medium tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-4xl">

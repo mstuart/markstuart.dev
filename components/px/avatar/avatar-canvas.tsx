@@ -5,7 +5,7 @@ import { useLayoutEffect, useRef } from "react";
 // Same decode-loop grammar as the header monogram (monogram2), applied to
 // the profile photo: cells lock in from a pixelated mosaic to the full-res
 // image once. It only replays after direct hover or focus interaction.
-const TILE_SIZE = 84;
+const TILE_SIZE = 252;
 const GRID = 14;
 const CELL = TILE_SIZE / GRID;
 

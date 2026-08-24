@@ -8,7 +8,7 @@ export const work: WorkEntry[] = [
     role: "Distinguished Engineer",
     period: "May 2025 to now",
     summary:
-      "Architected Rocket's federated GraphQL platform, which powers every key Web, Mobile, and AI assistant experience, and enabled the integration of Mr. Cooper into Rocket.",
+      "Architected Rocket’s federated GraphQL platform, which powers every key Web, Mobile, and AI assistant experience, and enabled the integration of Mr. Cooper into Rocket.",
   },
   {
     company: "eBay",

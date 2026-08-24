@@ -44,14 +44,18 @@ describe("public profile content safety", () => {
     expect(publicCareer).toMatch(/eBay Live/);
     expect(publicCareer).toMatch(/GraphQL Foundation/);
     expect(resumeSummary).toMatch(/nearly two decades in software engineering/i);
-    expect(work.map(({ company, period }) => ({ company, period }))).toEqual([
-      { company: "Rocket", period: "May 2025 to now" },
-      { company: "eBay", period: "Oct 2022 to May 2025" },
-      { company: "PayPal", period: "Nov 2013 to Sep 2022" },
-      { company: "Qplay, Inc.", period: "Apr 2013 to Nov 2013" },
-      { company: "PayPal", period: "Jul 2012 to Apr 2013" },
-      { company: "State Farm Insurance", period: "May 2007 to Jul 2012" },
+    expect(work.map(({ company, role, period }) => ({ company, role, period }))).toEqual([
+      { company: "Rocket", role: "Distinguished Engineer", period: "May 2025 to now" },
+      { company: "eBay", role: "Distinguished Engineer", period: "Oct 2022 to May 2025" },
+      {
+        company: "PayPal",
+        role: "Sr. Principal Engineer",
+        period: "Nov 2013 to Sep 2022",
+      },
     ]);
+    expect(work.at(-1)?.summary).toBe(
+      "Led Checkout Web, PayPal SDKs, and Web Platform; drove GraphQL adoption company-wide and led a large engineering organization.",
+    );
     expect(
       resumeRoles.map(({ company, title, start, end }) => ({ company, title, start, end })),
     ).toEqual(

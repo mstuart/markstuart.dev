@@ -96,7 +96,7 @@ export function HomePage() {
       <div className="mx-auto max-w-2xl px-6 py-16 sm:py-20">
         <div className="space-y-20">
           <header className={`${styles.fadeUp} relative`}>
-            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-2 min-[360px]:gap-4">
               <PixelAvatar />
               <div>
                 <h1 className="text-3xl font-medium tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-4xl">
@@ -350,12 +350,21 @@ export function HomePage() {
             <p className="mt-3 text-sm text-muted">
               Elsewhere:{" "}
               <a
-                href="https://speakerdeck.com/mstuart"
+                href="https://medium.com/@mark_stuart"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={inlineLinkClass}
               >
-                Speaker Deck
+                Medium
+              </a>
+              ,{" "}
+              <a
+                href="https://github.com/mstuart"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={inlineLinkClass}
+              >
+                GitHub
               </a>
               ,{" "}
               <a href="https://www.npmjs.com/~mstuart" target="_blank" rel="noopener noreferrer" className={inlineLinkClass}>
@@ -363,12 +372,12 @@ export function HomePage() {
               </a>
               , and{" "}
               <a
-                href="https://medium.com/@mark_stuart"
+                href="https://speakerdeck.com/mstuart"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={inlineLinkClass}
               >
-                Medium
+                Speaker Deck
               </a>
               .
             </p>

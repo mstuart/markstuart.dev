@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { HomePage } from "@/components/home-page";
 
@@ -20,5 +20,30 @@ describe("public homepage content safety", () => {
       /highest-scale|millions of people|thousands of engineers|Google Health|Fitbit|Pixel Watch|github\.com\/mstuart\/vitals|vitals:/i,
     );
     expect(screen.getByRole("link", { name: /Stack: a curated toolkit/i })).toBeInTheDocument();
+  });
+
+  it("keeps the homepage name beside the portrait at mobile widths", () => {
+    render(<HomePage />);
+
+    const heading = screen.getByRole("heading", { name: "Mark Stuart" });
+    const heroRow = heading.parentElement?.parentElement;
+
+    expect(heroRow).toHaveClass("flex", "items-center", "gap-2", "min-[360px]:gap-4");
+    expect(heroRow).not.toHaveClass("flex-col");
+  });
+
+  it("orders Elsewhere links by the requested profile priority", () => {
+    render(<HomePage />);
+
+    const elsewhere = screen.getByText(/Elsewhere:/).closest("p");
+    expect(elsewhere).not.toBeNull();
+    if (!elsewhere) return;
+
+    expect(within(elsewhere).getAllByRole("link").map((link) => link.textContent)).toEqual([
+      "Medium",
+      "GitHub",
+      "npm",
+      "Speaker Deck",
+    ]);
   });
 });

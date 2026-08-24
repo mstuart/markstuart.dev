@@ -19,30 +19,9 @@ export const work: WorkEntry[] = [
   },
   {
     company: "PayPal",
-    role: "Staff Software Engineer to Director of Engineering",
+    role: "Sr. Principal Engineer",
     period: "Nov 2013 to Sep 2022",
     summary:
-      "Led Checkout platform modernization and helped drive PayPal's early adoption of GraphQL.",
-  },
-  {
-    company: "Qplay, Inc.",
-    role: "Sr. Software Engineer",
-    period: "Apr 2013 to Nov 2013",
-    summary:
-      "First UI engineer at a video-discovery startup founded by TiVo alumni.",
-  },
-  {
-    company: "PayPal",
-    role: "Sr. Software Engineer",
-    period: "Jul 2012 to Apr 2013",
-    summary:
-      "Helped modernize Checkout with Node.js and contributed to PayPal's shared JavaScript SDK.",
-  },
-  {
-    company: "State Farm Insurance",
-    role: "Software Engineer",
-    period: "May 2007 to Jul 2012",
-    summary:
-      "Built Web platforms and led the Mobile Web single-page application rebuild.",
+      "Led Checkout Web, PayPal SDKs, and Web Platform; drove GraphQL adoption company-wide and led a large engineering organization.",
   },
 ];

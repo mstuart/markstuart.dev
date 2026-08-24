@@ -22,10 +22,9 @@ if (!existsSync(".next/BUILD_ID")) {
 
 const host = "127.0.0.1";
 const port = await availablePort(host);
-const npmExecutable = process.platform === "win32" ? "npm.cmd" : "npm";
 const child = spawn(
-  npmExecutable,
-  ["start", "--", "--hostname", host, "--port", String(port)],
+  process.execPath,
+  ["node_modules/next/dist/bin/next", "start", "--hostname", host, "--port", String(port)],
   {
     env: { ...process.env, NODE_ENV: "production" },
     stdio: ["ignore", "pipe", "pipe"],

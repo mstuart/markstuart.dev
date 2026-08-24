@@ -33,7 +33,6 @@ jobs:
             --max-retries 3
             --retry-wait-time 2
             --timeout 20
-            --exclude-mail
             --exclude '^https://(www\.)?(linkedin\.com|x\.com)/'
             './*.md'
             './docs/**/*.md'

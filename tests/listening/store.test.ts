@@ -42,8 +42,8 @@ describe("listening history store", () => {
     vi.unstubAllGlobals();
   });
 
-  it("writes an entire sync through one Redis pipeline without changing stored payloads", async () => {
-    redisMock.redisPipeline.mockResolvedValue([1, 0]);
+  it("retains only the newest 500 plays without counting trimmed rows as additions", async () => {
+    redisMock.redisPipeline.mockResolvedValue([1, 0, 37]);
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(new Response(JSON.stringify({ result: 1 })))
@@ -52,41 +52,93 @@ describe("listening history store", () => {
 
     await expect(syncHistory()).resolves.toBe(1);
     expect(redisMock.redisPipeline).toHaveBeenCalledTimes(1);
-    expect(redisMock.redisPipeline).toHaveBeenCalledWith(
-      plays.map((play) => [
+    expect(redisMock.redisPipeline).toHaveBeenCalledWith([
+      ...plays.map((play) => [
         "ZADD",
         "listening:history",
         "NX",
         String(new Date(play.playedAt).getTime()),
         JSON.stringify(play),
-      ])
-    );
+      ]),
+      ["ZREMRANGEBYRANK", "listening:history", "0", "-501"],
+    ]);
   });
 
-  it("preserves the exclusive cursor, page size, payload, and next cursor", async () => {
-    redisMock.redisCommand.mockResolvedValue(plays.map((play) => JSON.stringify(play)));
+  it("does not read Spotify when retained history is not configured", async () => {
+    redisMock.redisConfig.mockReturnValue(null);
+    const { syncHistory } = await import("@/lib/listening-store");
+
+    await expect(syncHistory()).resolves.toBe(0);
+    expect(spotifyMock.getRecentlyPlayed).not.toHaveBeenCalled();
+  });
+
+  it("publishes week-level play dates behind an offset cursor", async () => {
+    const storedPlays = [
+      ...plays,
+      {
+        name: "Third",
+        artist: "Artist",
+        album: "Album",
+        playedAt: "2026-08-22T23:00:00.000Z",
+      },
+    ];
+    redisMock.redisCommand.mockResolvedValue(storedPlays.map((play) => JSON.stringify(play)));
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ result: plays.map((play) => JSON.stringify(play)) }))
+        new Response(JSON.stringify({ result: storedPlays.map((play) => JSON.stringify(play)) }))
       )
     );
     const { getHistory } = await import("@/lib/listening-store");
 
-    await expect(getHistory(1_777_000_000_000, 2)).resolves.toEqual({
-      items: plays,
-      nextBefore: new Date(plays[1].playedAt).getTime(),
+    await expect(getHistory(30, 2)).resolves.toEqual({
+      items: [
+        { name: "First", artist: "Artist", album: "Album", playedDuring: "2026-08-17" },
+        { name: "Second", artist: "Artist", album: "Album", playedDuring: "2026-08-17" },
+      ],
+      nextCursor: 32,
     });
     expect(redisMock.redisCommand).toHaveBeenCalledWith([
       "ZRANGE",
       "listening:history",
-      "(1777000000000",
-      "-inf",
-      "BYSCORE",
+      30,
+      32,
       "REV",
-      "LIMIT",
-      0,
-      2,
+    ]);
+  });
+
+  it("does not query history beyond the 90-item public window", async () => {
+    const { getHistory } = await import("@/lib/listening-store");
+
+    await expect(getHistory(90, 30)).resolves.toEqual({
+      items: [],
+      nextCursor: null,
+    });
+    expect(redisMock.redisCommand).not.toHaveBeenCalled();
+  });
+
+  it("ends pagination at 90 even when retained history has a 91st item", async () => {
+    const finalWindow = Array.from({ length: 31 }, (_, index) =>
+      JSON.stringify({
+        name: `Track ${index + 61}`,
+        artist: "Artist",
+        album: "Album",
+        playedAt: "2026-08-23T10:00:00.000Z",
+      })
+    );
+    redisMock.redisCommand.mockResolvedValue(finalWindow);
+    const { getHistory } = await import("@/lib/listening-store");
+
+    const page = await getHistory(60, 30);
+
+    expect(page.items).toHaveLength(30);
+    expect(page.nextCursor).toBeNull();
+    expect(redisMock.redisCommand).toHaveBeenCalledWith([
+      "ZRANGE",
+      "listening:history",
+      60,
+      90,
+      "REV",
     ]);
   });
 });

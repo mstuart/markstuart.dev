@@ -19,18 +19,19 @@ const navLinks = [
 
 export function SiteHeader() {
   return (
-    <header className="border-b border-zinc-200 dark:border-zinc-800">
-      <div className="mx-auto flex h-16 max-w-2xl items-center justify-between gap-3 px-4 text-sm sm:px-6">
+    <header className="border-b border-line">
+      <div className="site-header-inner mx-auto flex h-16 max-w-2xl items-center justify-between gap-3 px-4 text-sm sm:px-6">
         <Link
           href="/"
-          className="flex items-center gap-2 whitespace-nowrap font-medium text-zinc-900 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 rounded-md dark:text-zinc-100 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
+          aria-label={site.name}
+          className="site-header-brand flex min-h-11 min-w-0 items-center gap-2 whitespace-nowrap rounded-md font-medium text-foreground transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
-          <span aria-hidden="true" className="block h-7 w-7 shrink-0 overflow-hidden rounded-md">
+          <span aria-hidden="true" className="site-header-mark block h-7 w-7 shrink-0 overflow-hidden rounded-md">
             <span className="block origin-top-left scale-50">
               <PixelMonogram2 />
             </span>
           </span>
-          {site.name}
+          <span className="site-header-label">{site.name}</span>
         </Link>
         <nav className="hidden items-center gap-2 md:flex lg:gap-4">
           {navLinks.map((link) => (
@@ -44,7 +45,7 @@ export function SiteHeader() {
             </ActiveNavLink>
           ))}
         </nav>
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="site-header-actions flex shrink-0 items-center gap-1">
           <div className="hidden lg:flex">
             <SocialLinks />
           </div>
@@ -52,7 +53,7 @@ export function SiteHeader() {
             href="/tui"
             aria-label="Launch terminal mode"
             title="Launch terminal mode"
-            className="flex h-9 w-9 items-center justify-center rounded-md text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <TerminalWindow size={18} weight="regular" />
           </Link>

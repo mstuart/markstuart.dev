@@ -64,11 +64,11 @@ export function UpvoteButton({ slug }: { slug: string }) {
       disabled={voted}
       aria-pressed={voted}
       className={[
-        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:focus-visible:ring-teal-400",
+        "inline-flex min-h-11 items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
         voted
           ? "border-accent text-accent"
-          : "cursor-pointer border-zinc-200 text-muted hover:border-zinc-400 hover:text-accent active:scale-[0.98] dark:border-zinc-800 dark:hover:border-zinc-600",
+          : "cursor-pointer border-line text-muted hover:border-control-border hover:text-accent active:scale-[0.98]",
       ].join(" ")}
     >
       <ArrowFatUp size={14} weight={voted ? "fill" : "regular"} />

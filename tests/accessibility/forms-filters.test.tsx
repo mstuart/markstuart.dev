@@ -92,6 +92,6 @@ describe("talk filters accessibility", () => {
 
     expect(screen.getByRole("status")).toHaveTextContent("3 results");
     await user.click(screen.getByRole("button", { name: /community/i }));
-    expect(screen.getByRole("status")).toHaveTextContent("1 results");
+    expect(screen.getByRole("status")).toHaveTextContent(/^1 result$/);
   });
 });

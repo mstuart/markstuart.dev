@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { getAllPosts } from "@/lib/posts";
 import { SubscribeForm } from "@/components/subscribe-form";
@@ -40,9 +41,8 @@ const SOURCE_ICONS: Record<string, string> = {
 
 function RowIcon({ src }: { src: string }) {
   return (
-    <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-zinc-100 ring-1 ring-zinc-900/10 dark:bg-zinc-900 dark:ring-zinc-100/10">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt="" width={32} height={32} className="h-full w-full object-contain" />
+    <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-muted ring-1 ring-line/20">
+      <Image src={src} alt="" width={32} height={32} className="h-full w-full object-contain" />
     </span>
   );
 }

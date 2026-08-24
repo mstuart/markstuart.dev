@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Printer } from "@phosphor-icons/react";
 import {
   awards,
@@ -32,11 +33,10 @@ function CompanyTile({ company }: { company: string }) {
   return (
     <span
       data-print-hide
-      className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-zinc-100 ring-1 ring-zinc-900/10 dark:bg-zinc-900 dark:ring-zinc-100/10"
+      className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-muted ring-1 ring-line/20"
     >
       {src ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt="" width={32} height={32} className="h-full w-full object-contain" />
+        <Image src={src} alt="" width={32} height={32} className="h-full w-full object-contain" />
       ) : (
         <span className="font-serif text-sm text-muted">{company.charAt(0)}</span>
       )}
@@ -46,11 +46,11 @@ function CompanyTile({ company }: { company: string }) {
 
 function pillClass(active: boolean) {
   return [
-    "inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors active:scale-[0.98]",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:focus-visible:ring-teal-400",
+    "inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors active:scale-[0.98]",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
     active
       ? "border-accent text-accent"
-      : "border-zinc-200 text-muted hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-600",
+      : "border-line text-muted hover:border-control-border hover:text-foreground",
   ].join(" ");
 }
 
@@ -71,7 +71,7 @@ export function ResumeView() {
         <button
           type="button"
           onClick={() => window.print()}
-          className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-zinc-200 px-3 py-1 text-sm text-muted transition-colors hover:border-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:scale-[0.98] dark:border-zinc-800 dark:hover:border-zinc-600"
+          className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1 text-sm text-muted transition-colors hover:border-control-border hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:scale-[0.98]"
         >
           <Printer size={14} weight="regular" />
           Print

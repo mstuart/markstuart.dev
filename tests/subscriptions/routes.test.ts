@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const store = vi.hoisted(() => ({
-  createPendingSubscriber: vi.fn(),
-  isConfirmedSubscriber: vi.fn(),
+  getSubscriptionReadiness: vi.fn(),
   isSubscribeConfigured: vi.fn(),
   isUnsubscribeTokenValid: vi.fn(),
   isValidEmail: vi.fn(),
@@ -11,7 +10,6 @@ const store = vi.hoisted(() => ({
   unsubscribeSubscriber: vi.fn(),
 }));
 const rateLimit = vi.hoisted(() => vi.fn());
-const sendConfirmationEmail = vi.hoisted(() => vi.fn());
 const processLifecycleMailJob = vi.hoisted(() => vi.fn());
 const afterCallbacks = vi.hoisted(() => [] as Array<() => Promise<void>>);
 const after = vi.hoisted(() => vi.fn((callback: () => Promise<void>) => {
@@ -20,7 +18,7 @@ const after = vi.hoisted(() => vi.fn((callback: () => Promise<void>) => {
 
 vi.mock("@/lib/subscribers-store", () => store);
 vi.mock("@/lib/server/rate-limit", () => ({ rateLimit }));
-vi.mock("@/lib/mailer", () => ({ processLifecycleMailJob, sendConfirmationEmail }));
+vi.mock("@/lib/mailer", () => ({ processLifecycleMailJob }));
 vi.mock("next/server", () => ({ after }));
 
 import { POST as subscribe } from "@/app/api/subscribe/route";
@@ -28,20 +26,39 @@ import { GET as unsubscribeGet, POST as unsubscribePost } from "@/app/api/unsubs
 
 beforeEach(() => {
   vi.clearAllMocks();
+  store.getSubscriptionReadiness.mockReturnValue({ ready: true });
   store.isSubscribeConfigured.mockReturnValue(true);
   store.isValidEmail.mockReturnValue(true);
-  store.isConfirmedSubscriber.mockResolvedValue(false);
-  store.createPendingSubscriber.mockResolvedValue("confirmation-token");
   store.queueConfirmationDelivery.mockResolvedValue("confirmation-job");
   store.isUnsubscribeTokenValid.mockResolvedValue(true);
   store.unsubscribeSubscriber.mockResolvedValue({ status: "unsubscribed" });
   rateLimit.mockResolvedValue({ allowed: true, retryAfter: 3600 });
-  sendConfirmationEmail.mockResolvedValue(undefined);
   processLifecycleMailJob.mockResolvedValue(undefined);
   afterCallbacks.length = 0;
 });
 
 describe("subscribe route", () => {
+  it("accepts valid signups without provider work when signup capability is unavailable", async () => {
+    store.getSubscriptionReadiness.mockReturnValue({
+      ready: false,
+      missing: ["resend_api_key"],
+    });
+
+    const response = await subscribe(
+      new Request("https://markstuart.dev/api/subscribe", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: "reader@example.com" }),
+      }),
+    );
+
+    expect(response.status).toBe(202);
+    expect(await response.json()).toEqual({ ok: true, status: "check_email" });
+    expect(rateLimit).not.toHaveBeenCalled();
+    expect(store.queueConfirmationDelivery).not.toHaveBeenCalled();
+    expect(after).not.toHaveBeenCalled();
+  });
+
   it("returns the same accepted response for pending, existing, limited, and failed signups", async () => {
     const request = () =>
       new Request("https://markstuart.dev/api/subscribe", {
@@ -53,10 +70,9 @@ describe("subscribe route", () => {
     const accepted = { ok: true, status: "check_email" };
     await expect((await subscribe(request())).json()).resolves.toEqual(accepted);
 
-    store.isConfirmedSubscriber.mockResolvedValueOnce(true);
+    store.queueConfirmationDelivery.mockResolvedValueOnce(null);
     await expect((await subscribe(request())).json()).resolves.toEqual(accepted);
 
-    store.isConfirmedSubscriber.mockResolvedValue(false);
     rateLimit.mockResolvedValueOnce({ allowed: false, retryAfter: 12 });
     await expect((await subscribe(request())).json()).resolves.toEqual(accepted);
 

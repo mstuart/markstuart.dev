@@ -1,12 +1,13 @@
 import { createHash } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { redisCommand, redisPipeline } = vi.hoisted(() => ({
+const { redisCommand, redisConfig, redisPipeline } = vi.hoisted(() => ({
   redisCommand: vi.fn(),
+  redisConfig: vi.fn(),
   redisPipeline: vi.fn(),
 }));
 
-vi.mock("@/lib/server/redis", () => ({ redisCommand, redisPipeline }));
+vi.mock("@/lib/server/redis", () => ({ redisCommand, redisConfig, redisPipeline }));
 
 import {
   acquireNotificationLock,
@@ -14,7 +15,10 @@ import {
   createLifecycleMailScan,
   createNotificationRecipientScan,
   createPendingSubscriber,
+  getSubscriptionReadiness,
+  getOrCreateUnsubscribeToken,
   isConfirmationTokenValid,
+  isUnsubscribeTokenValid,
   listLifecycleMailJobs,
   listPendingNotificationRecipients,
   listConfirmedSubscribers,
@@ -23,15 +27,35 @@ import {
   pendingRecipients,
   quarantineLifecycleMailJob,
   releaseNotificationLock,
+  unsubscribeSubscriber,
 } from "@/lib/subscribers-store";
 
 beforeEach(() => {
+  vi.unstubAllEnvs();
   process.env.MAIL_IDEMPOTENCY_SECRET = "mail-test-secret";
   redisCommand.mockReset();
+  redisConfig.mockReset();
   redisPipeline.mockReset();
 });
 
 describe("subscriber lifecycle", () => {
+  it("reports typed missing requirements for each subscription capability", () => {
+    redisConfig.mockReturnValue(null);
+    vi.stubEnv("RATE_LIMIT_SECRET", "");
+    vi.stubEnv("RESEND_API_KEY", "");
+
+    expect(getSubscriptionReadiness("storage")).toEqual({ ready: false, missing: ["redis"] });
+    expect(getSubscriptionReadiness("signup")).toEqual({
+      ready: false,
+      missing: ["redis", "rate_limit_secret", "resend_api_key"],
+    });
+
+    redisConfig.mockReturnValue({ url: "https://redis.example.com", token: "test-token" });
+    vi.stubEnv("RATE_LIMIT_SECRET", "rate-limit-secret");
+    vi.stubEnv("RESEND_API_KEY", "resend-secret");
+    expect(getSubscriptionReadiness("signup")).toEqual({ ready: true });
+  });
+
   it("does not confirm when a confirmation token is inspected on GET", async () => {
     redisCommand.mockResolvedValueOnce("reader@example.com");
     redisPipeline.mockResolvedValueOnce([[], [], []]);
@@ -87,6 +111,17 @@ describe("subscriber lifecycle", () => {
     expect(command).toContain(`mail:job:confirmation:${addressHash}`);
   });
 
+  it("expires the queued confirmation payload with its pending token", async () => {
+    redisCommand.mockResolvedValueOnce(["confirmation-job", "opaque-token"]);
+
+    await createPendingSubscriber("reader@example.com");
+
+    const script = String(redisCommand.mock.calls[0]?.[0]?.[1]);
+    expect(script).toContain(
+      "redis.call('SET', KEYS[6], ARGV[2] .. '\\n' .. token, 'EX', ARGV[5])",
+    );
+  });
+
   it("durably enqueues welcome delivery in the atomic confirmation transition", async () => {
     redisCommand.mockResolvedValueOnce(["reader@example.com", "welcome-job"]);
 
@@ -114,6 +149,48 @@ describe("subscriber lifecycle", () => {
       "current@example.com",
       "legacy@example.com",
     ]);
+  });
+
+  it("atomically invalidates an unsubscribe token so resubscription gets a fresh token", async () => {
+    const email = "reader@example.com";
+    const oldToken = "old-unsubscribe-token";
+    const addressKey = `subscription:unsubscribe:${createHash("sha256").update(oldToken).digest("hex")}`;
+    const emailTokenKey = `subscription:token:${createHash("sha256").update(email).digest("hex")}`;
+    const addresses = new Map([[addressKey, email]]);
+    const tokens = new Map([[emailTokenKey, oldToken]]);
+
+    redisCommand.mockImplementation(async (command: unknown[]) => {
+      if (command[0] === "GET") {
+        return addresses.get(String(command[1])) ?? tokens.get(String(command[1])) ?? null;
+      }
+      if (command[0] === "EVAL" && String(command[1]).includes("SREM")) {
+        const unsubscribedEmail = addresses.get(String(command[3]));
+        if (!unsubscribedEmail) return null;
+        if (String(command[1]).includes("KEYS[1], KEYS[6]")) {
+          addresses.delete(String(command[3]));
+          tokens.delete(String(command[8]));
+        }
+        return unsubscribedEmail;
+      }
+      if (command[0] === "EVAL") {
+        const newToken = String(command[5]);
+        tokens.set(String(command[3]), newToken);
+        addresses.set(String(command[4]), String(command[6]));
+        return newToken;
+      }
+      throw new Error("unexpected Redis command");
+    });
+
+    await expect(unsubscribeSubscriber(oldToken)).resolves.toEqual({ status: "unsubscribed" });
+    await expect(isUnsubscribeTokenValid(oldToken)).resolves.toBe(false);
+    const newToken = await getOrCreateUnsubscribeToken(email);
+
+    expect(newToken).not.toBe(oldToken);
+    const unsubscribeCommand = redisCommand.mock.calls.find(
+      ([command]) => command[0] === "EVAL" && String(command[1]).includes("SREM"),
+    )?.[0] as unknown[];
+    expect(unsubscribeCommand[2]).toBe(6);
+    expect(unsubscribeCommand).toContain(emailTokenKey);
   });
 });
 
@@ -330,17 +407,46 @@ describe("delivery retry state", () => {
     expect(command).toContain("ambiguous-job");
   });
 
+  it("bounds retention of quarantined confirmation payloads", async () => {
+    redisCommand.mockResolvedValueOnce(1);
+
+    await quarantineLifecycleMailJob("confirmation", "ambiguous-confirmation");
+
+    const command = redisCommand.mock.calls[0]?.[0] as unknown[];
+    expect(command[0]).toBe("EVAL");
+    expect(command[2]).toBe(3);
+    expect(command).toContain("mail:job:confirmation:ambiguous-confirmation");
+    expect(command.at(-1)).toBe(48 * 60 * 60);
+    expect(String(command[1])).toContain("redis.call('EXPIRE', KEYS[3], ARGV[2])");
+  });
+
+  it("bounds retention of quarantined welcome payloads without deleting retry data", async () => {
+    redisCommand.mockResolvedValueOnce(1);
+
+    await quarantineLifecycleMailJob("welcome", "ambiguous-welcome");
+
+    const command = redisCommand.mock.calls[0]?.[0] as unknown[];
+    expect(command).toContain("mail:job:welcome:ambiguous-welcome");
+    expect(command.at(-1)).toBe(48 * 60 * 60);
+    expect(String(command[1])).toContain("redis.call('EXPIRE', KEYS[3], ARGV[2])");
+    expect(String(command[1])).not.toContain("redis.call('DEL', KEYS[3])");
+  });
+
   it("bounds cursor-scanned lifecycle payload reads for a large backlog", async () => {
-    const confirmationIds = Array.from({ length: 500 }, (_, index) => `confirmation-${index}`);
-    const welcomeIds = Array.from({ length: 500 }, (_, index) => `welcome-${index}`);
+    const ids = new Map([
+      [
+        "mail:queue:confirmation",
+        Array.from({ length: 500 }, (_, index) => `confirmation-${index}`),
+      ],
+      ["mail:queue:welcome", Array.from({ length: 500 }, (_, index) => `welcome-${index}`)],
+    ]);
     let activePayloadReads = 0;
     let peakPayloadReads = 0;
     redisCommand.mockImplementation(async (command: unknown[]) => {
-      if (command[0] === "SSCAN") {
-        return [
-          "0",
-          command[1] === "mail:queue:confirmation" ? confirmationIds : welcomeIds,
-        ];
+      if (command[0] === "EVAL" && String(command[1]).includes("SSCAN")) {
+        const queuedIds = ids.get(String(command[3])) ?? [];
+        const id = queuedIds.shift();
+        return ["0", 1, queuedIds.length === 0 ? 1 : 0, ...(id ? [id] : [])];
       }
       if (command[0] === "GET") {
         activePayloadReads += 1;
@@ -368,21 +474,41 @@ describe("delivery retry state", () => {
     expect(peakPayloadReads).toBe(1);
     expect(
       redisCommand.mock.calls
-        .filter(([command]) => command[0] === "SSCAN")
-        .every(([command]) => command.includes("COUNT") && Number(command.at(-1)) <= 4),
+        .filter(([command]) => command[0] === "EVAL" && String(command[1]).includes("SSCAN"))
+        .every(([command]) => Number(command[7]) <= 4),
     ).toBe(true);
+    expect(redisCommand.mock.calls.some(([command]) => command[0] === "SSCAN")).toBe(false);
   });
 
-  it("retains scanned ids when the current Redis work budget is exhausted", async () => {
-    redisCommand.mockResolvedValueOnce(["0", ["confirmation-0"]]);
+  it("does not dequeue a lifecycle id without budget to read its payload", async () => {
     const scan = createLifecycleMailScan();
 
     await expect(listLifecycleMailJobs(scan, 1, 1)).resolves.toMatchObject({
       jobs: [],
-      work: 1,
+      work: 0,
     });
 
-    expect(scan.confirmation.pendingIds).toEqual(["confirmation-0"]);
+    expect(redisCommand).not.toHaveBeenCalled();
+  });
+
+  it("keeps oversized lifecycle scan batches out of process memory", async () => {
+    const confirmationIds = Array.from({ length: 500 }, (_, index) => `confirmation-${index}`);
+    redisCommand.mockImplementation(async (command: unknown[]) => {
+      if (command[0] === "SSCAN") return ["0", confirmationIds];
+      if (command[0] === "EVAL" && String(command[1]).includes("SSCAN")) {
+        return ["0", 1, 1, "confirmation-0"];
+      }
+      if (command[0] === "GET") return "reader@example.com\nconfirmation-token";
+      throw new Error("unexpected Redis command");
+    });
+
+    const scan = createLifecycleMailScan();
+    const result = await listLifecycleMailJobs(scan, 1, 2);
+
+    expect(result.jobs).toHaveLength(1);
+    expect(JSON.stringify(scan)).not.toContain("confirmation-499");
+    expect(JSON.stringify(scan).length).toBeLessThan(512);
+    expect(redisCommand.mock.calls.some(([command]) => command[0] === "SSCAN")).toBe(false);
   });
 });
 

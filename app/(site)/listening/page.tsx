@@ -65,7 +65,7 @@ export default async function ListeningPage() {
     <div className="mx-auto max-w-2xl px-6 py-16">
       <h1 className="text-2xl font-medium text-zinc-900 dark:text-zinc-100">Listening</h1>
       <p className="mt-2 text-sm text-muted">
-        Stored listening history is synced daily. Now playing updates live.
+        Stored listening history is synced daily.
       </p>
 
       <NowPlayingCard />

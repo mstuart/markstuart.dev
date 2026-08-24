@@ -1,20 +1,37 @@
 {
   "name": "markstuart.dev",
   "version": "0.1.0",
+  "description": "The source code for Mark Stuart's personal website.",
   "private": true,
+  "license": "MIT",
+  "author": "Mark Stuart",
+  "homepage": "https://markstuart.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mstuart/markstuart.dev.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mstuart/markstuart.dev/issues"
+  },
   "engines": {
-    "node": "24.x"
+    "node": "24.19.0",
+    "npm": "11.19.0"
   },
   "packageManager": "npm@11.19.0",
   "scripts": {
+    "help": "node scripts/help.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint --max-warnings=0",
     "test": "vitest run",
     "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
     "typecheck": "next typegen && tsc --noEmit",
-    "check": "npm run lint && npm run typecheck && npm test && npm run build"
+    "policy": "node scripts/check-repository-policy.mjs",
+    "runtime": "node scripts/verify-runtime.mjs",
+    "smoke": "node scripts/smoke-start.mjs",
+    "check": "npm run policy && npm run runtime && npm run lint && npm run typecheck && npm test && npm run coverage && npm run build && npm run smoke"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
@@ -25,25 +42,24 @@
     "postal-mime": "2.7.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "resend": "^6.22.0",
     "sugar-high": "^2.0.1",
     "svix": "^2.0.0"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.13.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.6",
-    "@types/node": "^20",
+    "@types/node": "^24.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "axe-core": "^4.13.0",
+    "@vitest/coverage-v8": "^4.1.11",
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
     "jsdom": "^30.0.1",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "yaml": "^2.9.0"
   }
 }

@@ -4,6 +4,39 @@ import { describe, expect, it } from "vitest";
 const read = (path: string) => (existsSync(path) ? readFileSync(path, "utf8") : "");
 
 describe("repository documentation", () => {
+  it("publishes governance files while reserving personal content and assets", () => {
+    const license = read("LICENSE");
+    const notice = read("NOTICE");
+
+    expect(license).toMatch(/^MIT License/);
+    expect(notice).toMatch(/MIT License[\s\S]*source code/i);
+    expect(notice).toMatch(/no license[\s\S]*(personal content|photographs|images)/i);
+    for (const path of [
+      "SECURITY.md",
+      "CONTRIBUTING.md",
+      "CODE_OF_CONDUCT.md",
+      "SUPPORT.md",
+      "docs/asset-rights.md",
+      ".github/CODEOWNERS",
+      ".github/ISSUE_TEMPLATE/bug_report.yml",
+      ".github/pull_request_template.md",
+    ]) {
+      expect(existsSync(path), `${path} should exist`).toBe(true);
+    }
+  });
+
+  it("gives fresh contributors actionable fork and vendored-tooling guidance", () => {
+    const readme = read("README.md");
+    const tooling = read("docs/contributor-tooling.md");
+
+    expect(readme).toMatch(/public fork/i);
+    expect(readme).toMatch(/npm run help/i);
+    expect(readme).toMatch(/license[\s\S]*assets/i);
+    expect(tooling).toMatch(/\.agents[\s\S]*vendored/i);
+    expect(tooling).toMatch(/Windows[\s\S]*symbolic link/i);
+    expect(tooling).toMatch(/core\.symlinks/i);
+  });
+
   it("points contributors at the real app entry point and verification command", () => {
     const readme = read("README.md");
 
@@ -61,6 +94,8 @@ describe("repository documentation", () => {
     expect(operations).toMatch(/23-hour[^\n]*ambiguous[^\n]*fail[^\n]*closed/i);
     expect(operations).toMatch(/quarantin[^\n]*operator reconciliation/i);
     expect(operations).toMatch(/inbound[^\n]*ambiguous[^\n]*fail[^\n]*closed/i);
+    expect(operations).toMatch(/POST \/api\/email\/inbound/i);
+    expect(operations).toMatch(/GET[^\n]*does not[^\n]*(confirm|unsubscribe)/i);
   });
 
   it("keeps Task 10-owned visible non-biographical copy free of em and en dashes", () => {

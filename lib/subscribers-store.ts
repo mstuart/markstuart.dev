@@ -12,8 +12,10 @@ const WELCOME_QUEUE_KEY = "mail:queue:welcome";
 const CONFIRMATION_QUARANTINE_KEY = "mail:quarantine:confirmation";
 const WELCOME_QUARANTINE_KEY = "mail:quarantine:welcome";
 const CONFIRMATION_TTL_SECONDS = 48 * 60 * 60;
+const LIFECYCLE_QUARANTINE_TTL_SECONDS = 48 * 60 * 60;
 const DELIVERY_RETRY_WINDOW_MS = 23 * 60 * 60 * 1_000;
 const RECIPIENT_SCAN_BUFFER_TTL_SECONDS = 60 * 60;
+const LIFECYCLE_SCAN_BUFFER_TTL_SECONDS = 60 * 60;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -40,7 +42,7 @@ const QUEUE_CONFIRMATION_SCRIPT = [
   "  redis.call('SET', KEYS[4], token, 'EX', ARGV[5])",
   "  redis.call('SET', KEYS[5], ARGV[2], 'EX', ARGV[5])",
   "end",
-  "redis.call('SET', KEYS[6], ARGV[2] .. '\\n' .. token)",
+  "redis.call('SET', KEYS[6], ARGV[2] .. '\\n' .. token, 'EX', ARGV[5])",
   "redis.call('SADD', KEYS[7], ARGV[3])",
   "return {ARGV[3], token}",
 ].join("\n");
@@ -56,10 +58,12 @@ const CREATE_UNSUBSCRIBE_TOKEN_SCRIPT = [
 const UNSUBSCRIBE_SCRIPT = [
   "local email = redis.call('GET', KEYS[1])",
   "if not email then return nil end",
+  "if email ~= ARGV[1] then return nil end",
   "redis.call('SREM', KEYS[2], email)",
   "redis.call('SREM', KEYS[3], email)",
   "redis.call('SADD', KEYS[4], email)",
   "redis.call('DEL', KEYS[5])",
+  "redis.call('DEL', KEYS[1], KEYS[6])",
   "return email",
 ].join("\n");
 
@@ -106,6 +110,7 @@ const COMPLETE_LIFECYCLE_JOB_SCRIPT = [
 const QUARANTINE_LIFECYCLE_JOB_SCRIPT = [
   "local removed = redis.call('SREM', KEYS[1], ARGV[1])",
   "redis.call('SADD', KEYS[2], ARGV[1])",
+  "if tonumber(ARGV[2]) > 0 then redis.call('EXPIRE', KEYS[3], ARGV[2]) end",
   "return removed",
 ].join("\n");
 
@@ -146,6 +151,28 @@ const SCAN_CONFIRMED_RECIPIENTS_SCRIPT = [
   "return result",
 ].join("\n");
 
+const SCAN_LIFECYCLE_JOBS_SCRIPT = [
+  "local cursor = ARGV[1]",
+  "local scan_complete = ARGV[2] == '1'",
+  "local id = redis.call('LPOP', KEYS[2])",
+  "if not id and not scan_complete then",
+  "  local scanned = redis.call('SSCAN', KEYS[1], cursor, 'COUNT', ARGV[3])",
+  "  cursor = scanned[1]",
+  "  if cursor == '0' then scan_complete = true end",
+  "  local values = scanned[2]",
+  "  id = values[1]",
+  "  for index = 2, #values do redis.call('RPUSH', KEYS[2], values[index]) end",
+  "end",
+  "local buffered_count = redis.call('LLEN', KEYS[2])",
+  "if buffered_count > 0 then",
+  "  redis.call('EXPIRE', KEYS[2], ARGV[4])",
+  "else",
+  "  redis.call('DEL', KEYS[2])",
+  "end",
+  "local exhausted = scan_complete and buffered_count == 0",
+  "return {cursor, scan_complete and 1 or 0, exhausted and 1 or 0, id}",
+].join("\n");
+
 export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
@@ -155,8 +182,26 @@ export function isValidEmail(email: string): boolean {
   return normalized.length <= 254 && EMAIL_RE.test(normalized);
 }
 
+export type SubscriptionCapability = "storage" | "signup";
+export type SubscriptionRequirement = "redis" | "rate_limit_secret" | "resend_api_key";
+export type SubscriptionReadiness =
+  | { ready: true }
+  | { ready: false; missing: readonly SubscriptionRequirement[] };
+
+export function getSubscriptionReadiness(
+  capability: SubscriptionCapability,
+): SubscriptionReadiness {
+  const missing: SubscriptionRequirement[] = [];
+  if (redisConfig() === null) missing.push("redis");
+  if (capability === "signup") {
+    if (!process.env.RATE_LIMIT_SECRET?.trim()) missing.push("rate_limit_secret");
+    if (!process.env.RESEND_API_KEY?.trim()) missing.push("resend_api_key");
+  }
+  return missing.length === 0 ? { ready: true } : { ready: false, missing };
+}
+
 export function isSubscribeConfigured(): boolean {
-  return redisConfig() !== null;
+  return getSubscriptionReadiness("storage").ready;
 }
 
 function sha256(value: string): string {
@@ -186,11 +231,12 @@ export type LifecycleMailJob = {
 
 type LifecycleQueueScan = {
   cursor: string;
+  scanComplete: boolean;
   exhausted: boolean;
-  pendingIds: string[];
 };
 
 export type LifecycleMailScan = {
+  token: string;
   confirmation: LifecycleQueueScan;
   welcome: LifecycleQueueScan;
   nextKind: LifecycleMailKind;
@@ -239,8 +285,12 @@ function lifecycleJobKey(kind: LifecycleMailKind, id: string): string {
 }
 
 export function createLifecycleMailScan(): LifecycleMailScan {
-  const queue = (): LifecycleQueueScan => ({ cursor: "0", exhausted: false, pendingIds: [] });
-  return { confirmation: queue(), welcome: queue(), nextKind: "confirmation" };
+  const queue = (): LifecycleQueueScan => ({
+    cursor: "0",
+    scanComplete: false,
+    exhausted: false,
+  });
+  return { token: randomUUID(), confirmation: queue(), welcome: queue(), nextKind: "confirmation" };
 }
 
 export function createNotificationRecipientScan(): NotificationRecipientScan {
@@ -404,12 +454,14 @@ export async function unsubscribeSubscriber(token: string): Promise<UnsubscribeR
   const removed = await redisCommand<string | null>([
     "EVAL",
     UNSUBSCRIBE_SCRIPT,
-    5,
+    6,
     tokenKey,
     LEGACY_CONFIRMED_KEY,
     CONFIRMED_KEY,
     SUPPRESSED_KEY,
     pendingKey(email),
+    unsubscribeTokenKey(email),
+    email,
   ]);
   return removed ? { status: "unsubscribed" } : { status: "invalid" };
 }
@@ -658,9 +710,34 @@ export async function getLifecycleMailJob(
 }
 
 function lifecycleScanExhausted(scan: LifecycleMailScan): boolean {
-  return (["confirmation", "welcome"] as const).every(
-    (kind) => scan[kind].exhausted && scan[kind].pendingIds.length === 0,
-  );
+  return (["confirmation", "welcome"] as const).every((kind) => scan[kind].exhausted);
+}
+
+function lifecycleScanBufferKey(scan: LifecycleMailScan, kind: LifecycleMailKind): string {
+  return `mail:queue-scan:${scan.token}:${kind}`;
+}
+
+async function scanLifecycleJobId(
+  scan: LifecycleMailScan,
+  kind: LifecycleMailKind,
+  count: number,
+): Promise<string | null> {
+  const queue = scan[kind];
+  const result = await redisCommand<Array<string | number>>([
+    "EVAL",
+    SCAN_LIFECYCLE_JOBS_SCRIPT,
+    2,
+    lifecycleQueueKey(kind),
+    lifecycleScanBufferKey(scan, kind),
+    queue.cursor,
+    queue.scanComplete ? "1" : "0",
+    count,
+    LIFECYCLE_SCAN_BUFFER_TTL_SECONDS,
+  ]);
+  queue.cursor = String(result[0] ?? "0");
+  queue.scanComplete = result[1] === 1;
+  queue.exhausted = result[2] === 1;
+  return result[3] === undefined ? null : String(result[3]);
 }
 
 export async function listLifecycleMailJobs(
@@ -678,23 +755,12 @@ export async function listLifecycleMailJobs(
     scan.nextKind = kind === "confirmation" ? "welcome" : "confirmation";
     const queue = scan[kind];
 
-    if (queue.pendingIds.length === 0 && !queue.exhausted) {
-      const count = Math.max(1, Math.min(boundedLimit - jobs.length, boundedWorkLimit - work));
-      const [cursor, ids] = await redisCommand<[string, string[]]>([
-        "SSCAN",
-        lifecycleQueueKey(kind),
-        queue.cursor,
-        "COUNT",
-        count,
-      ]);
-      work += 1;
-      queue.cursor = cursor;
-      queue.pendingIds.push(...ids);
-      if (cursor === "0") queue.exhausted = true;
-    }
+    if (queue.exhausted) continue;
+    if (boundedWorkLimit - work < 2) break;
 
-    if (work >= boundedWorkLimit) break;
-    const id = queue.pendingIds.shift();
+    const count = Math.max(1, Math.min(boundedLimit - jobs.length, boundedWorkLimit - work));
+    const id = await scanLifecycleJobId(scan, kind, count);
+    work += 1;
     if (!id) continue;
     const job = await getLifecycleMailJob(kind, id);
     work += 1;
@@ -711,10 +777,12 @@ export async function quarantineLifecycleMailJob(
   await redisCommand<number>([
     "EVAL",
     QUARANTINE_LIFECYCLE_JOB_SCRIPT,
-    2,
+    3,
     lifecycleQueueKey(kind),
     lifecycleQuarantineKey(kind),
+    lifecycleJobKey(kind, id),
     id,
+    LIFECYCLE_QUARANTINE_TTL_SECONDS,
   ]);
 }
 
@@ -740,24 +808,4 @@ export async function getNotifiedSlugs(): Promise<string[]> {
 
 export async function markNotified(slug: string): Promise<void> {
   await redisCommand<number>(["SADD", NOTIFIED_KEY, slug]);
-}
-
-// Compatibility aliases for existing internal callers during migration.
-export async function listSubscribers(): Promise<string[]> {
-  return listConfirmedSubscribers();
-}
-
-export async function addSubscriber(email: string): Promise<boolean> {
-  const result = await redisCommand<number>(["SADD", CONFIRMED_KEY, normalizeEmail(email)]);
-  return result === 1;
-}
-
-export async function removeSubscriber(email: string): Promise<boolean> {
-  const normalized = normalizeEmail(email);
-  const [legacy, current] = await redisPipeline<number>([
-    ["SREM", LEGACY_CONFIRMED_KEY, normalized],
-    ["SREM", CONFIRMED_KEY, normalized],
-  ]);
-  await redisCommand<number>(["SADD", SUPPRESSED_KEY, normalized]);
-  return legacy === 1 || current === 1;
 }

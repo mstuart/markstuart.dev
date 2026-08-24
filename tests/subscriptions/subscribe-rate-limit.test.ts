@@ -2,9 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const redisCommand = vi.hoisted(() => vi.fn());
 const store = vi.hoisted(() => ({
-  createPendingSubscriber: vi.fn(),
-  isConfirmedSubscriber: vi.fn(),
-  isSubscribeConfigured: vi.fn(),
+  getSubscriptionReadiness: vi.fn(),
   isValidEmail: vi.fn(),
   normalizeEmail: vi.fn((email: string) => email.trim().toLowerCase()),
   queueConfirmationDelivery: vi.fn(),
@@ -12,7 +10,7 @@ const store = vi.hoisted(() => ({
 
 vi.mock("@/lib/server/redis", () => ({ redisCommand }));
 vi.mock("@/lib/subscribers-store", () => store);
-vi.mock("@/lib/mailer", () => ({ sendConfirmationEmail: vi.fn() }));
+vi.mock("@/lib/mailer", () => ({ processLifecycleMailJob: vi.fn() }));
 vi.mock("next/server", () => ({ after: vi.fn() }));
 
 import { POST } from "@/app/api/subscribe/route";
@@ -21,9 +19,8 @@ beforeEach(() => {
   process.env.RATE_LIMIT_SECRET = "rate-limit-test-secret";
   redisCommand.mockReset();
   redisCommand.mockResolvedValue([1, 3600]);
-  store.isSubscribeConfigured.mockReturnValue(true);
+  store.getSubscriptionReadiness.mockReturnValue({ ready: true });
   store.isValidEmail.mockReturnValue(true);
-  store.isConfirmedSubscriber.mockResolvedValue(true);
   store.queueConfirmationDelivery.mockResolvedValue(null);
 });
 

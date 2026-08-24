@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { confirmSubscription } from "@/app/subscribe/confirm/actions";
 import { isConfirmationTokenValid } from "@/lib/subscribers-store";
+
+export const metadata: Metadata = {
+  title: { absolute: "Subscription confirmation" },
+  description: "Confirm or review an email subscription.",
+  robots: { index: false, follow: false },
+};
 
 type ConfirmationPageProps = {
   searchParams: Promise<{
@@ -39,7 +46,7 @@ export default async function ConfirmationPage({ searchParams }: ConfirmationPag
       <form action={confirmSubscription} className="mt-6">
         <input name="token" type="hidden" value={token} />
         <button
-          className="rounded-md bg-control px-4 py-2 font-medium text-control-foreground hover:bg-accent-hover"
+          className="inline-flex min-h-11 items-center rounded-md bg-control px-4 py-2 font-medium text-control-foreground transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
           type="submit"
         >
           Confirm subscription

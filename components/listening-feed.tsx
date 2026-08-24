@@ -1,23 +1,20 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
-import { ArrowUpRight, MusicNotes, SpotifyLogo } from "@phosphor-icons/react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowUpRight, MusicNotes } from "@phosphor-icons/react";
 import type { HistoryPage } from "@/lib/listening-store";
-import type { NowPlaying, SpotifyResult } from "@/lib/spotify";
+import type { SpotifyResult } from "@/lib/spotify";
 
-function formatPlayedAt(iso: string): string {
-  const played = new Date(iso);
-  const deltaMs = Date.now() - played.getTime();
-  const minutes = Math.floor(deltaMs / 60_000);
-  if (minutes < 60) return `${Math.max(minutes, 1)}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return played.toLocaleDateString("en-US", {
+function formatPlayedDuring(date: string): string {
+  const played = new Date(`${date}T00:00:00.000Z`);
+  const label = played.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
-    year: played.getFullYear() === new Date().getFullYear() ? undefined : "numeric",
+    year: played.getUTCFullYear() === new Date().getUTCFullYear() ? undefined : "numeric",
+    timeZone: "UTC",
   });
+  return `Week of ${label}`;
 }
 
 function ArtTile({ src, size }: { src?: string; size: "sm" | "lg" }) {
@@ -47,108 +44,22 @@ function ArtTile({ src, size }: { src?: string; size: "sm" | "lg" }) {
   );
 }
 
-function EqBars() {
-  return (
-    <span data-equalizer aria-hidden="true" className="inline-flex items-end gap-0.5">
-      {[0, 1, 2].map((bar) => (
-        <span
-          key={bar}
-          data-bar
-          className="w-0.5 rounded-full bg-teal-600 dark:bg-teal-400"
-          style={{ height: `${8 + bar * 3}px` }}
-        />
-      ))}
-    </span>
-  );
-}
-
 export function NowPlayingCard() {
-  const [nowPlaying, setNowPlaying] = useState<NowPlaying | null>(null);
-
-  useEffect(() => {
-    let active = true;
-    let interval: ReturnType<typeof setInterval> | null = null;
-    let pollVersion = 0;
-    let pollController: AbortController | null = null;
-
-    function invalidatePoll() {
-      pollVersion += 1;
-      pollController?.abort();
-      pollController = null;
-    }
-
-    async function poll() {
-      if (document.hidden) return;
-      const version = ++pollVersion;
-      pollController?.abort();
-      const controller = new AbortController();
-      pollController = controller;
-      try {
-        const res = await fetch("/api/spotify/now-playing", { signal: controller.signal });
-        const result = (await res.json()) as SpotifyResult<NowPlaying | null>;
-        if (active && version === pollVersion && !controller.signal.aborted) {
-          setNowPlaying(result.status === "ok" ? result.data : null);
-        }
-      } catch {
-        if (active && version === pollVersion && !controller.signal.aborted) setNowPlaying(null);
-      } finally {
-        if (pollController === controller) pollController = null;
-      }
-    }
-    function stop() {
-      if (interval) clearInterval(interval);
-      interval = null;
-    }
-    function syncPolling() {
-      stop();
-      invalidatePoll();
-      if (document.hidden) return;
-      void poll();
-      interval = setInterval(poll, 60_000);
-    }
-    syncPolling();
-    document.addEventListener("visibilitychange", syncPolling);
-    return () => {
-      active = false;
-      stop();
-      invalidatePoll();
-      document.removeEventListener("visibilitychange", syncPolling);
-    };
-  }, []);
-
-  if (!nowPlaying?.isPlaying || !nowPlaying.name) return null;
-  return (
-    <a
-      href={nowPlaying.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group mt-8 flex items-center gap-4 rounded-lg bg-zinc-100/70 p-4 transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:bg-zinc-900/70 dark:hover:bg-zinc-900 dark:focus-visible:ring-teal-400"
-    >
-      <ArtTile src={nowPlaying.image} size="lg" />
-      <div className="min-w-0 flex-1">
-        <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-accent">
-          <EqBars />
-          Now playing
-        </p>
-        <p className="mt-1 truncate font-medium text-zinc-900 transition-colors group-hover:text-teal-600 dark:text-zinc-100 dark:group-hover:text-teal-400">
-          {nowPlaying.name}
-        </p>
-        <p className="truncate text-sm text-muted">{nowPlaying.artist}</p>
-      </div>
-      <SpotifyLogo size={20} className="shrink-0 text-muted" />
-    </a>
-  );
+  return null;
 }
 
 export function RecentlyPlayed() {
   const [pages, setPages] = useState<HistoryPage[]>([]);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [paginationError, setPaginationError] = useState(false);
   const [status, setStatus] = useState<"loading" | "ok" | "unavailable">("loading");
+  const requestController = useRef<AbortController | null>(null);
+  const requestVersion = useRef(0);
 
-  const loadPage = useCallback(async (before?: number | null) => {
+  const loadPage = useCallback(async (cursor?: number | null, signal?: AbortSignal) => {
     try {
-      const query = before ? `?before=${before}` : "";
-      const res = await fetch(`/api/listening${query}`);
+      const query = cursor ? `?cursor=${cursor}` : "";
+      const res = await fetch(`/api/listening${query}`, { signal });
       return (await res.json()) as SpotifyResult<HistoryPage>;
     } catch {
       return { status: "unavailable", reason: "history_unavailable" } as const;
@@ -156,7 +67,12 @@ export function RecentlyPlayed() {
   }, []);
 
   useEffect(() => {
-    loadPage().then((result) => {
+    const controller = new AbortController();
+    const version = ++requestVersion.current;
+    requestController.current?.abort();
+    requestController.current = controller;
+    void loadPage(null, controller.signal).then((result) => {
+      if (controller.signal.aborted || version !== requestVersion.current) return;
       if (result.status === "ok") {
         setPages([result.data]);
         setStatus("ok");
@@ -164,17 +80,29 @@ export function RecentlyPlayed() {
         setStatus("unavailable");
       }
     });
+    return () => {
+      requestVersion.current += 1;
+      requestController.current?.abort();
+      requestController.current = null;
+    };
   }, [loadPage]);
 
   const items = pages.flatMap((page) => page.items);
-  const nextBefore = pages.length > 0 ? pages[pages.length - 1].nextBefore : null;
+  const nextCursor = pages.length > 0 ? pages[pages.length - 1].nextCursor : null;
 
   async function loadMore() {
-    if (!nextBefore || loadingMore) return;
+    if (!nextCursor || loadingMore) return;
+    const controller = new AbortController();
+    const version = ++requestVersion.current;
+    requestController.current?.abort();
+    requestController.current = controller;
     setLoadingMore(true);
-    const result = await loadPage(nextBefore);
+    setPaginationError(false);
+    const result = await loadPage(nextCursor, controller.signal);
+    if (controller.signal.aborted || version !== requestVersion.current) return;
     if (result.status === "ok") setPages((current) => [...current, result.data]);
-    else setStatus("unavailable");
+    else setPaginationError(true);
+    if (requestController.current === controller) requestController.current = null;
     setLoadingMore(false);
   }
 
@@ -192,8 +120,8 @@ export function RecentlyPlayed() {
           <p className="mt-4 text-sm text-muted">Nothing here yet.</p>
         ) : (
           <ul className="mt-4 flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
-            {items.map((item) => (
-              <li key={`${item.playedAt}-${item.name}`}>
+            {items.map((item, index) => (
+              <li key={`${item.playedDuring}-${item.name}-${index}`}>
                 <a
                   href={item.url}
                   target="_blank"
@@ -212,7 +140,7 @@ export function RecentlyPlayed() {
                       </span>
                     </span>
                     <span className="shrink-0 font-mono text-xs tabular-nums text-muted">
-                      {formatPlayedAt(item.playedAt)}
+                      {formatPlayedDuring(item.playedDuring)}
                     </span>
                   </span>
                 </a>
@@ -220,14 +148,19 @@ export function RecentlyPlayed() {
             ))}
           </ul>
         )}
-        {nextBefore ? (
+        {status === "ok" && paginationError ? (
+          <p role="status" className="mt-4 text-sm text-muted">
+            Could not load more listening history.
+          </p>
+        ) : null}
+        {nextCursor ? (
           <button
             type="button"
             onClick={loadMore}
             disabled={loadingMore}
             className="mt-6 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-control-border px-3 py-1 text-sm text-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:scale-[0.98]"
           >
-            {loadingMore ? "Loading…" : "Load more"}
+            {loadingMore ? "Loading…" : paginationError ? "Retry" : "Load more"}
           </button>
         ) : null}
       </div>

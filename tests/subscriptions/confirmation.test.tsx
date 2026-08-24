@@ -19,7 +19,7 @@ vi.mock("@/lib/mailer", () => ({ processLifecycleMailJob, sendWelcomeEmail }));
 vi.mock("next/navigation", () => ({ redirect }));
 vi.mock("next/server", () => ({ after }));
 
-import ConfirmationPage from "@/app/subscribe/confirm/page";
+import ConfirmationPage, { metadata } from "@/app/subscribe/confirm/page";
 import { confirmSubscription } from "@/app/subscribe/confirm/actions";
 
 beforeEach(() => {
@@ -37,6 +37,14 @@ beforeEach(() => {
 });
 
 describe("confirmation page", () => {
+  it("keeps the tokenized confirmation route out of search results", () => {
+    expect(metadata).toMatchObject({
+      title: { absolute: "Subscription confirmation" },
+      description: "Confirm or review an email subscription.",
+      robots: { index: false, follow: false },
+    });
+  });
+
   it("GET renders a deliberate POST form without consuming the token", async () => {
     render(
       await ConfirmationPage({

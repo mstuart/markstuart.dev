@@ -10,7 +10,7 @@ const icons: Record<SocialIconKey, typeof GithubLogo> = {
 
 export function SocialLinks({ className }: { className?: string }) {
   return (
-    <ul className={`flex items-center gap-4 ${className ?? ""}`}>
+    <ul className={`flex items-center gap-1 ${className ?? ""}`}>
       {site.social.map((link) => {
         const Icon = icons[link.icon];
         return (
@@ -20,7 +20,7 @@ export function SocialLinks({ className }: { className?: string }) {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={link.name}
-              className="flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-400 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
+              className="flex h-11 w-11 items-center justify-center rounded-md text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <Icon size={18} weight="regular" />
             </a>

@@ -6,6 +6,7 @@ import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { SampleBadge } from "@/components/shared/sample-badge";
 import { Code, Pre } from "@/components/mdx/code-block";
 import { UpvoteButton } from "@/components/upvote-button";
+import { blogPostingJsonLd, pageMetadata, serializeJsonLd } from "@/lib/metadata";
 import { getAllPosts, getPost } from "@/lib/posts";
 
 function formatDate(date: string) {
@@ -29,19 +30,19 @@ export async function generateMetadata(props: PageProps<"/posts/[slug]">): Promi
     return {};
   }
 
-  const url = `https://markstuart.dev/posts/${post.slug}`;
-
-  return {
+  const path = `/posts/${post.slug}`;
+  const metadata = pageMetadata({
     title: post.title,
     description: post.description,
-    alternates: {
-      canonical: url,
-    },
+    path,
+    type: "article",
+  });
+
+  return {
+    ...metadata,
     openGraph: {
-      title: post.title,
-      description: post.description,
+      ...metadata.openGraph,
       type: "article",
-      url,
       publishedTime: post.date,
     },
   };
@@ -57,9 +58,13 @@ export default async function PostPage(props: PageProps<"/posts/[slug]">) {
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(blogPostingJsonLd(post)) }}
+      />
       <Link
         href="/posts"
-        className="inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 rounded-md dark:text-zinc-400 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
+        className="inline-flex items-center gap-1.5 rounded-md text-sm text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         <ArrowLeft size={14} weight="regular" />
         Posts
@@ -73,13 +78,13 @@ export default async function PostPage(props: PageProps<"/posts/[slug]">) {
           </div>
           <time
             dateTime={post.date}
-            className="mt-2 block font-mono text-xs text-zinc-500 dark:text-zinc-400"
+            className="mt-2 block font-mono text-xs text-muted"
           >
             {formatDate(post.date)}
           </time>
         </header>
 
-        <div className="prose-quiet mt-8 font-serif text-[17px] leading-8 text-zinc-800 dark:text-zinc-200 [&_p]:mb-5 [&_a]:text-teal-600 [&_a]:underline [&_a]:underline-offset-4 dark:[&_a]:text-teal-400 [&_strong]:font-semibold">
+        <div className="prose-quiet mt-8 font-serif text-[17px] leading-8 text-zinc-800 dark:text-zinc-200 [&_p]:mb-5 [&_a]:text-accent [&_a]:underline [&_a]:underline-offset-4 [&_strong]:font-semibold">
           <MDXRemote source={post.content} components={{ pre: Pre, code: Code }} />
         </div>
 

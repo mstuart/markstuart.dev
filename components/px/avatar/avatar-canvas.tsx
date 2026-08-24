@@ -4,8 +4,7 @@ import { useLayoutEffect, useRef } from "react";
 
 // Same decode-loop grammar as the header monogram (monogram2), applied to
 // the profile photo: cells lock in from a pixelated mosaic to the full-res
-// image, hold, then replay forever. Timing constants match monogram2 so the
-// two ambient loops read as siblings.
+// image once. It only replays after direct hover or focus interaction.
 const TILE_SIZE = 56;
 const GRID = 14;
 const CELL = TILE_SIZE / GRID;
@@ -15,8 +14,6 @@ const ENTRANCE_FRAME_MS = 100; // ~700ms total
 
 const HOVER_FRAMES = 4;
 const HOVER_FRAME_MS = 100; // ~400ms total
-
-const AMBIENT_HOLD_MS = 3500; // static hold between ambient decode cycles
 
 function shuffledIndices(length: number): number[] {
   const order = Array.from({ length }, (_, i) => i);
@@ -35,6 +32,7 @@ export function AvatarDecodeCanvas({ src }: { src: string }) {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    const replayTarget = canvas.closest<HTMLElement>("a, button, [tabindex]") ?? canvas;
 
     const dpr = Math.max(1, window.devicePixelRatio || 1);
     canvas.width = Math.round(TILE_SIZE * dpr);
@@ -58,10 +56,6 @@ export function AvatarDecodeCanvas({ src }: { src: string }) {
     let sequenceFrame = 0;
     let sequenceTotal = 0;
     let sequenceFrameMs = ENTRANCE_FRAME_MS;
-
-    let holdTimerId: ReturnType<typeof setTimeout> | null = null;
-    let holdRemainingMs = 0;
-    let holdStartedAt = 0;
 
     function draw() {
       if (!ctx || !imageReady) return;
@@ -89,42 +83,6 @@ export function AvatarDecodeCanvas({ src }: { src: string }) {
       timerId = null;
     }
 
-    function cancelHold() {
-      if (holdTimerId !== null) {
-        clearTimeout(holdTimerId);
-        holdTimerId = null;
-      }
-      holdRemainingMs = 0;
-    }
-
-    function pauseHold() {
-      if (holdTimerId === null) return;
-      clearTimeout(holdTimerId);
-      holdTimerId = null;
-      holdRemainingMs = Math.max(0, holdRemainingMs - (Date.now() - holdStartedAt));
-    }
-
-    function resumeHold() {
-      if (holdTimerId !== null || holdRemainingMs <= 0 || reducedMotionQuery.matches) return;
-      holdStartedAt = Date.now();
-      holdTimerId = setTimeout(runAmbientCycle, holdRemainingMs);
-    }
-
-    function startHold() {
-      if (reducedMotionQuery.matches) return;
-      holdRemainingMs = AMBIENT_HOLD_MS;
-      if (document.hidden) return;
-      holdStartedAt = Date.now();
-      holdTimerId = setTimeout(runAmbientCycle, AMBIENT_HOLD_MS);
-    }
-
-    function runAmbientCycle() {
-      holdTimerId = null;
-      holdRemainingMs = 0;
-      if (reducedMotionQuery.matches) return;
-      startSequence(ENTRANCE_FRAMES, ENTRANCE_FRAME_MS);
-    }
-
     function tick() {
       sequenceFrame += 1;
       if (sequenceFrame >= sequenceTotal) {
@@ -132,7 +90,6 @@ export function AvatarDecodeCanvas({ src }: { src: string }) {
         draw();
         stopTimer();
         sequenceActive = false;
-        startHold();
         return;
       }
       renderSequenceFrame();
@@ -140,7 +97,6 @@ export function AvatarDecodeCanvas({ src }: { src: string }) {
 
     function startSequence(totalFrames: number, frameMs: number) {
       stopTimer();
-      cancelHold();
       sequenceTotal = totalFrames;
       sequenceFrameMs = frameMs;
       cellOrder = shuffledIndices(GRID * GRID);
@@ -157,7 +113,6 @@ export function AvatarDecodeCanvas({ src }: { src: string }) {
     function handleReducedMotionChange() {
       if (!reducedMotionQuery.matches) return;
       stopTimer();
-      cancelHold();
       sequenceActive = false;
       lockedCount = GRID * GRID;
       draw();
@@ -166,16 +121,14 @@ export function AvatarDecodeCanvas({ src }: { src: string }) {
     function handleVisibility() {
       if (document.hidden) {
         stopTimer();
-        pauseHold();
         return;
       }
       if (sequenceActive && timerId === null) {
         timerId = setInterval(tick, sequenceFrameMs);
       }
-      resumeHold();
     }
 
-    function handleMouseEnter() {
+    function handleReplay() {
       if (reducedMotionQuery.matches) return;
       startSequence(HOVER_FRAMES, HOVER_FRAME_MS);
     }
@@ -203,14 +156,15 @@ export function AvatarDecodeCanvas({ src }: { src: string }) {
 
     document.addEventListener("visibilitychange", handleVisibility);
     reducedMotionQuery.addEventListener("change", handleReducedMotionChange);
-    canvas.addEventListener("mouseenter", handleMouseEnter);
+    canvas.addEventListener("mouseenter", handleReplay);
+    replayTarget.addEventListener("focus", handleReplay);
 
     return () => {
       stopTimer();
-      cancelHold();
       document.removeEventListener("visibilitychange", handleVisibility);
       reducedMotionQuery.removeEventListener("change", handleReducedMotionChange);
-      canvas.removeEventListener("mouseenter", handleMouseEnter);
+      canvas.removeEventListener("mouseenter", handleReplay);
+      replayTarget.removeEventListener("focus", handleReplay);
       image.onload = null;
     };
   }, [src]);

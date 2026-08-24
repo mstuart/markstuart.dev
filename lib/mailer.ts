@@ -1,98 +1,238 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
-import { Resend } from "resend";
+import { createHash } from "node:crypto";
+
 import { site } from "@/lib/data/site";
+import { fetchWithTimeout } from "@/lib/server/http";
+import {
+  beginDeliveryAttempt,
+  completeLifecycleMailJob,
+  createLifecycleMailScan,
+  getLifecycleMailJob,
+  getOrCreateUnsubscribeToken,
+  listLifecycleMailJobs,
+  quarantineLifecycleMailJob,
+  type LifecycleMailKind,
+} from "@/lib/subscribers-store";
 import type { PostMeta } from "@/lib/types";
 
-// Subscriber email sending via Resend (provisioned through Vercel; domain
-// verified). Every message carries a signed per-recipient unsubscribe link
-// plus a List-Unsubscribe header so Gmail shows its native unsubscribe.
-
 const FROM = "Mark Stuart <mark@markstuart.dev>";
+const MAIL_TIMEOUT_MS = 8_000;
 
-export function unsubscribeToken(email: string): string {
-  const secret = process.env.UNSUBSCRIBE_SECRET;
-  if (!secret) throw new Error("UNSUBSCRIBE_SECRET not set");
-  return createHmac("sha256", secret).update(email.trim().toLowerCase()).digest("hex");
+function tokenDigest(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
 }
 
-export function verifyUnsubscribeToken(email: string, token: string): boolean {
-  const expected = unsubscribeToken(email);
-  if (token.length !== expected.length) return false;
-  return timingSafeEqual(Buffer.from(token), Buffer.from(expected));
+function resendApiKey(): string {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) throw new Error("Mail is not configured");
+  return apiKey;
 }
 
-function unsubscribeUrl(email: string): string {
-  const params = new URLSearchParams({ email, token: unsubscribeToken(email) });
+type ResendMessage = {
+  from: string;
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+  headers?: Record<string, string>;
+};
+
+function unsubscribeUrl(token: string): string {
+  const params = new URLSearchParams({ token });
   return `${site.url}/api/unsubscribe?${params}`;
 }
 
-function footer(email: string, topMargin = 32): { html: string; text: string } {
-  const url = unsubscribeUrl(email);
+function footer(token: string, topMargin = 32): { html: string; text: string } {
+  const url = unsubscribeUrl(token);
   return {
     html: `<p style="margin:${topMargin}px 0 0;font-size:13px;line-height:1.6;color:#a1a1aa">You're getting this because you subscribed at <a href="${site.url}" style="color:#71717a">markstuart.dev</a>. <a href="${url}" style="color:#71717a">Unsubscribe</a> anytime.</p>`,
-    text: `\n\n—\nYou're getting this because you subscribed at ${site.url}. Unsubscribe: ${url}`,
+    text: `\n\n---\nYou're getting this because you subscribed at ${site.url}. Unsubscribe: ${url}`,
   };
 }
 
-function headers(email: string) {
+function unsubscribeHeaders(token: string): Record<string, string> {
   return {
-    "List-Unsubscribe": `<${unsubscribeUrl(email)}>`,
+    "List-Unsubscribe": `<${unsubscribeUrl(token)}>`,
     "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
   };
 }
 
-export async function sendWelcomeEmail(email: string): Promise<void> {
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  const f = footer(email);
-  const { error } = await resend.emails.send({
-    from: FROM,
-    to: email,
-    subject: "You're subscribed to markstuart.dev",
-    headers: headers(email),
-    text: `Thanks for subscribing. You'll get one email when I publish something new — no other mail.${f.text}`,
-    html: `<div style="font-family:-apple-system,Segoe UI,sans-serif;max-width:560px"><p>Thanks for subscribing. You'll get one email when I publish something new — no other mail.</p>${f.html}</div>`,
-  });
-  if (error) throw new Error(error.message);
+async function sendResendEmail(message: ResendMessage, idempotencyKey: string): Promise<void> {
+  const response = await fetchWithTimeout(
+    "https://api.resend.com/emails",
+    {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${resendApiKey()}`,
+        "content-type": "application/json",
+        "idempotency-key": idempotencyKey,
+      },
+      body: JSON.stringify(message),
+    },
+    MAIL_TIMEOUT_MS,
+  );
+  if (!response.ok) throw new Error("Mail provider rejected the request");
 }
 
-/**
- * Send one new-post announcement to every subscriber. Returns count sent.
- *
- * Template follows the researched conventions of real developer newsletters:
- * the title itself is the subject (no "New post:" prefix) with a reading-time
- * tag, a hidden preheader extends the subject, the teaser is authored
- * first-person copy in full-strength text, and the single click target is one
- * plain teal link. No images, no buttons, no logo.
- */
-export async function sendNewPostEmails(post: PostMeta, subscribers: string[]): Promise<number> {
-  if (subscribers.length === 0) return 0;
-  const resend = new Resend(process.env.RESEND_API_KEY);
+export async function sendConfirmationEmail(email: string, token: string): Promise<void> {
+  const url = `${site.url}/subscribe/confirm?${new URLSearchParams({ token })}`;
+  await sendResendEmail(
+    {
+      from: FROM,
+      to: email,
+      subject: "Confirm your markstuart.dev subscription",
+      text: `Confirm your subscription by visiting ${url}. This link expires in 48 hours.`,
+      html: `<div style="font-family:-apple-system,'Segoe UI',sans-serif;max-width:560px"><p>Confirm your subscription to markstuart.dev.</p><p><a href="${url}">Confirm subscription</a></p><p>This link expires in 48 hours.</p></div>`,
+    },
+    `confirm/${tokenDigest(token)}`,
+  );
+}
+
+export async function sendWelcomeEmail(
+  email: string,
+  unsubscribeToken: string,
+  deliveryId: string,
+): Promise<void> {
+  const f = footer(unsubscribeToken);
+  await sendResendEmail(
+    {
+      from: FROM,
+      to: email,
+      subject: "You're subscribed to markstuart.dev",
+      headers: unsubscribeHeaders(unsubscribeToken),
+      text: `Thanks for subscribing. You'll get one email when I publish something new; no other mail.${f.text}`,
+      html: `<div style="font-family:-apple-system,'Segoe UI',sans-serif;max-width:560px"><p>Thanks for subscribing. You'll get one email when I publish something new; no other mail.</p>${f.html}</div>`,
+    },
+    `welcome/${deliveryId}`,
+  );
+}
+
+export async function sendNewPostEmail(
+  post: PostMeta,
+  email: string,
+  unsubscribeToken: string,
+  recipientId: string,
+): Promise<void> {
   const postUrl = `${site.url}/posts/${post.slug}`;
-  const subject = `${post.title} — ${post.minutes} min read`;
+  const subject = `${post.title} - ${post.minutes} min read`;
   const teaser = post.teaser ?? post.description;
-  const preheader = post.description;
   const dateLabel = new Date(`${post.date}T00:00:00Z`).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
     timeZone: "UTC",
   });
-  // Individual sends, paced under Resend's rate limit. Gmail discarded a
-  // same-second batch from this young domain; the single-send path delivers.
-  let sent = 0;
-  for (const email of subscribers) {
-    const f = footer(email, 0);
-    const { error } = await resend.emails.send({
+  const f = footer(unsubscribeToken, 0);
+
+  await sendResendEmail(
+    {
       from: FROM,
       to: email,
       subject,
-      headers: headers(email),
-      text: `${post.title}\n${dateLabel}\n\n${teaser}\n\nRead it (${post.minutes} min): ${postUrl}\n\n— Mark${f.text}`,
-      html: `<div style="font-family:-apple-system,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;color:#18181b"><span style="display:none;max-height:0;overflow:hidden">${preheader}</span><p style="margin:0 0 24px;font-size:13px;color:#a1a1aa">markstuart.dev &middot; ${dateLabel}</p><h1 style="margin:0 0 16px;font-size:26px;font-weight:600;line-height:1.25;letter-spacing:-0.01em">${post.title}</h1><p style="margin:0 0 20px;font-size:16px;line-height:1.65">${teaser}</p><p style="margin:0 0 28px;font-size:16px"><a href="${postUrl}" style="color:#0d9488;font-weight:500">Read it on markstuart.dev</a> <span style="color:#a1a1aa">&middot; ${post.minutes} min</span></p><p style="margin:0 0 32px;font-size:16px;color:#52525b">— Mark</p><hr style="border:none;border-top:1px solid #e4e4e7;margin:0 0 16px">${f.html}</div>`,
-    });
-    if (error) throw new Error(error.message);
-    sent += 1;
-    await new Promise((resolve) => setTimeout(resolve, 600));
+      headers: unsubscribeHeaders(unsubscribeToken),
+      text: `${post.title}\n${dateLabel}\n\n${teaser}\n\nRead it (${post.minutes} min): ${postUrl}\n\n- Mark${f.text}`,
+      html: `<div style="font-family:-apple-system,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;color:#18181b"><span style="display:none;max-height:0;overflow:hidden">${post.description}</span><p style="margin:0 0 24px;font-size:13px;color:#a1a1aa">markstuart.dev &middot; ${dateLabel}</p><h1 style="margin:0 0 16px;font-size:26px;font-weight:600;line-height:1.25;letter-spacing:-0.01em">${post.title}</h1><p style="margin:0 0 20px;font-size:16px;line-height:1.65">${teaser}</p><p style="margin:0 0 28px;font-size:16px"><a href="${postUrl}" style="color:#0d9488;font-weight:500">Read it on markstuart.dev</a> <span style="color:#a1a1aa">&middot; ${post.minutes} min</span></p><p style="margin:0 0 32px;font-size:16px;color:#52525b">- Mark</p><hr style="border:none;border-top:1px solid #e4e4e7;margin:0 0 16px">${f.html}</div>`,
+    },
+    `post/${post.slug}/${recipientId}`,
+  );
+}
+
+export class MailDeliveryAmbiguousError extends Error {
+  constructor() {
+    super("Mail delivery requires operator reconciliation");
   }
-  return sent;
+}
+
+async function sendLifecycleMail(send: () => Promise<void>): Promise<void> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await send();
+      return;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
+}
+
+export async function processLifecycleMailJob(
+  kind: LifecycleMailKind,
+  id: string,
+  loadedJob?: Awaited<ReturnType<typeof getLifecycleMailJob>>,
+): Promise<void> {
+  const job = loadedJob ?? (await getLifecycleMailJob(kind, id));
+  if (!job) return;
+  let deliveryId: string;
+  let send: () => Promise<void>;
+  if (kind === "confirmation") {
+    const token = job.token;
+    if (!token) throw new Error("Confirmation delivery is not configured");
+    deliveryId = tokenDigest(token);
+    send = () => sendConfirmationEmail(job.email, token);
+  } else {
+    deliveryId = id;
+    send = async () => {
+      const unsubscribeToken = await getOrCreateUnsubscribeToken(job.email);
+      await sendWelcomeEmail(job.email, unsubscribeToken, id);
+    };
+  }
+  const attempt = await beginDeliveryAttempt(`lifecycle:${kind}:${deliveryId}`);
+  if (attempt === "ambiguous") throw new MailDeliveryAmbiguousError();
+  if (attempt === "complete") {
+    await completeLifecycleMailJob(kind, id, deliveryId);
+    return;
+  }
+
+  await sendLifecycleMail(send);
+  await completeLifecycleMailJob(kind, id, deliveryId);
+}
+
+export async function processQueuedLifecycleMailJobs(
+  limit = 4,
+): Promise<{ completed: number; failed: number }> {
+  const scan = createLifecycleMailScan();
+  let runnableHandled = 0;
+  let completed = 0;
+  let failed = 0;
+  const boundedLimit = Math.max(0, limit);
+  const maxScanWork = Math.max(16, boundedLimit * 8);
+  let scanWork = 0;
+
+  while (runnableHandled < boundedLimit && scanWork < maxScanWork) {
+    const page = await listLifecycleMailJobs(
+      scan,
+      Math.min(2, boundedLimit - runnableHandled),
+      maxScanWork - scanWork,
+    );
+    scanWork += page.work;
+    if (page.jobs.length === 0) {
+      if (page.exhausted || page.work === 0) break;
+      continue;
+    }
+
+    await Promise.all(
+      page.jobs.map(async (job) => {
+        let quarantined = false;
+        try {
+          await processLifecycleMailJob(job.kind, job.id, job);
+          completed += 1;
+        } catch (error) {
+          failed += 1;
+          if (error instanceof MailDeliveryAmbiguousError) {
+            quarantined = true;
+            try {
+              await quarantineLifecycleMailJob(job.kind, job.id);
+            } catch {
+              // A later drain may retry quarantine; keep scanning this batch.
+            }
+          }
+        } finally {
+          if (!quarantined) runnableHandled += 1;
+        }
+      }),
+    );
+    if (page.exhausted) break;
+  }
+
+  return { completed, failed };
 }

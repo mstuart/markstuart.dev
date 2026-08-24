@@ -5,13 +5,13 @@ import { getAllPosts } from "@/lib/posts";
 const STATIC_ROUTES = [
   "",
   "/work",
+  "/work/full",
   "/posts",
   "/projects",
   "/press",
   "/talks",
   "/listening",
   "/stack",
-  "/tui",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

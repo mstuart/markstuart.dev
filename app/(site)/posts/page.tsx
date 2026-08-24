@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { getAllPosts } from "@/lib/posts";
 import { SubscribeForm } from "@/components/subscribe-form";
 import { writing } from "@/lib/data/writing";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Writing",
   description: "Blog posts written here and elsewhere, read more than 410K times.",
-};
+  path: "/posts",
+});
 
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString("en-US", {
@@ -72,7 +73,7 @@ export default function PostsPage() {
   return (
     <div className="mx-auto max-w-2xl px-6 py-16">
       <h1 className="text-2xl font-medium text-zinc-900 dark:text-zinc-100">Writing</h1>
-      <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="mt-2 text-sm text-muted">
         Blog posts written here and elsewhere, read more than{" "}
         {(roundedViews / 1000).toLocaleString("en-US")}K times.
       </p>
@@ -92,7 +93,7 @@ export default function PostsPage() {
                 </span>
                 <time
                   dateTime={row.date}
-                  className="shrink-0 font-mono text-xs tabular-nums text-zinc-500 dark:text-zinc-400"
+                  className="shrink-0 font-mono text-xs tabular-nums text-muted"
                 >
                   {formatDate(row.date)}
                 </time>
@@ -115,12 +116,12 @@ export default function PostsPage() {
                   </span>
                   <time
                     dateTime={row.date}
-                    className="shrink-0 font-mono text-xs tabular-nums text-zinc-500 dark:text-zinc-400"
+                    className="shrink-0 font-mono text-xs tabular-nums text-muted"
                   >
                     {formatDate(row.date)}
                   </time>
                 </span>
-                <span className="font-mono text-xs tabular-nums text-zinc-400 dark:text-zinc-500">
+                <span className="font-mono text-xs tabular-nums text-muted">
                   {row.source}
                   {row.views ? ` · ${formatViews(row.views)}` : ""}
                 </span>

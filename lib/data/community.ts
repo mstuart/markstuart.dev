@@ -20,7 +20,7 @@ export const community: Attended[] = [
   {
     event: "GraphQL Enterprise Connect",
     date: "2020-08-14",
-    note: "Community Panel panelist, representing PayPal; online meetup co-hosted by This Dot Labs, PayPal, and Braintree. The meetup's own site is no longer live; linked via GraphQL Weekly's recap (issue 194).",
+    note: "Community panelist, representing PayPal; online meetup co-hosted by This Dot Labs, PayPal, and Braintree. The meetup's own site is no longer live; linked via GraphQL Weekly's recap (issue 194).",
     url: "https://graphqlweekly.com/issues/194",
     iconSrc: "/talks/graphql.png",
   },

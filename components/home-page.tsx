@@ -107,9 +107,9 @@ export function HomePage() {
 
             <div className="mt-8 space-y-4 leading-relaxed text-zinc-600 dark:text-zinc-400">
               <p>
-                Hey! I&apos;m Mark, a Distinguished Engineer at Rocket. I&apos;ve spent nearly two decades
-                in software engineering, with platform roles at PayPal, eBay, and Rocket spanning
-                Checkout, developer tools, and APIs.
+                Hey! I&apos;m Mark, a Distinguished Engineer at Rocket. For nearly two decades,
+                I&apos;ve built APIs, SDKs, and Web platforms for flagship consumer products at PayPal,
+                eBay, and Rocket, along with developer platforms used by millions of developers.
               </p>
               <p>
                 My through-line is turning fragmented systems and teams into composable platforms

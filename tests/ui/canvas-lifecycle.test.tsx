@@ -92,15 +92,17 @@ afterEach(() => {
 });
 
 describe.each<CanvasKind>(["avatar", "monogram"])("%s decode canvas", (kind) => {
-  it("autoplays one bounded entrance without scheduling an ambient replay", () => {
+  it("autoplays one bounded entrance", () => {
     renderCanvas(kind);
 
     expect(vi.getTimerCount()).toBe(1);
     act(() => vi.advanceTimersByTime(700));
-    expect(vi.getTimerCount()).toBe(0);
+    expect(vi.getTimerCount()).toBe(kind === "avatar" ? 1 : 0);
 
-    act(() => vi.advanceTimersByTime(10_000));
-    expect(vi.getTimerCount()).toBe(0);
+    if (kind === "monogram") {
+      act(() => vi.advanceTimersByTime(10_000));
+      expect(vi.getTimerCount()).toBe(0);
+    }
   });
 
   it("pauses an active entrance while hidden and resumes it when visible", () => {
@@ -115,22 +117,22 @@ describe.each<CanvasKind>(["avatar", "monogram"])("%s decode canvas", (kind) => 
     expect(vi.getTimerCount()).toBe(1);
 
     act(() => vi.advanceTimersByTime(700));
-    expect(vi.getTimerCount()).toBe(0);
+    expect(vi.getTimerCount()).toBe(kind === "avatar" ? 1 : 0);
   });
 
-  it("replays only after direct hover or focus interaction", () => {
+  it("replays after direct hover or focus interaction", () => {
     const { button, canvas } = renderCanvas(kind);
     act(() => vi.advanceTimersByTime(700));
 
     fireEvent.mouseEnter(canvas);
     expect(vi.getTimerCount()).toBe(1);
     act(() => vi.advanceTimersByTime(400));
-    expect(vi.getTimerCount()).toBe(0);
+    expect(vi.getTimerCount()).toBe(kind === "avatar" ? 1 : 0);
 
     fireEvent.focus(button);
     expect(vi.getTimerCount()).toBe(1);
     act(() => vi.advanceTimersByTime(400));
-    expect(vi.getTimerCount()).toBe(0);
+    expect(vi.getTimerCount()).toBe(kind === "avatar" ? 1 : 0);
   });
 
   it("does not autoplay or replay when reduced motion is requested", () => {
@@ -154,5 +156,19 @@ describe.each<CanvasKind>(["avatar", "monogram"])("%s decode canvas", (kind) => 
     act(() => document.dispatchEvent(new Event("visibilitychange")));
     expect(vi.getTimerCount()).toBe(0);
     expect(mediaListeners).toHaveLength(0);
+  });
+});
+
+describe("avatar ambient replay", () => {
+  it("renders at 200 pixels and replays its pixel decode after five seconds", () => {
+    const { canvas } = renderCanvas("avatar");
+
+    expect(canvas).toHaveStyle({ width: "200px", height: "200px" });
+    act(() => vi.advanceTimersByTime(700));
+    expect(vi.getTimerCount()).toBe(1);
+
+    const drawsAfterEntrance = canvasContext.fillRect.mock.calls.length;
+    act(() => vi.advanceTimersByTime(5000));
+    expect(canvasContext.fillRect.mock.calls.length).toBeGreaterThan(drawsAfterEntrance);
   });
 });

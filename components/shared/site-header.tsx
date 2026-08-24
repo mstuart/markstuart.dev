@@ -20,7 +20,7 @@ const navLinks = [
 export function SiteHeader() {
   return (
     <header className="border-b border-line">
-      <div className="site-header-inner mx-auto flex h-16 max-w-2xl items-center justify-between gap-3 px-4 text-sm sm:px-6">
+      <div className="site-header-inner mx-auto flex h-16 max-w-5xl items-center justify-between gap-3 px-4 text-sm sm:px-6">
         <Link
           href="/"
           aria-label={site.name}
@@ -33,7 +33,7 @@ export function SiteHeader() {
           </span>
           <span className="site-header-label">{site.name}</span>
         </Link>
-        <nav className="hidden items-center gap-2 md:flex lg:gap-4">
+        <nav className="hidden shrink-0 items-center gap-2 md:flex lg:gap-4">
           {navLinks.map((link) => (
             <ActiveNavLink
               key={link.href}

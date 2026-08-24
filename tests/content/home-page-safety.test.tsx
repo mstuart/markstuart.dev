@@ -14,7 +14,7 @@ describe("public homepage content safety", () => {
     expect(screen.getByRole("heading", { name: "Projects" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Reach me" })).toBeInTheDocument();
     expect(
-      screen.getByText(/I've spent nearly two decades in software engineering/i),
+      screen.getByText(/For nearly two decades, I've built APIs, SDKs, and Web platforms/i),
     ).toBeVisible();
     expect(container.innerHTML).not.toMatch(
       /highest-scale|millions of people|thousands of engineers|Google Health|Fitbit|Pixel Watch|github\.com\/mstuart\/vitals|vitals:/i,

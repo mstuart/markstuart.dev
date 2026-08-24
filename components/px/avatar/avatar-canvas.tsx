@@ -4,8 +4,8 @@ import { useLayoutEffect, useRef } from "react";
 
 // Same decode-loop grammar as the header monogram (monogram2), applied to
 // the profile photo: cells lock in from a pixelated mosaic to the full-res
-// image once. It only replays after direct hover or focus interaction.
-const TILE_SIZE = 252;
+// image once. It replays periodically and after direct interaction.
+const TILE_SIZE = 200;
 const GRID = 14;
 const CELL = TILE_SIZE / GRID;
 
@@ -14,6 +14,7 @@ const ENTRANCE_FRAME_MS = 100; // ~700ms total
 
 const HOVER_FRAMES = 4;
 const HOVER_FRAME_MS = 100; // ~400ms total
+const AMBIENT_REPLAY_MS = 5000;
 
 function shuffledIndices(length: number): number[] {
   const order = Array.from({ length }, (_, i) => i);
@@ -52,6 +53,7 @@ export function AvatarDecodeCanvas({ src }: { src: string }) {
     let cellOrder: number[] = [];
 
     let timerId: ReturnType<typeof setInterval> | null = null;
+    let ambientTimerId: ReturnType<typeof setTimeout> | null = null;
     let sequenceActive = false;
     let sequenceFrame = 0;
     let sequenceTotal = 0;
@@ -83,6 +85,21 @@ export function AvatarDecodeCanvas({ src }: { src: string }) {
       timerId = null;
     }
 
+    function stopAmbientTimer() {
+      if (ambientTimerId === null) return;
+      clearTimeout(ambientTimerId);
+      ambientTimerId = null;
+    }
+
+    function scheduleAmbientReplay() {
+      stopAmbientTimer();
+      if (reducedMotionQuery.matches || document.hidden || !imageReady || sequenceActive) return;
+      ambientTimerId = setTimeout(() => {
+        ambientTimerId = null;
+        startSequence(HOVER_FRAMES, HOVER_FRAME_MS);
+      }, AMBIENT_REPLAY_MS);
+    }
+
     function tick() {
       sequenceFrame += 1;
       if (sequenceFrame >= sequenceTotal) {
@@ -90,6 +107,7 @@ export function AvatarDecodeCanvas({ src }: { src: string }) {
         draw();
         stopTimer();
         sequenceActive = false;
+        scheduleAmbientReplay();
         return;
       }
       renderSequenceFrame();
@@ -97,6 +115,7 @@ export function AvatarDecodeCanvas({ src }: { src: string }) {
 
     function startSequence(totalFrames: number, frameMs: number) {
       stopTimer();
+      stopAmbientTimer();
       sequenceTotal = totalFrames;
       sequenceFrameMs = frameMs;
       cellOrder = shuffledIndices(GRID * GRID);
@@ -111,20 +130,27 @@ export function AvatarDecodeCanvas({ src }: { src: string }) {
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     function handleReducedMotionChange() {
-      if (!reducedMotionQuery.matches) return;
-      stopTimer();
-      sequenceActive = false;
-      lockedCount = GRID * GRID;
-      draw();
+      if (reducedMotionQuery.matches) {
+        stopTimer();
+        stopAmbientTimer();
+        sequenceActive = false;
+        lockedCount = GRID * GRID;
+        draw();
+      } else {
+        scheduleAmbientReplay();
+      }
     }
 
     function handleVisibility() {
       if (document.hidden) {
         stopTimer();
+        stopAmbientTimer();
         return;
       }
       if (sequenceActive && timerId === null) {
         timerId = setInterval(tick, sequenceFrameMs);
+      } else {
+        scheduleAmbientReplay();
       }
     }
 
@@ -161,6 +187,7 @@ export function AvatarDecodeCanvas({ src }: { src: string }) {
 
     return () => {
       stopTimer();
+      stopAmbientTimer();
       document.removeEventListener("visibilitychange", handleVisibility);
       reducedMotionQuery.removeEventListener("change", handleReducedMotionChange);
       canvas.removeEventListener("mouseenter", handleReplay);

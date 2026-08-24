@@ -85,6 +85,14 @@ describe("site navigation accessibility", () => {
     expect(screen.getByRole("link", { name: "Work" })).not.toHaveAttribute("aria-current");
   });
 
+  it("keeps the desktop navigation within a wide non-shrinking header shell", () => {
+    render(<SiteHeader />);
+
+    const nav = screen.getByRole("navigation");
+    expect(nav.parentElement).toHaveClass("max-w-5xl");
+    expect(nav).toHaveClass("shrink-0");
+  });
+
   it("distinguishes an exact current page from its parent section", () => {
     navigation.pathname = "/posts/hello-world";
     const view = render(<ActiveNavLink href="/posts">Writing</ActiveNavLink>);

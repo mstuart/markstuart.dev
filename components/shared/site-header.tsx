@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { TerminalWindow } from "@phosphor-icons/react/dist/ssr";
 import { PixelMonogram2 } from "@/components/px/monogram2";
+import { ActiveNavLink } from "@/components/shared/active-nav-link";
 import { MobileNav } from "@/components/shared/mobile-nav";
 import { SocialLinks } from "@/components/shared/social-links";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
@@ -10,10 +11,10 @@ const navLinks = [
   { href: "/work", label: "Work" },
   { href: "/posts", label: "Writing" },
   { href: "/projects", label: "Projects" },
-  { href: "/press", label: "Press" },
+  { href: "/press", label: "Press", prefetch: false },
   { href: "/talks", label: "Talks" },
-  { href: "/listening", label: "Listening" },
-  { href: "/stack", label: "Stack" },
+  { href: "/listening", label: "Listening", prefetch: false },
+  { href: "/stack", label: "Stack", prefetch: false },
 ];
 
 export function SiteHeader() {
@@ -33,13 +34,14 @@ export function SiteHeader() {
         </Link>
         <nav className="hidden items-center gap-2 md:flex lg:gap-4">
           {navLinks.map((link) => (
-            <Link
+            <ActiveNavLink
               key={link.href}
               href={link.href}
-              className="whitespace-nowrap rounded-md px-1 py-2 text-zinc-500 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-400 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
+              prefetch={link.prefetch}
+              className="whitespace-nowrap rounded-md px-1 py-2 text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               {link.label}
-            </Link>
+            </ActiveNavLink>
           ))}
         </nav>
         <div className="flex shrink-0 items-center gap-1">
@@ -50,7 +52,7 @@ export function SiteHeader() {
             href="/tui"
             aria-label="Launch terminal mode"
             title="Launch terminal mode"
-            className="flex h-9 w-9 items-center justify-center rounded-md text-zinc-500 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-400 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
+            className="flex h-9 w-9 items-center justify-center rounded-md text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <TerminalWindow size={18} weight="regular" />
           </Link>

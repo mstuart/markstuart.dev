@@ -12,7 +12,7 @@ export function SectionV1({
 }) {
   return (
     <section className={styles.fadeUp} style={{ animationDelay: `${index * 80}ms` }}>
-      <h2 className="text-sm font-medium text-zinc-400 dark:text-zinc-500">{heading}</h2>
+      <h2 className="text-sm font-medium text-muted">{heading}</h2>
       <div className="mt-4">{children}</div>
     </section>
   );

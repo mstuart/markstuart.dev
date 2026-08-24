@@ -38,7 +38,7 @@ function CompanyTile({ company }: { company: string }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img src={src} alt="" width={32} height={32} className="h-full w-full object-contain" />
       ) : (
-        <span className="font-serif text-sm text-zinc-400 dark:text-zinc-500">{company.charAt(0)}</span>
+        <span className="font-serif text-sm text-muted">{company.charAt(0)}</span>
       )}
     </span>
   );
@@ -49,8 +49,8 @@ function pillClass(active: boolean) {
     "inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors active:scale-[0.98]",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:focus-visible:ring-teal-400",
     active
-      ? "border-teal-600 text-teal-600 dark:border-teal-400 dark:text-teal-400"
-      : "border-zinc-200 text-zinc-500 hover:border-zinc-400 dark:border-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-600",
+      ? "border-accent text-accent"
+      : "border-zinc-200 text-muted hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-600",
   ].join(" ");
 }
 
@@ -71,7 +71,7 @@ export function ResumeView() {
         <button
           type="button"
           onClick={() => window.print()}
-          className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-zinc-200 px-3 py-1 text-sm text-zinc-500 transition-colors hover:border-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 active:scale-[0.98] dark:border-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-600 dark:focus-visible:ring-teal-400"
+          className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-zinc-200 px-3 py-1 text-sm text-muted transition-colors hover:border-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:scale-[0.98] dark:border-zinc-800 dark:hover:border-zinc-600"
         >
           <Printer size={14} weight="regular" />
           Print
@@ -81,7 +81,7 @@ export function ResumeView() {
       <p className="mt-8 leading-relaxed text-zinc-600 dark:text-zinc-400">{resumeSummary}</p>
 
       {view === "long" ? (
-        <div className="mt-6 flex flex-wrap gap-x-6 gap-y-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <div className="mt-6 flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted">
           {focusAreas.map((area) => (
             <span key={area}>{area}</span>
           ))}
@@ -89,7 +89,7 @@ export function ResumeView() {
       ) : null}
 
       <section className="mt-10">
-        <h2 className="text-sm font-medium text-zinc-400 dark:text-zinc-500">Experience</h2>
+        <h2 className="text-sm font-medium text-muted">Experience</h2>
         <div className="mt-4 flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
           {resumeRoles.map((role) => (
             <div key={`${role.company}-${role.title}`} className="flex gap-3 py-4">
@@ -98,16 +98,16 @@ export function ResumeView() {
                 <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
                   <p className="min-w-0 text-zinc-900 dark:text-zinc-100">
                     <span className="font-medium">{role.title}</span>
-                    <span className="text-zinc-500 dark:text-zinc-400"> at {role.company}</span>
+                    <span className="text-muted"> at {role.company}</span>
                   </p>
-                  <span className="shrink-0 font-mono text-xs tabular-nums text-zinc-500 dark:text-zinc-400">
+                  <span className="shrink-0 font-mono text-xs tabular-nums text-muted">
                     {formatMonth(role.start)} to {formatMonth(role.end)}
                   </span>
                 </div>
                 {view === "short" ? (
-                  <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{role.short}</p>
+                  <p className="mt-1 text-sm text-muted">{role.short}</p>
                 ) : (
-                  <ul className="mt-2 flex list-disc flex-col gap-1.5 pl-4 text-sm leading-relaxed text-zinc-500 marker:text-zinc-300 dark:text-zinc-400 dark:marker:text-zinc-700">
+                  <ul className="mt-2 flex list-disc flex-col gap-1.5 pl-4 text-sm leading-relaxed text-muted marker:text-zinc-300 dark:marker:text-zinc-700">
                     {role.bullets.map((bullet) => (
                       <li key={bullet.slice(0, 40)}>{bullet}</li>
                     ))}
@@ -121,8 +121,8 @@ export function ResumeView() {
 
       {view === "long" ? (
         <section className="mt-10">
-          <h2 className="text-sm font-medium text-zinc-400 dark:text-zinc-500">Industry contributions</h2>
-          <ul className="mt-4 flex list-disc flex-col gap-1.5 pl-4 text-sm leading-relaxed text-zinc-500 marker:text-zinc-300 dark:text-zinc-400 dark:marker:text-zinc-700">
+          <h2 className="text-sm font-medium text-muted">Industry contributions</h2>
+          <ul className="mt-4 flex list-disc flex-col gap-1.5 pl-4 text-sm leading-relaxed text-muted marker:text-zinc-300 dark:marker:text-zinc-700">
             {industryContributions.map((item) => (
               <li key={item.slice(0, 40)}>{item}</li>
             ))}
@@ -131,8 +131,8 @@ export function ResumeView() {
       ) : null}
 
       <section className="mt-10">
-        <h2 className="text-sm font-medium text-zinc-400 dark:text-zinc-500">Awards</h2>
-        <p className="mt-3 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">{awards.join(" · ")}</p>
+        <h2 className="text-sm font-medium text-muted">Awards</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted">{awards.join(" · ")}</p>
       </section>
 
     </div>

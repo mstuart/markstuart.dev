@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { ArrowUpRight } from "@phosphor-icons/react";
 
 export interface TalkListRow {
@@ -41,8 +42,8 @@ function pillClass(active: boolean) {
     "inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors active:scale-[0.98]",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:focus-visible:ring-teal-400",
     active
-      ? "border-teal-600 text-teal-600 dark:border-teal-400 dark:text-teal-400"
-      : "border-zinc-200 text-zinc-500 hover:border-zinc-400 dark:border-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-600",
+      ? "border-accent text-accent"
+      : "border-zinc-200 text-muted hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-600",
   ].join(" ");
 }
 
@@ -71,7 +72,7 @@ export function TalksFilter({ rows }: { rows: TalkListRow[] }) {
           className={pillClass(activeTag === null)}
         >
           All
-          <span className="font-mono text-xs tabular-nums text-zinc-400 dark:text-zinc-500">{rows.length}</span>
+          <span className="font-mono text-xs tabular-nums text-muted">{rows.length}</span>
         </button>
         {tags.map((tag) => (
           <button
@@ -82,17 +83,19 @@ export function TalksFilter({ rows }: { rows: TalkListRow[] }) {
             className={pillClass(activeTag === tag)}
           >
             {tag}
-            <span className="font-mono text-xs tabular-nums text-zinc-400 dark:text-zinc-500">{counts.get(tag)}</span>
+            <span className="font-mono text-xs tabular-nums text-muted">{counts.get(tag)}</span>
           </button>
         ))}
       </div>
+      <p role="status" aria-live="polite" className="sr-only">
+        {visibleRows.length} results
+      </p>
       <ul className="mt-6 flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
         {visibleRows.map((row) => (
           <li key={`${row.title}-${row.date}`} className="flex gap-3 py-4">
             {row.iconSrc ? (
               <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-zinc-100 ring-1 ring-zinc-900/10 dark:bg-zinc-900 dark:ring-zinc-100/10">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={row.iconSrc} alt="" width={32} height={32} className="h-full w-full object-contain" />
+                <Image src={row.iconSrc} alt="" width={32} height={32} className="h-full w-full object-contain" />
               </span>
             ) : null}
             <div className="min-w-0 flex-1">
@@ -112,13 +115,13 @@ export function TalksFilter({ rows }: { rows: TalkListRow[] }) {
                 )}
                 <time
                   dateTime={row.date}
-                  className="shrink-0 font-mono text-xs tabular-nums text-zinc-500 dark:text-zinc-400"
+                  className="shrink-0 font-mono text-xs tabular-nums text-muted"
                 >
                   {formatDate(row.date)}
                 </time>
               </div>
-              {row.context ? <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{row.context}</p> : null}
-              {row.note ? <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">{row.note}</p> : null}
+              {row.context ? <p className="mt-1 text-sm text-muted">{row.context}</p> : null}
+              {row.note ? <p className="mt-1 text-xs text-muted">{row.note}</p> : null}
             </div>
           </li>
         ))}

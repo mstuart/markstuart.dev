@@ -13,6 +13,10 @@
 # testing
 /coverage
 
+# local agent planning artifacts
+/docs/superpowers/
+/.superpowers/
+
 # next.js
 /.next/
 /out/

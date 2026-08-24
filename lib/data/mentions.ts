@@ -1,5 +1,17 @@
 import type { Mention } from "@/lib/types";
 
+export const manuscripts: Mention[] = [
+  {
+    kind: "book",
+    title: "Federated GraphQL on .NET, Chapter 1: Where the Single Schema Cracks",
+    date: "2026-08",
+    description:
+      "In-progress technical book manuscript quotes Mark by name from Scaling GraphQL at PayPal, with a formal bibliography entry.",
+    url: "https://github.com/Giang-Dang/latex-books/blob/main/books/federated-graphql-on-dotnet/chapters/01-why-one-graph-is-never-enough/02-where-the-single-schema-cracks.tex",
+    iconSrc: "/press/dotnet-book.png",
+  },
+];
+
 export const mentions: Mention[] = [
   {
     kind: "press",
@@ -17,15 +29,6 @@ export const mentions: Mention[] = [
       "Apollo blog post by George Snowflack quotes Mark, credited as Director of Engineering at PayPal, on UI developers' time spent building UI.",
     url: "https://www.apollographql.com/blog/my-first-6-months-at-apollo-graphql",
     iconSrc: "/press/apollo.png",
-  },
-  {
-    kind: "book",
-    title: "Federated GraphQL on .NET, Chapter 1: Where the Single Schema Cracks",
-    date: "2026-08",
-    description:
-      "In-progress technical book manuscript quotes Mark by name from Scaling GraphQL at PayPal, with a formal bibliography entry.",
-    url: "https://github.com/Giang-Dang/latex-books/blob/main/books/federated-graphql-on-dotnet/chapters/01-why-one-graph-is-never-enough/02-where-the-single-schema-cracks.tex",
-    iconSrc: "/press/dotnet-book.png",
   },
   {
     kind: "book",

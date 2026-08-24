@@ -27,7 +27,7 @@ export interface Talk {
   url?: string;
   note?: string;
   links?: TalkLink[];
-  /** Path to a small logo tile under /public, e.g. "/talks/midwestjs.png". */
+  /** Legacy compatibility field; stored third-party artwork is not rendered. */
   iconSrc?: string;
 }
 
@@ -37,7 +37,7 @@ export interface Appearance {
   date: string;
   url?: string;
   description?: string;
-  /** Path to a small logo tile under /public, e.g. "/talks/codetv.png". */
+  /** Legacy compatibility field; stored third-party artwork is not rendered. */
   iconSrc?: string;
 }
 
@@ -46,7 +46,7 @@ export interface Attended {
   date: string;
   note?: string;
   url?: string;
-  /** Path to a small logo tile under /public, e.g. "/talks/thisdot.png". */
+  /** Legacy compatibility field; stored third-party artwork is not rendered. */
   iconSrc?: string;
 }
 
@@ -69,7 +69,7 @@ export interface Mention {
   description: string;
   url: string;
   urls?: string[];
-  /** Path to a small logo tile under /public, e.g. "/press/apollo.png". */
+  /** Legacy compatibility field; stored third-party artwork is not rendered. */
   iconSrc?: string;
 }
 

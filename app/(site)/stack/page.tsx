@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { cliTools, PLATFORM_ORDER, stackSections, type Platform } from "@/lib/data/stack";
 import { pageMetadata } from "@/lib/metadata";
@@ -41,11 +40,7 @@ export default function StackPage() {
                   className="group flex items-center gap-3 rounded-md px-2 py-3 -mx-2 transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:hover:bg-zinc-900 dark:focus-visible:ring-teal-400"
                 >
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-zinc-100 ring-1 ring-zinc-900/10 dark:bg-zinc-900 dark:ring-zinc-100/10">
-                    {item.iconSrc ? (
-                      <Image src={item.iconSrc} alt="" width={32} height={32} className="h-full w-full object-contain" />
-                    ) : (
-                      <FallbackIcon size={16} weight="regular" className="text-muted" />
-                    )}
+                    <FallbackIcon aria-hidden="true" size={16} weight="regular" className="text-muted" />
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-1 text-zinc-900 transition-colors group-hover:text-teal-600 dark:text-zinc-100 dark:group-hover:text-teal-400">

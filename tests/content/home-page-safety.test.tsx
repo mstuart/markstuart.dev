@@ -6,12 +6,12 @@ vi.mock("@/components/px/avatar", () => ({ PixelAvatar: () => null }));
 vi.mock("@/components/px/scene5", () => ({ PixelScene5: () => null }));
 
 describe("public homepage content safety", () => {
-  it("shows State Farm among previous employers with its logo", () => {
+  it("shows State Farm among previous employers without storing its logo", () => {
     render(<HomePage />);
 
     const stateFarm = screen.getByRole("link", { name: "State Farm" });
     expect(stateFarm).toHaveAttribute("href", "https://www.statefarm.com/");
-    expect(stateFarm.querySelector("img")?.getAttribute("src")).toContain("statefarm.png");
+    expect(stateFarm.querySelector("img")).toBeNull();
   });
 
   it("shows all five featured projects under Building without a contributor row", () => {

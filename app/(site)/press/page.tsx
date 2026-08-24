@@ -1,5 +1,4 @@
-import Image from "next/image";
-import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
+import { ArrowUpRight, NewspaperClipping } from "@phosphor-icons/react/dist/ssr";
 import { manuscripts, mentions } from "@/lib/data/mentions";
 import { pageMetadata } from "@/lib/metadata";
 import type { Mention, MentionKind } from "@/lib/types";
@@ -51,17 +50,9 @@ function MentionRow({ mention }: { mention: Mention }) {
   return (
     <li className="py-4">
       <div className="flex gap-3">
-        {mention.iconSrc ? (
-          <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-muted ring-1 ring-line">
-            <Image
-              src={mention.iconSrc}
-              alt=""
-              width={32}
-              height={32}
-              className="h-full w-full object-contain"
-            />
-          </span>
-        ) : null}
+        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-surface-muted text-muted ring-1 ring-line">
+          <NewspaperClipping aria-hidden="true" size={16} weight="regular" />
+        </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
             <a

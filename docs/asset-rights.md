@@ -1,21 +1,25 @@
 # Asset rights and provenance
 
-The MIT License covers code, not the personal, editorial, visual, or branded
-material that makes this a personal site. Publication in the repository is not
-evidence that an asset may be copied into another site.
+The MIT License covers this repository's source code. It does not license Mark
+Stuart's identity, biography, editorial content, or original visual artwork for
+reuse in another site. Publication in this repository is not evidence that an
+asset may be copied or used to imply endorsement.
 
-## Current ledger
+## Retained visual assets
 
-| Repository material | Provenance and purpose | Rights status | Fork action |
-| --- | --- | --- | --- |
-| `public/avatar.jpg` | User-provided pixel portrait used to identify the site owner | Publication is maintainer-controlled; the repository records no transferable reuse or redistribution permission | Remove or replace unless separate permission is documented |
-| `public/poster-cat-8bit.png` | Decorative illustration | Source and transferable reuse terms are not recorded in the repository | Remove or replace before redistribution |
-| `public/press/**` | Publication artwork, screenshots, book covers, and organization marks used for editorial references | Third-party copyright and trademark rights remain with their owners | Prefer links or independently licensed replacements |
-| `public/talks/**` | Conference, channel, company, and event artwork used to identify appearances | No redistribution license is granted here | Remove or replace unless the owner grants permission |
-| `public/work/**` and `public/writing/**` | Employer, client, product, and publication marks used for factual attribution | Marks remain with their respective owners; use is nominative, not a license | Replace in a fork and do not imply endorsement |
-| `public/stack/**` | Product and company artwork used to identify tools | Third-party copyright and trademark rights remain with their owners | Replace with text or licensed artwork |
-| `app/icon.svg` and generated social/app icons | Site identity artwork | Reserved as part of the markstuart.dev identity | Replace in a fork |
-| Biography, resume, posts, talks, and other personal/editorial copy | Original personal content and factual career history | No content license is granted by the MIT code license | Replace; do not present the owner's identity or history as the fork author's |
+| Retained path or dependency | Source | Rights holder | License or publication basis | Modifications | Site use | Checked |
+| --- | --- | --- | --- | --- | --- | --- |
+| `public/avatar.png` | User-supplied ChatGPT-generated pixel portrait provided on 2026-08-23; provider terms: <https://openai.com/policies/terms-of-use/> | Site owner, subject to the provider terms and any applicable third-party rights | Retained and published at the site owner's explicit direction. OpenAI's terms address ownership of output as between the user and OpenAI; this ledger does not claim uniqueness or rights beyond those terms. No reuse license is granted here. | Stored as a PNG and rendered through the site's pixel-avatar treatment | Homepage portrait | 2026-08-24 |
+| `public/poster-cat-8bit.png` | Mark Stuart's original pixel artwork; `lib/tui-art.ts` records this file as its source | Mark Stuart | Original artwork published by its creator for this site. No reuse license is granted here. | Converted to half-block terminal-rendering data in `lib/tui-art.ts`; the source PNG is retained | Decorative terminal artwork | 2026-08-24 |
+| `app/icon.svg` | Repository-authored site identity | Mark Stuart | Original site identity published for markstuart.dev. No trademark or identity reuse license is granted here. | Authored as SVG | Site icon and local writing tile | 2026-08-24 |
+| `app/apple-icon.tsx` | Repository-authored site identity derived from the markstuart.dev monogram | Mark Stuart | Original site identity published for markstuart.dev. No trademark or identity reuse license is granted here. | Programmatically renders the Apple touch icon | Apple touch icon | 2026-08-24 |
+| `app/opengraph-image.tsx` | Repository-authored site identity and typography | Mark Stuart | Original site identity published for markstuart.dev. No trademark or identity reuse license is granted here. | Programmatically renders the social preview image | Open Graph and social preview | 2026-08-24 |
+| `@phosphor-icons/react@2.1.10` | Phosphor Icons React package: <https://github.com/phosphor-icons/react> | Phosphor Icons contributors | MIT License | Icons are sized and colored through component props and CSS | Generic interface decoration; brand-shaped social icons identify the linked GitHub, LinkedIn, and X profiles only, as narrow nominative references | 2026-08-24 |
+
+No stored third-party employer, publication, conference, product, or tool
+artwork remains. The site preserves the relevant names, factual copy, and
+outbound evidence links using text, initials, and MIT-licensed generic
+Phosphor icons instead.
 
 Remote Spotify artwork is fetched at runtime and is not stored in the
 repository. Its availability does not grant redistribution rights.

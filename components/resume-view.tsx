@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { Printer } from "@phosphor-icons/react";
 import {
   awards,
@@ -20,26 +19,13 @@ function formatMonth(value: string): string {
   });
 }
 
-const COMPANY_LOGOS: Record<string, string> = {
-  Rocket: "/work/rocket.png",
-  eBay: "/work/ebay.png",
-  PayPal: "/work/paypal.png",
-  "Qplay, Inc.": "/work/qplay.png",
-  "State Farm Insurance": "/work/statefarm.png",
-};
-
 function CompanyTile({ company }: { company: string }) {
-  const src = COMPANY_LOGOS[company];
   return (
     <span
       data-print-hide
       className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-muted ring-1 ring-line/20"
     >
-      {src ? (
-        <Image src={src} alt="" width={32} height={32} className="h-full w-full object-contain" />
-      ) : (
-        <span className="font-serif text-sm text-muted">{company.charAt(0)}</span>
-      )}
+      <span className="font-serif text-sm text-muted">{company.charAt(0)}</span>
     </span>
   );
 }

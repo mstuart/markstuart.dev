@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
-import { ArrowUpRight } from "@phosphor-icons/react";
+import { ArrowUpRight, MicrophoneStage } from "@phosphor-icons/react";
 
 export interface TalkListRow {
   title: string;
@@ -12,7 +11,7 @@ export interface TalkListRow {
   date: string;
   url?: string;
   tag: string;
-  /** Path to a small logo tile under /public. */
+  /** Legacy data accepted for compatibility; stored brand artwork is not rendered. */
   iconSrc?: string;
 }
 
@@ -93,11 +92,9 @@ export function TalksFilter({ rows }: { rows: TalkListRow[] }) {
       <ul className="mt-6 flex flex-col divide-y divide-line">
         {visibleRows.map((row) => (
           <li key={`${row.title}-${row.date}`} className="flex gap-3 py-4">
-            {row.iconSrc ? (
-              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-muted ring-1 ring-line/20">
-                <Image src={row.iconSrc} alt="" width={32} height={32} className="h-full w-full object-contain" />
-              </span>
-            ) : null}
+            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-surface-muted text-muted ring-1 ring-line/20">
+              <MicrophoneStage aria-hidden="true" size={16} weight="regular" />
+            </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
                 {row.url ? (

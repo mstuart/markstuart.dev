@@ -6,7 +6,6 @@ import StackPage from "@/app/(site)/stack/page";
 import { HomePage } from "@/components/home-page";
 import { ActiveNavLink } from "@/components/shared/active-nav-link";
 import { SiteHeader } from "@/components/shared/site-header";
-import { stackSections } from "@/lib/data/stack";
 
 function collectElements(node: ReactNode): ReactElement[] {
   if (!isValidElement(node)) {
@@ -54,15 +53,12 @@ describe("measured homepage prefetch policy", () => {
   });
 });
 
-describe("Stack image delivery", () => {
-  it("routes every curated Stack icon through the Next image optimizer", () => {
-    const optimizedSources = collectElements(StackPage())
+describe("Stack asset delivery", () => {
+  it("does not render stored product or tool images", () => {
+    const storedImageSources = collectElements(StackPage())
       .filter((element) => element.type === Image)
       .map((element) => (element.props as { src: string }).src);
-    const expectedSources = stackSections.flatMap((section) =>
-      section.items.flatMap((item) => (item.iconSrc ? [item.iconSrc] : [])),
-    );
 
-    expect(optimizedSources).toEqual(expectedSources);
+    expect(storedImageSources).toEqual([]);
   });
 });

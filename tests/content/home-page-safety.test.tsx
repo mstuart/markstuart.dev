@@ -41,7 +41,9 @@ describe("public homepage content safety", () => {
     expect(container.innerHTML).not.toMatch(
       /highest-scale|millions of people|thousands of engineers|Google Health|Fitbit|Pixel Watch|github\.com\/mstuart\/vitals|vitals:/i,
     );
-    expect(screen.getByRole("link", { name: /Stack: a curated toolkit/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Stack: the hardware, apps, and tools I use every day/i }),
+    ).toBeInTheDocument();
   });
 
   it("keeps the homepage name beside the portrait at mobile widths", () => {

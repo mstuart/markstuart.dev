@@ -253,7 +253,7 @@ export function HomePage() {
                 prefetch={false}
                 className="group inline-flex items-center gap-1 rounded-lg text-sm text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
-                Stack: a curated toolkit for design and development
+                Stack: the hardware, apps, and tools I use every day
                 <ArrowRight size={14} weight="regular" className="transition-transform group-hover:translate-x-0.5" />
               </Link>
             </div>

@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NowPlayingCard, RecentlyPlayed } from "@/components/listening-feed";
 
@@ -8,112 +8,21 @@ function json(data: unknown) {
   });
 }
 
-function setHidden(hidden: boolean) {
-  Object.defineProperty(document, "hidden", { configurable: true, value: hidden });
-}
-
 describe("listening feed", () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
-    setHidden(false);
   });
 
-  it("polls once per minute only while visible and refreshes immediately on return", async () => {
-    vi.useFakeTimers();
-    setHidden(true);
-    const fetchMock = vi.fn().mockResolvedValue(json({ status: "ok", data: null }));
+  it("does not request or render live playback", async () => {
+    const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
-    render(<NowPlayingCard />);
 
-    await act(async () => Promise.resolve());
-    expect(fetchMock).not.toHaveBeenCalled();
-
-    setHidden(false);
-    await act(async () => {
-      document.dispatchEvent(new Event("visibilitychange"));
-      await Promise.resolve();
-    });
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-
-    await act(async () => vi.advanceTimersByTimeAsync(60_000));
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-
-    setHidden(true);
-    document.dispatchEvent(new Event("visibilitychange"));
-    await act(async () => vi.advanceTimersByTimeAsync(120_000));
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-
-    setHidden(false);
-    await act(async () => {
-      document.dispatchEvent(new Event("visibilitychange"));
-      await Promise.resolve();
-    });
-    expect(fetchMock).toHaveBeenCalledTimes(3);
-  });
-
-  it("aborts and ignores an older poll across a visibility refresh", async () => {
-    setHidden(false);
-    const first = deferred<Response>();
-    const second = deferred<Response>();
-    const fetchMock = vi
-      .fn()
-      .mockReturnValueOnce(first.promise)
-      .mockReturnValueOnce(second.promise);
-    vi.stubGlobal("fetch", fetchMock);
-    render(<NowPlayingCard />);
-
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
-    setHidden(true);
-    document.dispatchEvent(new Event("visibilitychange"));
-    setHidden(false);
-    document.dispatchEvent(new Event("visibilitychange"));
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
-
-    await act(async () => {
-      second.resolve(json(nowPlayingResult("New song")));
-      await second.promise;
-    });
-    expect(await screen.findByText("New song")).toBeVisible();
-
-    await act(async () => {
-      first.resolve(json(nowPlayingResult("Old song")));
-      await first.promise;
-    });
-    expect(screen.getByText("New song")).toBeVisible();
-    expect(screen.queryByText("Old song")).not.toBeInTheDocument();
-
-    const firstInit = fetchMock.mock.calls[0]?.[1] as RequestInit | undefined;
-    expect(firstInit?.signal).toBeInstanceOf(AbortSignal);
-    expect(firstInit?.signal?.aborted).toBe(true);
-  });
-
-  it("uses sized Next images and keeps the equalizer static", async () => {
-    setHidden(false);
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(
-        json({
-          status: "ok",
-          data: {
-            name: "Live song",
-            artist: "Artist",
-            album: "Album",
-            image: "https://i.scdn.co/image/example",
-            url: "https://open.spotify.com/track/example",
-            isPlaying: true,
-          },
-        })
-      )
-    );
     const { container } = render(<NowPlayingCard />);
+    await act(async () => Promise.resolve());
 
-    await screen.findByText("Live song");
-    const image = container.querySelector("img");
-    expect(image).toHaveAttribute("width", "64");
-    expect(image).toHaveAttribute("height", "64");
-    expect(image).toHaveAttribute("sizes", "64px");
-    expect(container.querySelector("[data-equalizer]")?.className).not.toContain("animate");
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it("renders explicit history unavailability instead of an empty state", async () => {
@@ -131,7 +40,83 @@ describe("listening feed", () => {
     expect(await screen.findByText("Listening history is temporarily unavailable.")).toBeVisible();
   });
 
-  it("uses a lazy 32px image for stored history artwork", async () => {
+  it("aborts the initial history request when the feed unmounts", async () => {
+    const response = deferred<Response>();
+    const fetchMock = vi.fn().mockReturnValue(response.promise);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { unmount } = render(<RecentlyPlayed />);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+
+    const init = fetchMock.mock.calls[0]?.[1] as RequestInit | undefined;
+    expect(init?.signal).toBeInstanceOf(AbortSignal);
+    expect(init?.signal?.aborted).toBe(false);
+
+    unmount();
+    expect(init?.signal?.aborted).toBe(true);
+  });
+
+  it("aborts an in-flight load-more request when the feed unmounts", async () => {
+    const nextPage = deferred<Response>();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        json({
+          status: "ok",
+          data: { items: [historyItem("First song")], nextCursor: 30 },
+        })
+      )
+      .mockReturnValueOnce(nextPage.promise);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { unmount } = render(<RecentlyPlayed />);
+    fireEvent.click(await screen.findByRole("button", { name: "Load more" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+    expect(fetchMock.mock.calls[1]?.[0]).toBe("/api/listening?cursor=30");
+    const init = fetchMock.mock.calls[1]?.[1] as RequestInit | undefined;
+    expect(init?.signal).toBeInstanceOf(AbortSignal);
+    expect(init?.signal?.aborted).toBe(false);
+
+    unmount();
+    expect(init?.signal?.aborted).toBe(true);
+  });
+
+  it("keeps loaded items visible and offers a local retry after pagination fails", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        json({
+          status: "ok",
+          data: { items: [historyItem("First song")], nextCursor: 30 },
+        })
+      )
+      .mockResolvedValueOnce(
+        json({ status: "unavailable", reason: "history_unavailable" })
+      )
+      .mockResolvedValueOnce(
+        json({
+          status: "ok",
+          data: { items: [historyItem("Second song")], nextCursor: null },
+        })
+      );
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<RecentlyPlayed />);
+    fireEvent.click(await screen.findByRole("button", { name: "Load more" }));
+
+    expect(await screen.findByText("Could not load more listening history.")).toBeVisible();
+    expect(screen.getByText("First song")).toBeVisible();
+    expect(screen.queryByText("Listening history is temporarily unavailable.")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+
+    expect(await screen.findByText("Second song")).toBeVisible();
+    expect(screen.getByText("First song")).toBeVisible();
+    expect(screen.queryByText("Could not load more listening history.")).not.toBeInTheDocument();
+  });
+
+  it("uses lazy artwork and labels history by week instead of exact play time", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
@@ -145,10 +130,10 @@ describe("listening feed", () => {
                 album: "Album",
                 image: "https://i.scdn.co/image/past",
                 url: "https://open.spotify.com/track/past",
-                playedAt: new Date().toISOString(),
+                playedDuring: "2026-08-17",
               },
             ],
-            nextBefore: null,
+            nextCursor: null,
           },
         })
       )
@@ -161,6 +146,7 @@ describe("listening feed", () => {
     expect(image).toHaveAttribute("height", "32");
     expect(image).toHaveAttribute("sizes", "32px");
     expect(image).toHaveAttribute("loading", "lazy");
+    expect(screen.getByText("Week of Aug 17")).toBeVisible();
   });
 });
 
@@ -172,15 +158,11 @@ function deferred<T>() {
   return { promise, resolve };
 }
 
-function nowPlayingResult(name: string) {
+function historyItem(name: string) {
   return {
-    status: "ok",
-    data: {
-      name,
-      artist: "Artist",
-      album: "Album",
-      url: `https://open.spotify.com/track/${name}`,
-      isPlaying: true,
-    },
+    name,
+    artist: "Artist",
+    album: "Album",
+    playedDuring: "2026-08-17",
   };
 }

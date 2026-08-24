@@ -6,6 +6,12 @@ import { Webhook } from "svix";
 import { publicError } from "@/lib/server/http";
 import { logServerError } from "@/lib/server/log";
 import {
+  getReceivedEmailMetadata,
+  isResendConfigured,
+  sendResendEmail,
+  type ResendAttachment,
+} from "@/lib/server/resend";
+import {
   beginDeliveryAttempt,
   isInboundComplete,
   isValidEmail,
@@ -14,23 +20,63 @@ import {
 
 const FORWARD_FROM = "mark@markstuart.dev";
 const FORWARD_TIMEOUT_MS = 8_000;
+const MAX_WEBHOOK_BODY_BYTES = 64 * 1024;
+const MAX_RAW_MESSAGE_BYTES = 12 * 1024 * 1024;
+const MAX_DECODED_MESSAGE_BYTES = 8 * 1024 * 1024;
+
+class InboundPayloadTooLargeError extends Error {}
 
 type InboundEvent = {
   type: string;
   data: { email_id?: string };
 };
 
-type ReceivingMetadata = {
-  subject?: string;
-  raw?: { download_url?: string } | null;
-};
+function requireBase64AttachmentContent(
+  content: ArrayBuffer | Uint8Array | string,
+): string {
+  if (typeof content !== "string") {
+    throw new Error("Inbound attachment encoding failed");
+  }
+  return content;
+}
 
-type ForwardAttachment = {
-  filename: string | null;
-  content: string;
-  content_type: string;
-  content_id?: string;
-};
+async function readBodyWithLimit(
+  body: ReadableStream<Uint8Array> | null,
+  contentLength: string | null,
+  maxBytes: number,
+): Promise<Uint8Array> {
+  const declaredLength = contentLength === null ? Number.NaN : Number(contentLength);
+  if (Number.isFinite(declaredLength) && declaredLength > maxBytes) {
+    throw new InboundPayloadTooLargeError();
+  }
+  if (!body) return new Uint8Array();
+
+  const reader = body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > maxBytes) {
+        await reader.cancel();
+        throw new InboundPayloadTooLargeError();
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const result = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    result.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return result;
+}
 
 async function withForwardTimeout<T>(
   operation: (signal: AbortSignal) => Promise<T>,
@@ -44,27 +90,14 @@ async function withForwardTimeout<T>(
   }
 }
 
-function resendHeaders(apiKey: string): Headers {
-  return new Headers({
-    authorization: `Bearer ${apiKey}`,
-    "content-type": "application/json",
-  });
-}
-
 async function forwardInboundEmail(
   emailId: string,
   to: string,
-  apiKey: string,
   eventId: string,
   signal: AbortSignal,
 ): Promise<void> {
   signal.throwIfAborted();
-  const metadataResponse = await fetch(
-    `https://api.resend.com/emails/receiving/${encodeURIComponent(emailId)}`,
-    { method: "GET", headers: resendHeaders(apiKey), signal },
-  );
-  if (!metadataResponse.ok) throw new Error("Inbound metadata request failed");
-  const metadata = (await metadataResponse.json()) as ReceivingMetadata;
+  const metadata = await getReceivedEmailMetadata(emailId, signal);
   const rawDownloadUrl = metadata.raw?.download_url;
   if (!rawDownloadUrl) throw new Error("Inbound raw message is unavailable");
   const rawUrl = new URL(rawDownloadUrl);
@@ -73,58 +106,78 @@ async function forwardInboundEmail(
   signal.throwIfAborted();
   const rawResponse = await fetch(rawUrl, { method: "GET", signal });
   if (!rawResponse.ok) throw new Error("Inbound raw message request failed");
-  const rawMessage = await rawResponse.arrayBuffer();
+  const rawMessage = await readBodyWithLimit(
+    rawResponse.body,
+    rawResponse.headers.get("content-length"),
+    MAX_RAW_MESSAGE_BYTES,
+  );
 
   signal.throwIfAborted();
   const parsed = await PostalMime.parse(rawMessage, { attachmentEncoding: "base64" });
   signal.throwIfAborted();
-  const attachments: ForwardAttachment[] = parsed.attachments.map((attachment) => {
-    const content =
-      typeof attachment.content === "string"
-        ? attachment.content
-        : Buffer.from(
-            attachment.content instanceof ArrayBuffer
-              ? new Uint8Array(attachment.content)
-              : attachment.content,
-          ).toString("base64");
+  // PostalMime exposes decoded bodies and attachments only after parsing. The raw
+  // MIME input is bounded above; this second bound covers its decoded semantics.
+  let decodedMessageBytes = Buffer.byteLength(parsed.text ?? "", "utf8");
+  decodedMessageBytes += Buffer.byteLength(parsed.html ?? "", "utf8");
+  for (const attachment of parsed.attachments) {
+    decodedMessageBytes += Buffer.byteLength(
+      requireBase64AttachmentContent(attachment.content),
+      "base64",
+    );
+    if (decodedMessageBytes > MAX_DECODED_MESSAGE_BYTES) {
+      throw new InboundPayloadTooLargeError();
+    }
+  }
+  if (decodedMessageBytes > MAX_DECODED_MESSAGE_BYTES) {
+    throw new InboundPayloadTooLargeError();
+  }
+
+  const attachments: ResendAttachment[] = parsed.attachments.map((attachment) => {
     const contentId = attachment.contentId?.replace(/^<|>$/gu, "");
     return {
       filename: attachment.filename,
-      content,
+      content: requireBase64AttachmentContent(attachment.content),
       content_type: attachment.mimeType,
       ...(contentId ? { content_id: contentId } : {}),
     };
   });
 
-  const sendResponse = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: new Headers({
-      ...Object.fromEntries(resendHeaders(apiKey)),
-      "idempotency-key": `inbound/${eventId}`,
-    }),
-    body: JSON.stringify({
+  await sendResendEmail(
+    {
       from: FORWARD_FROM,
       to,
       subject: metadata.subject || "(no subject)",
       text: parsed.text || undefined,
       html: parsed.html || undefined,
       attachments: attachments.length > 0 ? attachments : undefined,
-    }),
-    signal,
-  });
-  if (!sendResponse.ok) throw new Error("Inbound forwarding request failed");
+    },
+    `inbound/${eventId}`,
+    { signal },
+  );
 }
 
 export async function POST(request: Request): Promise<Response> {
   const correlationId = crypto.randomUUID();
   const secret = process.env.RESEND_WEBHOOK_SECRET;
-  const apiKey = process.env.RESEND_API_KEY;
   const forwardTo = process.env.INBOUND_FORWARD_TO;
-  if (!secret || !apiKey || !forwardTo || !isValidEmail(forwardTo)) {
+  if (!secret || !isResendConfigured() || !forwardTo || !isValidEmail(forwardTo)) {
     return publicError("not_configured", 500, correlationId);
   }
 
-  const payload = await request.text();
+  let payload: string;
+  try {
+    const payloadBytes = await readBodyWithLimit(
+      request.body,
+      request.headers.get("content-length"),
+      MAX_WEBHOOK_BODY_BYTES,
+    );
+    payload = new TextDecoder().decode(payloadBytes);
+  } catch (error) {
+    if (error instanceof InboundPayloadTooLargeError) {
+      return publicError("payload_too_large", 413, correlationId);
+    }
+    throw error;
+  }
   const eventId = request.headers.get("svix-id") ?? "";
   let event: InboundEvent;
   try {
@@ -168,12 +221,15 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     await withForwardTimeout((signal) =>
-      forwardInboundEmail(inboundEmailId, forwardTo, apiKey, eventId, signal),
+      forwardInboundEmail(inboundEmailId, forwardTo, eventId, signal),
     );
 
     await markInboundComplete(eventId);
     return Response.json({ forwarded: true });
   } catch (error) {
+    if (error instanceof InboundPayloadTooLargeError) {
+      return publicError("payload_too_large", 413, correlationId);
+    }
     logServerError({
       correlationId,
       operation: "inbound_forward",

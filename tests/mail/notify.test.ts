@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const store = vi.hoisted(() => ({
   acquireNotificationLock: vi.fn(),
@@ -63,7 +63,53 @@ beforeEach(() => {
   processQueuedLifecycleMailJobs.mockResolvedValue({ completed: 0, failed: 0 });
 });
 
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
 describe("notification retry behavior", () => {
+  it("returns a monitorable terminal failure when a lifecycle job remains retryable", async () => {
+    getAllPosts.mockReturnValue([]);
+    processQueuedLifecycleMailJobs.mockResolvedValue({ completed: 2, failed: 1 });
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const response = await GET(request());
+    const body = await response.json();
+
+    expect(response.status).toBe(502);
+    expect(body).toEqual({
+      error: {
+        code: "notification_delivery_failed",
+        correlationId: expect.any(String),
+      },
+      configured: true,
+      newPosts: 0,
+      announced: [],
+      sent: 0,
+      failed: 0,
+      counters: {
+        lifecycleCompleted: 2,
+        lifecycleFailed: 1,
+        recipientSent: 0,
+        recipientFailed: 0,
+        postsAnnounced: 0,
+      },
+    });
+    const logged = consoleSpy.mock.calls.map((call) => call[1]);
+    expect(logged).toEqual([
+      expect.objectContaining({
+        correlationId: body.error.correlationId,
+        code: "notification_lifecycle_delivery_failed",
+        counters: { lifecycleCompleted: 2, lifecycleFailed: 1 },
+      }),
+      expect.objectContaining({
+        correlationId: body.error.correlationId,
+        code: "notification_delivery_failed",
+        counters: body.counters,
+      }),
+    ]);
+  });
+
   it("skips recipients already completed on a retry", async () => {
     store.listPendingNotificationRecipients
       .mockResolvedValueOnce({
@@ -118,6 +164,7 @@ describe("notification retry behavior", () => {
   });
 
   it("records a recipient failure without erasing completed recipients", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
     store.listPendingNotificationRecipients
       .mockResolvedValueOnce({
         recipients: [
@@ -139,12 +186,33 @@ describe("notification retry behavior", () => {
     const response = await GET(request());
     const body = await response.json();
 
+    expect(response.status).toBe(502);
     expect(body).toEqual(
-      expect.objectContaining({ sent: 1, failed: 1, announced: [] }),
+      expect.objectContaining({
+        error: {
+          code: "notification_delivery_failed",
+          correlationId: expect.any(String),
+        },
+        sent: 1,
+        failed: 1,
+        announced: [],
+        counters: expect.objectContaining({ recipientSent: 1, recipientFailed: 1 }),
+      }),
     );
     expect(store.markDeliveryComplete).toHaveBeenCalledTimes(1);
     expect(store.markNotified).not.toHaveBeenCalled();
     expect(store.releaseNotificationLock).toHaveBeenCalledWith("hello-world", "lock-token");
+    expect(consoleSpy.mock.calls.map((call) => call[1])).toEqual([
+      expect.objectContaining({
+        correlationId: body.error.correlationId,
+        code: "notification_recipient_delivery_failed",
+      }),
+      expect.objectContaining({
+        correlationId: body.error.correlationId,
+        code: "notification_delivery_failed",
+        counters: body.counters,
+      }),
+    ]);
   });
 
   it("rejects a concurrent run when the post lock is held", async () => {
@@ -158,6 +226,7 @@ describe("notification retry behavior", () => {
   });
 
   it("fails closed without resending when a durable attempt is older than the provider window", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
     store.listPendingNotificationRecipients
       .mockResolvedValueOnce({
         recipients: [{ email: "reader@example.com", recipientId: "recipient-reader@example.com" }],
@@ -174,8 +243,18 @@ describe("notification retry behavior", () => {
     const response = await GET(request());
     const body = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(body).toEqual(expect.objectContaining({ sent: 0, failed: 1, announced: [] }));
+    expect(response.status).toBe(502);
+    expect(body).toEqual(
+      expect.objectContaining({
+        error: {
+          code: "notification_delivery_failed",
+          correlationId: expect.any(String),
+        },
+        sent: 0,
+        failed: 1,
+        announced: [],
+      }),
+    );
     expect(sendNewPostEmail).not.toHaveBeenCalled();
     expect(store.markDeliveryComplete).not.toHaveBeenCalled();
   });

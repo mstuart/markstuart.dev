@@ -1,5 +1,6 @@
 import { createElement } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, ArrowUpRight, Star } from "@phosphor-icons/react/dist/ssr";
 import { SocialLinks } from "@/components/shared/social-links";
 import { SectionV1 } from "@/components/v1/section";
@@ -30,13 +31,12 @@ const inlineLinkClass =
   "rounded-lg text-zinc-900 underline decoration-dotted underline-offset-4 transition-colors hover:text-teal-600 hover:decoration-solid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-100 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400";
 
 const chipClass =
-  "inline-flex items-center gap-1.5 rounded-md bg-zinc-100 px-2 py-0.5 text-zinc-700 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400";
+  "inline-flex items-center gap-1.5 rounded-md bg-surface-muted px-2 py-0.5 text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
 
 function LogoChip({ name, src, href }: { name: string; src: string; href: string }) {
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" className={chipClass}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt="" width={16} height={16} className="h-4 w-4 rounded-[3px] object-contain" />
+      <Image src={src} alt="" width={16} height={16} className="h-4 w-4 rounded-[3px] object-contain" />
       {name}
     </a>
   );
@@ -70,7 +70,7 @@ export function HomePage() {
   // The homepage grid shows current authored work (the same curated Featured
   // set as /projects), not the star-ranked PayPal-era core contributions.
   const selectedProjects = projects
-    .filter((project) => project.role === "author")
+    .filter((project) => project.role === "author" && project.name !== "vitals")
     .sort((a, b) => ((a.createdAt ?? "") < (b.createdAt ?? "") ? 1 : -1))
     .slice(0, 6);
   const localWritingRows: WritingRow[] = getAllPosts().map((post) => ({
@@ -107,14 +107,13 @@ export function HomePage() {
 
             <div className="mt-8 space-y-4 leading-relaxed text-zinc-600 dark:text-zinc-400">
               <p>
-                Hey! I&apos;m Mark, a Distinguished Engineer at Rocket. For nearly two decades I&apos;ve
-                built platforms at some of the highest-scale consumer companies in tech: PayPal, eBay, and
-                now Rocket. Checkout, SDKs, and API platforms used by millions of people and
-                thousands of engineers.
+                Hey! I&apos;m Mark, a Distinguished Engineer at Rocket. I&apos;ve spent nearly two decades
+                in software engineering, with platform roles at PayPal, eBay, and Rocket spanning
+                Checkout, developer tools, and APIs.
               </p>
               <p>
                 My through-line is turning fragmented systems and teams into composable platforms
-                that accelerate everyone around them. Lately that means AI-native development. Most
+                that accelerate everyone around them. Lately that means AI-enabled engineering. Most
                 of what I build in the open lives on{" "}
                 <a href="https://github.com/mstuart" target="_blank" rel="noopener noreferrer" className={inlineLinkClass}>
                   GitHub
@@ -138,12 +137,6 @@ export function HomePage() {
                   icon="Gauge"
                   href="https://github.com/mstuart/peek"
                   description="DevTools for coding agents: session composition, cost attribution, compaction forensics, and config A/B benchmarking."
-                />
-                <ProjectChip
-                  name="vitals"
-                  icon="Cloud"
-                  href="https://github.com/mstuart/vitals"
-                  description="Local-first archive and baseline-deviation detector for Google Health API v4 (Fitbit, Pixel Watch) data."
                 />
                 <ProjectChip
                   name="tare"
@@ -320,7 +313,7 @@ export function HomePage() {
                 prefetch={false}
                 className="group inline-flex items-center gap-1 rounded-lg text-sm text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
-                Stack: the hardware, apps, and tools I use every day
+                Stack: a curated toolkit for design and development
                 <ArrowRight size={14} weight="regular" className="transition-transform group-hover:translate-x-0.5" />
               </Link>
             </div>

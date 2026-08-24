@@ -39,11 +39,11 @@ function formatDate(date: string): string {
 
 function pillClass(active: boolean) {
   return [
-    "inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors active:scale-[0.98]",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:focus-visible:ring-teal-400",
+    "inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors active:scale-[0.98]",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
     active
       ? "border-accent text-accent"
-      : "border-zinc-200 text-muted hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-600",
+      : "border-line text-muted hover:border-control-border hover:text-foreground",
   ].join(" ");
 }
 
@@ -88,13 +88,13 @@ export function TalksFilter({ rows }: { rows: TalkListRow[] }) {
         ))}
       </div>
       <p role="status" aria-live="polite" className="sr-only">
-        {visibleRows.length} results
+        {visibleRows.length} {visibleRows.length === 1 ? "result" : "results"}
       </p>
-      <ul className="mt-6 flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
+      <ul className="mt-6 flex flex-col divide-y divide-line">
         {visibleRows.map((row) => (
           <li key={`${row.title}-${row.date}`} className="flex gap-3 py-4">
             {row.iconSrc ? (
-              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-zinc-100 ring-1 ring-zinc-900/10 dark:bg-zinc-900 dark:ring-zinc-100/10">
+              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-muted ring-1 ring-line/20">
                 <Image src={row.iconSrc} alt="" width={32} height={32} className="h-full w-full object-contain" />
               </span>
             ) : null}
@@ -105,13 +105,13 @@ export function TalksFilter({ rows }: { rows: TalkListRow[] }) {
                     href={row.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex min-w-0 items-center gap-1 rounded-md text-zinc-900 transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-100 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400"
+                    className="group inline-flex min-w-0 items-center gap-1 rounded-md text-foreground transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
                     <span className="sm:truncate">{row.title}</span>
                     <ArrowUpRight size={14} weight="regular" className="shrink-0" />
                   </a>
                 ) : (
-                  <span className="text-zinc-900 sm:truncate dark:text-zinc-100">{row.title}</span>
+                  <span className="text-foreground sm:truncate">{row.title}</span>
                 )}
                 <time
                   dateTime={row.date}

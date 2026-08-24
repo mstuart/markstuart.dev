@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
 import { site } from "@/lib/data/site";
-import { fetchWithTimeout } from "@/lib/server/http";
+import { sendResendEmail } from "@/lib/server/resend";
 import {
   beginDeliveryAttempt,
   completeLifecycleMailJob,
@@ -20,21 +20,6 @@ const MAIL_TIMEOUT_MS = 8_000;
 function tokenDigest(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
-
-function resendApiKey(): string {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) throw new Error("Mail is not configured");
-  return apiKey;
-}
-
-type ResendMessage = {
-  from: string;
-  to: string;
-  subject: string;
-  text: string;
-  html: string;
-  headers?: Record<string, string>;
-};
 
 function unsubscribeUrl(token: string): string {
   const params = new URLSearchParams({ token });
@@ -56,23 +41,6 @@ function unsubscribeHeaders(token: string): Record<string, string> {
   };
 }
 
-async function sendResendEmail(message: ResendMessage, idempotencyKey: string): Promise<void> {
-  const response = await fetchWithTimeout(
-    "https://api.resend.com/emails",
-    {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${resendApiKey()}`,
-        "content-type": "application/json",
-        "idempotency-key": idempotencyKey,
-      },
-      body: JSON.stringify(message),
-    },
-    MAIL_TIMEOUT_MS,
-  );
-  if (!response.ok) throw new Error("Mail provider rejected the request");
-}
-
 export async function sendConfirmationEmail(email: string, token: string): Promise<void> {
   const url = `${site.url}/subscribe/confirm?${new URLSearchParams({ token })}`;
   await sendResendEmail(
@@ -84,6 +52,7 @@ export async function sendConfirmationEmail(email: string, token: string): Promi
       html: `<div style="font-family:-apple-system,'Segoe UI',sans-serif;max-width:560px"><p>Confirm your subscription to markstuart.dev.</p><p><a href="${url}">Confirm subscription</a></p><p>This link expires in 48 hours.</p></div>`,
     },
     `confirm/${tokenDigest(token)}`,
+    { timeoutMs: MAIL_TIMEOUT_MS },
   );
 }
 
@@ -103,6 +72,7 @@ export async function sendWelcomeEmail(
       html: `<div style="font-family:-apple-system,'Segoe UI',sans-serif;max-width:560px"><p>Thanks for subscribing. You'll get one email when I publish something new; no other mail.</p>${f.html}</div>`,
     },
     `welcome/${deliveryId}`,
+    { timeoutMs: MAIL_TIMEOUT_MS },
   );
 }
 
@@ -133,6 +103,7 @@ export async function sendNewPostEmail(
       html: `<div style="font-family:-apple-system,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;color:#18181b"><span style="display:none;max-height:0;overflow:hidden">${post.description}</span><p style="margin:0 0 24px;font-size:13px;color:#a1a1aa">markstuart.dev &middot; ${dateLabel}</p><h1 style="margin:0 0 16px;font-size:26px;font-weight:600;line-height:1.25;letter-spacing:-0.01em">${post.title}</h1><p style="margin:0 0 20px;font-size:16px;line-height:1.65">${teaser}</p><p style="margin:0 0 28px;font-size:16px"><a href="${postUrl}" style="color:#0d9488;font-weight:500">Read it on markstuart.dev</a> <span style="color:#a1a1aa">&middot; ${post.minutes} min</span></p><p style="margin:0 0 32px;font-size:16px;color:#52525b">- Mark</p><hr style="border:none;border-top:1px solid #e4e4e7;margin:0 0 16px">${f.html}</div>`,
     },
     `post/${post.slug}/${recipientId}`,
+    { timeoutMs: MAIL_TIMEOUT_MS },
   );
 }
 

@@ -1,0 +1,9 @@
+# Personal content, deployment, and policy changes always require maintainer review.
+* @mstuart
+/content/ @mstuart
+/public/ @mstuart
+/lib/data/resume.ts @mstuart
+/.github/ @mstuart
+/SECURITY.md @mstuart
+/NOTICE @mstuart
+/docs/asset-rights.md @mstuart

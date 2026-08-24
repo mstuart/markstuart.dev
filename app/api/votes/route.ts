@@ -1,7 +1,13 @@
 import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 
 import { getAllPosts } from "@/lib/posts";
-import { VoteStoreNotConfiguredError, addVote, getVoteState } from "@/lib/votes-store";
+import {
+  VoteRateLimitExceededError,
+  VoteStoreNotConfiguredError,
+  addVote,
+  consumeVoteRateLimit,
+  getVoteState,
+} from "@/lib/votes-store";
 import { publicError } from "@/lib/server/http";
 import { logServerError } from "@/lib/server/log";
 
@@ -25,6 +31,20 @@ function voteSecret(): string {
 
 function signature(voterId: string): string {
   return createHmac("sha256", voteSecret()).update(voterId).digest("hex");
+}
+
+function voteFingerprint(scope: "voter" | "abuse", slug: string, value: string): string {
+  return createHmac("sha256", voteSecret())
+    .update(`vote-${scope}\\0${slug}\\0${value}`)
+    .digest("hex");
+}
+
+function clientAbuseFingerprint(request: Request, slug: string): string {
+  const client =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip")?.trim() ||
+    "unknown";
+  return voteFingerprint("abuse", slug, client.slice(0, 256));
 }
 
 function parseCookie(request: Request, name: string): string | null {
@@ -84,8 +104,25 @@ function invalidSlugResponse(): Response {
   return publicError("unknown_slug", 400, randomUUID());
 }
 
+function isJsonRequest(request: Request): boolean {
+  return request.headers.get("content-type")?.split(";", 1)[0]?.trim().toLowerCase() === "application/json";
+}
+
+function isSameOriginRequest(request: Request): boolean {
+  const origin = request.headers.get("origin");
+  return (
+    origin === new URL(request.url).origin &&
+    request.headers.get("sec-fetch-site") !== "cross-site"
+  );
+}
+
 function voteFailure(error: unknown, operation: "get_votes" | "add_vote"): Response {
   const correlationId = randomUUID();
+  if (error instanceof VoteRateLimitExceededError) {
+    const response = publicError("vote_rate_limited", 429, correlationId);
+    response.headers.set("Retry-After", String(error.retryAfter));
+    return response;
+  }
   if (error instanceof VoteStoreNotConfiguredError || error instanceof VoteSigningNotConfiguredError) {
     return publicError("not_configured", 503, correlationId);
   }
@@ -99,13 +136,23 @@ export async function GET(request: Request) {
 
   try {
     const voter = voterIdentity(request);
-    return jsonWithVoterCookie(await getVoteState(slug, voter.voterId), voter.setCookie);
+    return jsonWithVoterCookie(
+      await getVoteState(slug, voteFingerprint("voter", slug, voter.voterId), voter.voterId),
+      voter.setCookie,
+    );
   } catch (error) {
     return voteFailure(error, "get_votes");
   }
 }
 
 export async function POST(request: Request) {
+  if (!isJsonRequest(request)) {
+    return publicError("unsupported_media_type", 415, randomUUID());
+  }
+  if (!isSameOriginRequest(request)) {
+    return publicError("cross_site_request", 403, randomUUID());
+  }
+
   let slug: string | null = null;
   try {
     const body = (await request.json()) as { slug?: unknown };
@@ -116,8 +163,21 @@ export async function POST(request: Request) {
   if (!isValidSlug(slug)) return invalidSlugResponse();
 
   try {
+    const existingVoterId = verifiedVoterId(request);
+    const client = clientAbuseFingerprint(request, slug);
+    if (!existingVoterId) {
+      const rateLimit = await consumeVoteRateLimit(slug, client);
+      if (!rateLimit.allowed) {
+        const response = publicError("vote_rate_limited", 429, randomUUID());
+        response.headers.set("Retry-After", String(rateLimit.retryAfter));
+        return response;
+      }
+    }
     const voter = voterIdentity(request);
-    return jsonWithVoterCookie(await addVote(slug, voter.voterId), voter.setCookie);
+    return jsonWithVoterCookie(
+      await addVote(slug, voteFingerprint("voter", slug, voter.voterId), client, voter.voterId),
+      voter.setCookie,
+    );
   } catch (error) {
     return voteFailure(error, "add_vote");
   }

@@ -6,22 +6,43 @@ export const work: WorkEntry[] = [
   {
     company: "Rocket",
     role: "Distinguished Engineer",
-    period: "2025 to now",
+    period: "May 2025 to now",
     summary:
-      "Architected Rocket's federated GraphQL platform and led the engineering integration of Mr. Cooper, the largest US mortgage servicer, into Rocket's stack.",
+      "Leads AI-enabled engineering and API platform strategy, including post-acquisition integration work.",
   },
   {
     company: "eBay",
     role: "Distinguished Engineer",
-    period: "2022 to 2025",
+    period: "Oct 2022 to May 2025",
     summary:
-      "Led architecture and technical strategy for eBay Live, eBay's real-time video commerce platform, and drove tens of millions in incremental GMV (gross merchandise value) by cutting core web vitals 50-60% across flagship products.",
+      "Led technical strategy for eBay Live and improved performance across flagship Web experiences.",
   },
   {
     company: "PayPal",
-    role: "Sr. Software Engineer to Director of Engineering",
-    period: "2012 to 2022",
+    role: "Staff Software Engineer to Director of Engineering",
+    period: "Nov 2013 to Sep 2022",
     summary:
-      "Architected PayPal's Checkout platform and drove the company's early adoption of GraphQL, building the initial infrastructure and tooling years before federation existed.",
+      "Led Checkout platform modernization and helped drive PayPal's early adoption of GraphQL.",
+  },
+  {
+    company: "Qplay, Inc.",
+    role: "Sr. Software Engineer",
+    period: "Apr 2013 to Nov 2013",
+    summary:
+      "First UI engineer at a video-discovery startup founded by TiVo alumni.",
+  },
+  {
+    company: "PayPal",
+    role: "Sr. Software Engineer",
+    period: "Jul 2012 to Apr 2013",
+    summary:
+      "Helped modernize Checkout with Node.js and contributed to PayPal's shared JavaScript SDK.",
+  },
+  {
+    company: "State Farm Insurance",
+    role: "Software Engineer",
+    period: "May 2007 to Jul 2012",
+    summary:
+      "Built Web platforms and led the Mobile Web single-page application rebuild.",
   },
 ];

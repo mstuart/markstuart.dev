@@ -54,7 +54,7 @@ describe("discoverability assets", () => {
     render(<Page />);
 
     expect(
-      screen.getByText(/Built Rocket's AI-native development platform:/)
+      screen.getByText(/Leads AI-enabled engineering initiatives/)
     ).toBeInTheDocument();
     expect(screen.getByText("Industry contributions")).toBeInTheDocument();
     expect(screen.queryByRole("button")).not.toBeInTheDocument();

@@ -1,3 +1,5 @@
+import { Buffer } from "node:buffer";
+
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const verify = vi.hoisted(() => vi.fn());
@@ -39,6 +41,37 @@ const RAW_EMAIL = [
   "",
 ].join("\r\n");
 
+function rawEmailWithAttachments(
+  attachmentSizes: number[],
+  body = "Small body",
+): string {
+  const parts = [
+    "From: Sender <sender@example.com>",
+    "To: mark@markstuart.dev",
+    "Subject: Aggregate attachment size",
+    "MIME-Version: 1.0",
+    'Content-Type: multipart/mixed; boundary="size-boundary"',
+    "",
+    "--size-boundary",
+    'Content-Type: text/plain; charset="utf-8"',
+    "",
+    body,
+  ];
+
+  attachmentSizes.forEach((size, index) => {
+    parts.push(
+      "--size-boundary",
+      `Content-Type: application/octet-stream; name="part-${index}.bin"`,
+      `Content-Disposition: attachment; filename="part-${index}.bin"`,
+      "Content-Transfer-Encoding: base64",
+      "",
+      Buffer.alloc(size, index + 1).toString("base64"),
+    );
+  });
+  parts.push("--size-boundary--", "");
+  return parts.join("\r\n");
+}
+
 function successfulFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const url = String(input);
   if (url.endsWith("/emails/receiving/inbound-email-id")) {
@@ -70,6 +103,18 @@ function request(eventId = "msg_verified_123") {
   });
 }
 
+function oversizedWebhookRequest() {
+  return new Request("https://markstuart.dev/api/email/inbound", {
+    method: "POST",
+    headers: {
+      "svix-id": "msg_oversized",
+      "svix-timestamp": "1724400000",
+      "svix-signature": "v1,signature",
+    },
+    body: "x".repeat(64 * 1024 + 1),
+  });
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   process.env.RESEND_WEBHOOK_SECRET = "whsec_test";
@@ -91,6 +136,17 @@ afterEach(() => {
 });
 
 describe("inbound deduplication", () => {
+  it("rejects an oversized webhook body before signature verification or provider work", async () => {
+    const response = await POST(oversizedWebhookRequest());
+
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toMatchObject({
+      error: { code: "payload_too_large" },
+    });
+    expect(verify).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("uses the verified Svix message id for forwarding idempotency and completion", async () => {
     const response = await POST(request());
 
@@ -145,6 +201,46 @@ describe("inbound deduplication", () => {
     const response = await POST(request());
 
     expect(response.status).toBe(502);
+    expect(store.markInboundComplete).not.toHaveBeenCalled();
+  });
+
+  it("rejects an oversized raw message before parsing or forwarding it", async () => {
+    fetchMock.mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === "https://storage.example.com/raw-message") {
+        return Promise.resolve(new Response(new Uint8Array(12 * 1024 * 1024 + 1)));
+      }
+      return successfulFetch(input, init);
+    });
+
+    const response = await POST(request());
+
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toMatchObject({
+      error: { code: "payload_too_large" },
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(store.markInboundComplete).not.toHaveBeenCalled();
+  });
+
+  it("rejects a message whose aggregate decoded body and attachment size exceeds the limit", async () => {
+    const rawEmail = rawEmailWithAttachments(
+      [4 * 1024 * 1024 - 1024, 4 * 1024 * 1024 - 1024],
+      "x".repeat(4096),
+    );
+    fetchMock.mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === "https://storage.example.com/raw-message") {
+        return Promise.resolve(new Response(rawEmail));
+      }
+      return successfulFetch(input, init);
+    });
+
+    const response = await POST(request());
+
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toMatchObject({
+      error: { code: "payload_too_large" },
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(store.markInboundComplete).not.toHaveBeenCalled();
   });
 

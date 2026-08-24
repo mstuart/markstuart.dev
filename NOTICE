@@ -1,0 +1,16 @@
+markstuart.dev licensing notice
+
+The MIT License in LICENSE applies to the repository's source code, tests,
+build configuration, automation, and project documentation unless a file says
+otherwise.
+
+No license or other permission is granted for personal or biographical
+content, editorial writing, photographs, images, audiovisual material, names,
+likenesses, the markstuart.dev identity or trade dress, or third-party names,
+logos, product artwork, and trademarks. Those materials are not "Software" for
+purposes of the MIT License and remain subject to their owners' rights.
+
+Publication of a file in this repository does not establish provenance or a
+right to redistribute it. A public fork must remove or replace reserved
+personal material and any asset without separately documented permission.
+See docs/asset-rights.md for the current provenance and rights ledger.

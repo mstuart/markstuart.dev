@@ -33,12 +33,6 @@ function year(date: string): string {
   return date.slice(0, 4);
 }
 
-function careerYears(): number {
-  // Career started at State Farm, May 2007.
-  const start = new Date("2007-05-01T00:00:00Z").getTime();
-  return Math.floor((Date.now() - start) / (365.25 * 24 * 60 * 60 * 1000));
-}
-
 export const COMMANDS: Record<string, Command> = {
   help: {
     description: "List available commands",
@@ -198,33 +192,14 @@ export const COMMANDS: Record<string, Command> = {
     }),
   },
   nowplaying: {
-    description: "What is playing right now",
+    description: "Listening privacy",
     hidden: true,
-    run: async () => {
-      try {
-        const res = await fetch("/api/spotify/now-playing");
-        const data = (await res.json()) as {
-          isPlaying?: boolean;
-          name?: string;
-          artist?: string;
-          album?: string;
-        };
-        if (!data.isPlaying || !data.name) {
-          return { lines: ["Nothing playing right now.", "'open listening' for the full history."] };
-        }
-        return {
-          lines: [
-            "NOW PLAYING",
-            "",
-            `  ${data.name}`,
-            `  ${data.artist}`,
-            data.album ? `  ${data.album}` : "",
-          ].filter(Boolean),
-        };
-      } catch {
-        return { lines: ["Could not reach Spotify."] };
-      }
-    },
+    run: () => ({
+      lines: [
+        "Live listening status is private.",
+        "'open listening' for recent history grouped by week.",
+      ],
+    }),
   },
   theme: {
     description: "Toggle light and dark",

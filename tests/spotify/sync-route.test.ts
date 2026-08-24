@@ -7,6 +7,8 @@ afterEach(() => {
   delete process.env.SPOTIFY_CLIENT_ID;
   delete process.env.SPOTIFY_CLIENT_SECRET;
   delete process.env.SPOTIFY_REFRESH_TOKEN;
+  delete process.env.KV_REST_API_URL;
+  delete process.env.KV_REST_API_TOKEN;
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
@@ -23,6 +25,8 @@ describe("Spotify sync route", () => {
     process.env.SPOTIFY_CLIENT_ID = "client-id";
     process.env.SPOTIFY_CLIENT_SECRET = "client-secret";
     process.env.SPOTIFY_REFRESH_TOKEN = "refresh-token";
+    process.env.KV_REST_API_URL = "https://redis.example";
+    process.env.KV_REST_API_TOKEN = "redis-token";
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("provider detail: secret-value")));
     vi.spyOn(console, "error").mockImplementation(() => undefined);
 

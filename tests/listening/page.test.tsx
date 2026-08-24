@@ -38,7 +38,7 @@ describe("listening page provider boundary", () => {
     expect(screen.getByText("Top genres, last year")).toBeVisible();
     expect(screen.getAllByText("Spotify data is temporarily unavailable.")).toHaveLength(3);
     expect(screen.getByText(/stored listening history is synced daily/i)).toBeVisible();
-    expect(screen.getByText(/now playing updates live/i)).toBeVisible();
+    expect(screen.queryByText(/now playing updates live/i)).not.toBeInTheDocument();
   });
 
   it("renders at request time so an unavailable shell is not cached as the route", async () => {

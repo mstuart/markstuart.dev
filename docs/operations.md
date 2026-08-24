@@ -4,9 +4,9 @@ This runbook covers the provider-backed parts of markstuart.dev. The public cont
 
 ## Runtime and verification
 
-Use Node 24 and npm 11. Install with `npm ci`, copy `.env.example` to `.env.local`, and fill only the variables required for the capability under test. Run `npm run check` before every deployment; it runs lint, type checking, tests, and the production build.
+Use Node 24.19.0 and npm 11.19.0. Install with `npm ci`, run `npm run runtime`, copy `.env.example` to `.env.local`, and fill only the variables required for the capability under test. Run `npm run check` before every deployment; it checks repository policy and runtime, allows zero lint warnings, type-checks, tests with coverage, builds, and probes a real production server.
 
-For a local smoke check, start `npm run dev` and verify `/`, `/projects`, `/posts`, one local post, `/listening`, and an unknown path. Confirm that missing optional providers produce the documented unavailable or degraded state rather than a crash.
+For the automated production smoke, run `npm run build && npm run smoke`; it starts `next start` on IPv4 loopback and requires `/` to return 200 and an unknown route to return 404. For a broader manual check, start `npm run dev` and verify `/`, `/projects`, `/posts`, one local post, `/listening`, and an unknown path. Confirm that missing optional providers produce the documented unavailable or degraded state rather than a crash.
 
 ## Environment variables by capability
 
@@ -15,7 +15,7 @@ All assignments in `.env.example` are deliberately blank.
 | Capability | Variables | Requirement |
 | --- | --- | --- |
 | Redis compatibility | `KV_REST_API_URL` + `KV_REST_API_TOKEN`, or `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` | Use one complete pair. Required in production for durable votes, listening history, subscriptions, and mail delivery state. |
-| Spotify | `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN` | Required for live and recently played data. `SPOTIFY_SETUP_NO_OPEN` is an optional local-helper switch. |
+| Spotify | `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN` | Required for the private daily sync that populates bounded listening history. Public live status is intentionally disabled. `SPOTIFY_SETUP_NO_OPEN` is an optional local-helper switch. |
 | Cron authorization | `CRON_SECRET` | Required for both scheduled routes and any manual invocation. |
 | Voting | `VOTE_SECRET` | Required in production to sign the anonymous voter cookie. |
 | Signup rate limits | `RATE_LIMIT_SECRET` | Required when subscriptions are enabled; it prevents raw client identifiers from becoming Redis keys. |
@@ -52,7 +52,11 @@ Signup is double opt-in:
 1. `POST /api/subscribe` normalizes the address, applies per-address and hashed-client limits, stores a 48-hour pending confirmation, and always returns the same accepted response for syntactically valid input.
 2. `GET /subscribe/confirm?token=...` only renders the confirmation state. GET must never confirm a subscription.
 3. A deliberate form POST atomically consumes the token, adds the confirmed subscriber, clears suppression, and sends the welcome message once.
-4. A human unsubscribe GET only renders a confirmation form. Its form POST suppresses the address. RFC 8058 one-click POST is the only immediate unsubscribe path.
+4. A human unsubscribe GET only renders a confirmation form. Its form POST suppresses the address. RFC 8058 one-click POST is the only automated, no-human-confirmation unsubscribe path.
+
+GET does not confirm a subscription or unsubscribe a reader. Confirmation and
+human unsubscribe changes require deliberate POST requests; the standards-based
+one-click unsubscribe is also a POST.
 
 Never inspect or copy subscriber addresses during routine verification. Use an address controlled for testing, confirm that duplicate GETs cause no state change, and remove or suppress the test subscription through the public flow.
 
@@ -62,7 +66,19 @@ Never inspect or copy subscriber addresses during routine verification. Use an a
 
 Confirmation and welcome jobs are durable. Each runnable lifecycle job makes up to three immediate provider attempts with the same idempotency key. If all three fail, the job remains available to the next daily `/api/notify` drain. A drain inside the 23-hour provider-key window may retry with that same key; once an unfinished attempt is 23 hours old, it is ambiguous and fails closed without sending. The job is quarantined for operator reconciliation so it cannot block later runnable mail.
 
-Inbound Resend events are verified before processing and deduplicated by the verified event identifier. An inbound failure is retryable with the same idempotency key only inside the 23-hour provider-key window; an older unfinished inbound attempt is ambiguous and fails closed for operator reconciliation. Completion is recorded only after the provider accepts the forward. Configure the private destination only through the server-side `INBOUND_FORWARD_TO` secret, and compare only the variable name when checking deployment configuration. Browser responses and logs must stay generic and must not include message bodies, recipient addresses, destinations, tokens, or provider error payloads.
+Configure Resend to send `email.received` events to `POST /api/email/inbound`.
+The route requires the raw signed body plus the `svix-id`, `svix-timestamp`,
+and `svix-signature` headers. It verifies the signature with
+`RESEND_WEBHOOK_SECRET` before reading event data, accepts only the expected
+event shape, limits webhook and message sizes, downloads raw mail only from an
+HTTPS provider URL, and deduplicates by the verified event identifier.
+
+An inbound failure is retryable with the same provider idempotency key only inside the 23-hour provider-key window; an older unfinished inbound attempt is ambiguous and fails closed for operator reconciliation. Completion is recorded only after the provider accepts the forward. Configure the private destination only through the server-side `INBOUND_FORWARD_TO` secret, and compare only the variable name when checking deployment configuration. Browser responses and logs must stay generic and must not include message bodies, recipient addresses, destinations, tokens, or provider error payloads.
+
+To validate configuration, use a provider-controlled test event with a test
+mailbox and inspect only the HTTP status, sanitized correlation ID, and durable
+completion state. Do not replay a captured production body, weaken signature
+verification, or paste webhook headers into issues.
 
 For a provider incident, check Resend provider health and the Vercel function logs. Retry only after the provider recovers and only while the durable attempt remains inside its safe window. Confirm that no run is still holding the notification lock and that completion state exists before triggering another attempt. Never force an ambiguous or quarantined delivery; reconcile it with provider state first.
 

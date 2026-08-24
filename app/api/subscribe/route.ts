@@ -5,7 +5,7 @@ import { publicError } from "@/lib/server/http";
 import { logServerError } from "@/lib/server/log";
 import { rateLimit } from "@/lib/server/rate-limit";
 import {
-  isSubscribeConfigured,
+  getSubscriptionReadiness,
   isValidEmail,
   normalizeEmail,
   queueConfirmationDelivery,
@@ -39,7 +39,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const normalized = normalizeEmail(email);
   try {
-    if (!isSubscribeConfigured()) return accepted();
+    if (!getSubscriptionReadiness("signup").ready) return accepted();
 
     const [emailLimit, clientLimit] = await Promise.all([
       rateLimit("subscribe-email", normalized, 3, 3600),

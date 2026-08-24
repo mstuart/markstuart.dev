@@ -1,10 +1,13 @@
 import { redisCommand, redisConfig, redisPipeline } from "@/lib/server/redis";
-import { getRecentlyPlayed, type PlayedTrack } from "@/lib/spotify";
+import { getRecentlyPlayed, type PlayedTrack, type SpotifyTrack } from "@/lib/spotify";
 
-// Accumulating listening history. Spotify only exposes the last 50 plays, so
-// the daily Vercel Cron appends new plays into this sorted set. Without Redis,
-// the page falls back to Spotify's live last 50 without pagination.
+// Bounded listening history. Spotify only exposes the last 50 plays, so the
+// daily Vercel Cron appends new plays and trims the oldest stored entries.
+// Without Redis, the public feed falls back to those last 50 plays.
 const KEY = "listening:history";
+const RETAINED_HISTORY_LIMIT = 500;
+const PUBLISHED_HISTORY_LIMIT = 90;
+const MAX_PAGE_SIZE = 30;
 
 export function isHistoryConfigured(): boolean {
   return redisConfig() !== null;
@@ -12,44 +15,80 @@ export function isHistoryConfigured(): boolean {
 
 /** Append plays into history; returns how many were newly added. */
 export async function syncHistory(): Promise<number> {
+  if (!isHistoryConfigured()) return 0;
   const plays = await getRecentlyPlayed(50);
-  if (plays.length === 0 || !isHistoryConfigured()) return 0;
-  const commands = plays.map((play) => [
-    "ZADD",
-    KEY,
-    "NX",
-    String(new Date(play.playedAt).getTime()),
-    JSON.stringify(play),
-  ]);
+  if (plays.length === 0) return 0;
+  const commands = [
+    ...plays.map((play) => [
+      "ZADD",
+      KEY,
+      "NX",
+      String(new Date(play.playedAt).getTime()),
+      JSON.stringify(play),
+    ]),
+    ["ZREMRANGEBYRANK", KEY, "0", String(-(RETAINED_HISTORY_LIMIT + 1))],
+  ];
   const results = await redisPipeline<number>(commands);
-  return results.reduce((total, result) => total + (Number(result) || 0), 0);
+  return results
+    .slice(0, plays.length)
+    .reduce((total, result) => total + (Number(result) || 0), 0);
+}
+
+export interface PublicPlayedTrack extends SpotifyTrack {
+  /** UTC Monday for the play's week; exact playback time stays private. */
+  playedDuring: string;
 }
 
 export interface HistoryPage {
-  items: PlayedTrack[];
-  /** Pass as `before` to fetch the next (older) page; null when exhausted. */
-  nextBefore: number | null;
+  items: PublicPlayedTrack[];
+  /** Offset cursor for the next bounded page; null when exhausted. */
+  nextCursor: number | null;
 }
 
-export async function getHistory(before?: number, limit = 30): Promise<HistoryPage> {
-  if (!isHistoryConfigured()) {
-    const items = await getRecentlyPlayed(50);
-    return { items: before ? [] : items, nextBefore: null };
+function toPublicTrack({ playedAt, ...track }: PlayedTrack): PublicPlayedTrack {
+  const played = new Date(playedAt);
+  const daysSinceMonday = (played.getUTCDay() + 6) % 7;
+  played.setUTCDate(played.getUTCDate() - daysSinceMonday);
+  return { ...track, playedDuring: played.toISOString().slice(0, 10) };
+}
+
+export async function getHistory(cursor = 0, limit = MAX_PAGE_SIZE): Promise<HistoryPage> {
+  const pageSize = Math.min(
+    Math.max(1, Math.trunc(limit)),
+    MAX_PAGE_SIZE,
+    PUBLISHED_HISTORY_LIMIT - cursor
+  );
+  if (cursor < 0 || cursor >= PUBLISHED_HISTORY_LIMIT || pageSize <= 0) {
+    return { items: [], nextCursor: null };
   }
-  const max = before ? `(${before}` : "+inf";
+
+  if (!isHistoryConfigured()) {
+    const stored = await getRecentlyPlayed(50);
+    const page = stored.slice(cursor, cursor + pageSize + 1);
+    return {
+      items: page.slice(0, pageSize).map(toPublicTrack),
+      nextCursor:
+        page.length > pageSize && cursor + pageSize < PUBLISHED_HISTORY_LIMIT
+          ? cursor + pageSize
+          : null,
+    };
+  }
+
   const result = await redisCommand<string[]>([
     "ZRANGE",
     KEY,
-    max,
-    "-inf",
-    "BYSCORE",
+    cursor,
+    cursor + pageSize,
     "REV",
-    "LIMIT",
-    0,
-    limit,
   ]);
-  const items = (result ?? []).map((raw) => JSON.parse(raw) as PlayedTrack);
-  const nextBefore =
-    items.length === limit ? new Date(items[items.length - 1].playedAt).getTime() : null;
-  return { items, nextBefore };
+  const page = result ?? [];
+  return {
+    items: page
+      .slice(0, pageSize)
+      .map((raw) => toPublicTrack(JSON.parse(raw) as PlayedTrack)),
+    nextCursor:
+      page.length > pageSize && cursor + pageSize < PUBLISHED_HISTORY_LIMIT
+        ? cursor + pageSize
+        : null,
+  };
 }

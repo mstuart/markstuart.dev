@@ -39,13 +39,13 @@ export function SubscribeForm() {
         : null;
 
   return (
-    <div className="mt-6 rounded-lg bg-zinc-100/70 p-4 dark:bg-zinc-900/70">
-      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Subscribe</p>
+    <div className="mt-6 rounded-lg bg-surface-muted/70 p-4">
+      <p className="text-sm font-medium text-foreground">Subscribe</p>
       <p id="subscription-email-help" className="mt-1 text-sm text-muted">
         Get an email when I publish something new. I’ll send a link to confirm. No other mail, unsubscribe anytime.
       </p>
       <form onSubmit={submit} className="mt-3">
-        <label htmlFor="subscription-email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <label htmlFor="subscription-email" className="block text-sm font-medium text-foreground">
           Email address
         </label>
         <div className="mt-1 flex flex-wrap gap-2">
@@ -62,12 +62,12 @@ export function SubscribeForm() {
             placeholder="you@example.com"
             aria-describedby="subscription-email-help"
             aria-invalid={state === "error"}
-            className="min-w-0 flex-1 rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-900 placeholder:text-placeholder focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+            className="min-h-11 min-w-0 flex-1 rounded-md border border-line bg-background px-3 py-1.5 text-base text-foreground placeholder:text-placeholder focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:text-sm"
           />
           <button
             type="submit"
             disabled={state === "loading"}
-            className="cursor-pointer rounded-md bg-control px-3 py-1.5 text-sm font-medium text-control-foreground transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.98] disabled:opacity-60 dark:focus-visible:ring-offset-zinc-900"
+            className="min-h-11 cursor-pointer rounded-md bg-control px-3 py-1.5 text-sm font-medium text-control-foreground transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] disabled:cursor-default disabled:opacity-60"
           >
             {state === "loading" ? "…" : "Subscribe"}
           </button>

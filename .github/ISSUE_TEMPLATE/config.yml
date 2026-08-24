@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report
+    url: https://github.com/mstuart/markstuart.dev/security/policy
+    about: Read the private security reporting policy. Do not disclose vulnerabilities publicly.
+  - name: Support policy
+    url: https://github.com/mstuart/markstuart.dev/blob/main/SUPPORT.md
+    about: Check supported issue types and required diagnostic details.

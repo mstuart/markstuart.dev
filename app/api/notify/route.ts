@@ -32,6 +32,7 @@ async function deliverAtConcurrencyTwo(
   post: PostMeta,
   recipients: PendingNotificationRecipient[],
   lockToken: string,
+  correlationId: string,
 ): Promise<DeliverySummary> {
   let nextIndex = 0;
   let sent = 0;
@@ -59,8 +60,9 @@ async function deliverAtConcurrencyTwo(
       } catch (error) {
         failed += 1;
         logServerError({
-          correlationId: crypto.randomUUID(),
+          correlationId,
           operation: "notification_recipient",
+          code: "notification_recipient_delivery_failed",
           error,
         });
       }
@@ -74,6 +76,7 @@ async function deliverAtConcurrencyTwo(
 async function deliverPendingRecipientPages(
   post: PostMeta,
   lockToken: string,
+  correlationId: string,
 ): Promise<DeliverySummary> {
   const scan = createNotificationRecipientScan();
   let sent = 0;
@@ -90,7 +93,12 @@ async function deliverPendingRecipientPages(
       if (!(await renewNotificationLock(post.slug, lockToken))) {
         throw new Error("Notification lock ownership was lost");
       }
-      const delivery = await deliverAtConcurrencyTwo(post, page.recipients, lockToken);
+      const delivery = await deliverAtConcurrencyTwo(
+        post,
+        page.recipients,
+        lockToken,
+        correlationId,
+      );
       sent += delivery.sent;
       failed += delivery.failed;
       if (page.exhausted) return { sent, failed };
@@ -136,8 +144,13 @@ export async function GET(request: Request): Promise<Response> {
     const lifecycle = await processQueuedLifecycleMailJobs();
     if (lifecycle.failed > 0) {
       logServerError({
-        correlationId: crypto.randomUUID(),
+        correlationId,
         operation: "subscription_mail_retry",
+        code: "notification_lifecycle_delivery_failed",
+        counters: {
+          lifecycleCompleted: lifecycle.completed,
+          lifecycleFailed: lifecycle.failed,
+        },
         error: new Error("Lifecycle mail delivery failed"),
       });
     }
@@ -154,7 +167,7 @@ export async function GET(request: Request): Promise<Response> {
       }
 
       try {
-        const delivery = await deliverPendingRecipientPages(post, lockToken);
+        const delivery = await deliverPendingRecipientPages(post, lockToken, correlationId);
         sent += delivery.sent;
         failed += delivery.failed;
 
@@ -165,6 +178,38 @@ export async function GET(request: Request): Promise<Response> {
       } finally {
         await releaseNotificationLock(post.slug, lockToken);
       }
+    }
+
+    if (lifecycle.failed > 0 || failed > 0) {
+      const counters = {
+        lifecycleCompleted: lifecycle.completed,
+        lifecycleFailed: lifecycle.failed,
+        recipientSent: sent,
+        recipientFailed: failed,
+        postsAnnounced: announced.length,
+      };
+      logServerError({
+        correlationId,
+        operation: "notify",
+        code: "notification_delivery_failed",
+        counters,
+        error: new Error("Notification delivery failed"),
+      });
+      return Response.json(
+        {
+          error: { code: "notification_delivery_failed", correlationId },
+          configured: true,
+          newPosts: announced.length,
+          announced,
+          sent,
+          failed,
+          counters,
+        },
+        {
+          status: 502,
+          headers: { "X-Robots-Tag": "noindex" },
+        },
+      );
     }
 
     return Response.json({
@@ -178,6 +223,7 @@ export async function GET(request: Request): Promise<Response> {
     logServerError({
       correlationId,
       operation: "notify",
+      code: "notification_run_failed",
       error,
     });
     return publicError("notification_failed", 500, correlationId);

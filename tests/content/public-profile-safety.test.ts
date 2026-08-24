@@ -88,10 +88,19 @@ describe("public profile content safety", () => {
           company: "PayPal",
           title: "Director of Engineering",
           start: "2021-02",
+          end: "2021-12",
+        },
+        {
+          company: "PayPal",
+          title: "Sr. Principal Engineer",
+          start: "2022-01",
           end: "2022-09",
         },
       ]),
     );
+    expect(
+      resumeRoles.find(({ title }) => title === "Sr. Principal Engineer")?.short,
+    ).toBe("Led technical strategy for PayPal SDKs and Checkout Web.");
     expect(publicCareer).not.toMatch(
       /agent skills marketplace|autonomous development pipeline|open pull requests across the org|resolve CI failures|production errors|vulnerability remediation|error healing|IVR\/Phone|mortgage, payments, and identity|services can be swapped|hundreds of thousands|per-client data access controls|cache invalidation|security scanning enforcement|largest US mortgage servicer|800\+|tens of millions|50-60%|300\+ Node\.js|350\+ apps|800\+ developers|Checkout Lite|Batch REST|Active\/Active|single data center|100\+ engineer|5x faster|stealth startup/i,
     );

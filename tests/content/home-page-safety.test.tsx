@@ -14,6 +14,20 @@ describe("public homepage content safety", () => {
     expect(stateFarm.querySelector("img")?.getAttribute("src")).toContain("statefarm.png");
   });
 
+  it("shows all five featured projects under Building without a contributor row", () => {
+    render(<HomePage />);
+
+    const building = screen.getByText("Building").closest("p");
+    expect(building).not.toBeNull();
+    if (!building) return;
+
+    expect(within(building).getAllByRole("link")).toHaveLength(5);
+    for (const name of ["peek", "tare", "mcp-prune", "ai-statusline", "graphql-agent-toolkit"]) {
+      expect(within(building).getByRole("link", { name: new RegExp(`^${name}:`) })).toBeInTheDocument();
+    }
+    expect(screen.queryByText("Core contributor to")).not.toBeInTheDocument();
+  });
+
   it("keeps the existing profile sections without publishing health inventory or internal scale claims", () => {
     const { container } = render(<HomePage />);
 

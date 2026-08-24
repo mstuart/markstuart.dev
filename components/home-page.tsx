@@ -72,7 +72,7 @@ export function HomePage() {
   const selectedProjects = projects
     .filter((project) => project.role === "author" && project.name !== "vitals")
     .sort((a, b) => ((a.createdAt ?? "") < (b.createdAt ?? "") ? 1 : -1))
-    .slice(0, 6);
+    .slice(0, 5);
   const localWritingRows: WritingRow[] = getAllPosts().map((post) => ({
     kind: "local",
     slug: post.slug,
@@ -133,39 +133,15 @@ export function HomePage() {
               </p>
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
                 <span>Building</span>
-                <ProjectChip
-                  name="peek"
-                  icon="Gauge"
-                  href="https://github.com/mstuart/peek"
-                  description="DevTools for coding agents: session composition, cost attribution, compaction forensics, and config A/B benchmarking."
-                />
-                <ProjectChip
-                  name="tare"
-                  icon="PlugsConnected"
-                  href="https://github.com/mstuart/tare"
-                  description="Lossless-by-default context compression for LLM coding agents: proxy, library, CLI, and MCP server."
-                />
-              </p>
-              <p className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-                <span>Core contributor to</span>
-                <ProjectChip
-                  name="zoid"
-                  icon="PlugsConnected"
-                  href="https://github.com/krakenjs/zoid"
-                  description="Cross-domain component framework for embedding rich UI widgets across origins."
-                />
-                <ProjectChip
-                  name="lusca"
-                  icon="ShieldCheck"
-                  href="https://github.com/krakenjs/lusca"
-                  description="Application security middleware for Node.js, covering CSRF, CSP, and other common protections."
-                />
-                <ProjectChip
-                  name="paypal-checkout-components"
-                  icon="Package"
-                  href="https://github.com/paypal/paypal-checkout-components"
-                  description="UI components powering the PayPal Checkout integration used across the web."
-                />
+                {selectedProjects.map((project) => (
+                  <ProjectChip
+                    key={project.name}
+                    name={project.name}
+                    icon={project.icon}
+                    href={project.url}
+                    description={project.description}
+                  />
+                ))}
               </p>
             </div>
           </header>

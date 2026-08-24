@@ -70,9 +70,19 @@ export const resumeRoles: ResumeRole[] = [
   },
   {
     company: "PayPal",
+    title: "Sr. Principal Engineer",
+    start: "2022-01",
+    end: "2022-09",
+    short: "Led technical strategy for PayPal SDKs and Checkout Web.",
+    bullets: [
+      "Led technical strategy for PayPal SDKs and Checkout Web.",
+    ],
+  },
+  {
+    company: "PayPal",
     title: "Director of Engineering",
     start: "2021-02",
-    end: "2022-09",
+    end: "2021-12",
     short: "Built and led a new developer-platform org responsible for PayPal's SDKs.",
     bullets: [
       "Built and led a developer-platform organization responsible for SDK strategy across PayPal products.",

@@ -17,6 +17,13 @@ describe("crawler discovery", () => {
 
     expect(urls).not.toContain("https://markstuart.dev/tui");
     expect(urls).toContain("https://markstuart.dev/work/full");
+    expect(urls).toEqual(
+      expect.arrayContaining([
+        "https://markstuart.dev/projects/peek",
+        "https://markstuart.dev/projects/tare",
+        "https://markstuart.dev/projects/graphql-agent-toolkit",
+      ])
+    );
   });
 
   it("prevents crawlers from indexing API routes", () => {

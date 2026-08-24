@@ -113,6 +113,25 @@ export function ResumeView() {
                     ))}
                   </ul>
                 )}
+                {role.evidence ? (
+                  <ul
+                    aria-label={`Public evidence for ${role.title} at ${role.company}`}
+                    className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs"
+                  >
+                    {role.evidence.map((item) => (
+                      <li key={item.url}>
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-sm text-accent underline decoration-accent/40 underline-offset-4 transition-colors hover:decoration-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                        >
+                          {item.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
               </div>
             </div>
           ))}

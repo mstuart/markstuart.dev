@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ArrowUpRight, Star } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRight, Star } from "@phosphor-icons/react/dist/ssr";
 import { SocialLinks } from "@/components/shared/social-links";
 import { SectionV1 } from "@/components/v1/section";
 import styles from "@/components/v1/entrance.module.css";
@@ -11,21 +11,21 @@ import { formatStarCount } from "@/lib/format";
 import { projects } from "@/lib/data/projects";
 import { getProjectIcon } from "@/lib/project-icons";
 import { work } from "@/lib/data/work";
-import { writing } from "@/lib/data/writing";
-import { getAllPosts } from "@/lib/posts";
 
-function formatViews(views: number): string {
-  if (views >= 1000) {
-    const thousands = views / 1000;
-    const value = Number.isInteger(thousands) ? String(thousands) : thousands.toFixed(1);
-    return `${value}K`;
-  }
-  return String(views);
-}
-
-type WritingRow =
-  | { kind: "local"; slug: string; title: string; date: string }
-  | { kind: "external"; title: string; date: string; url: string; views?: number };
+const selectedIdeas = [
+  {
+    title: "Scaling GraphQL and Checkout at PayPal",
+    href: "/posts/scaling-graphql-and-checkout-at-paypal",
+  },
+  {
+    title: "Building Federated API Platforms",
+    href: "/posts/building-federated-api-platforms",
+  },
+  {
+    title: "Coding Agent Infrastructure",
+    href: "/posts/coding-agent-infrastructure",
+  },
+];
 
 const inlineLinkClass =
   "rounded-lg text-zinc-900 underline decoration-dotted underline-offset-4 transition-colors hover:text-teal-600 hover:decoration-solid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-100 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400";
@@ -73,23 +73,6 @@ export function HomePage() {
     .filter((project) => project.role === "author" && project.name !== "vitals")
     .sort((a, b) => ((a.createdAt ?? "") < (b.createdAt ?? "") ? 1 : -1))
     .slice(0, 5);
-  const localWritingRows: WritingRow[] = getAllPosts().map((post) => ({
-    kind: "local",
-    slug: post.slug,
-    title: post.title,
-    date: post.date,
-  }));
-  const externalWritingRows: WritingRow[] = writing.map((entry) => ({
-    kind: "external",
-    title: entry.title,
-    date: entry.date,
-    url: entry.url,
-    views: entry.views,
-  }));
-  const recentWriting = [...localWritingRows, ...externalWritingRows]
-    .sort((a, b) => (a.date < b.date ? 1 : -1))
-    .slice(0, 5);
-
   return (
     <div className="relative">
       <PixelScene5 />
@@ -109,12 +92,12 @@ export function HomePage() {
               <p>
                 Hey! I&apos;m Mark, a Distinguished Engineer at Rocket. For nearly two decades,
                 I&apos;ve built APIs, SDKs, and Web platforms for flagship consumer products at PayPal,
-                eBay, and Rocket, along with developer platforms used by millions of developers.
+                eBay, and Rocket.
               </p>
               <p>
-                My through-line is turning fragmented systems and teams into composable platforms
-                that accelerate everyone around them. Lately that means AI-enabled engineering. Most
-                of what I build in the open lives on{" "}
+                I build developer platforms that make complex systems composable—from PayPal Checkout
+                and federated GraphQL to tools for AI coding agents. Most of what I build in the open
+                lives on{" "}
                 <a href="https://github.com/mstuart" target="_blank" rel="noopener noreferrer" className={inlineLinkClass}>
                   GitHub
                 </a>
@@ -172,39 +155,19 @@ export function HomePage() {
             </Link>
           </SectionV1>
 
-          <SectionV1 heading="Writing" index={2}>
+          <SectionV1 heading="Selected ideas" index={2}>
             <div className="flex flex-col">
-              {recentWriting.map((item) =>
-                item.kind === "local" ? (
-                  <Link
-                    key={item.slug}
-                    href={`/posts/${item.slug}`}
-                    className="group flex items-baseline justify-between gap-4 rounded-lg px-2 py-3 -mx-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:focus-visible:ring-teal-400"
-                  >
-                    <span className="truncate text-zinc-600 transition-colors group-hover:text-zinc-950 dark:text-zinc-400 dark:group-hover:text-zinc-50">
-                      {item.title}
-                    </span>
-                  </Link>
-                ) : (
-                  <a
-                    key={item.url}
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-baseline justify-between gap-4 rounded-lg px-2 py-3 -mx-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:focus-visible:ring-teal-400"
-                  >
-                    <span className="inline-flex min-w-0 items-center gap-1 truncate text-zinc-600 transition-colors group-hover:text-teal-600 dark:text-zinc-400 dark:group-hover:text-teal-400">
-                      <span className="truncate">{item.title}</span>
-                      <ArrowUpRight size={12} weight="regular" className="shrink-0" />
-                    </span>
-                    {item.views ? (
-                      <span className="shrink-0 font-mono text-xs tabular-nums text-muted">
-                        {formatViews(item.views)} views
-                      </span>
-                    ) : null}
-                  </a>
-                )
-              )}
+              {selectedIdeas.map((idea) => (
+                <Link
+                  key={idea.href}
+                  href={idea.href}
+                  className="group flex items-baseline justify-between gap-4 rounded-lg px-2 py-3 -mx-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:focus-visible:ring-teal-400"
+                >
+                  <span className="truncate text-zinc-600 transition-colors group-hover:text-zinc-950 dark:text-zinc-400 dark:group-hover:text-zinc-50">
+                    {idea.title}
+                  </span>
+                </Link>
+              ))}
             </div>
             <Link
               href="/posts"

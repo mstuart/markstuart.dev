@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { projectCaseStudies } from "@/lib/data/project-case-studies";
 import { site } from "@/lib/data/site";
 import { getAllPosts } from "@/lib/posts";
 
@@ -24,5 +25,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: post.date,
   }));
 
-  return [...staticEntries, ...postEntries];
+  const projectEntries: MetadataRoute.Sitemap = projectCaseStudies.map((project) => ({
+    url: `${site.url}/projects/${project.slug}`,
+  }));
+
+  return [...staticEntries, ...postEntries, ...projectEntries];
 }

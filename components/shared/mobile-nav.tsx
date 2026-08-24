@@ -17,12 +17,20 @@ const FOCUSABLE_SELECTOR = "a[href], button:not([disabled]), input:not([disabled
 
 // Keying the stateful drawer to the pathname guarantees that every route
 // transition closes it, including a later Back navigation to the old route.
-export function MobileNav({ links }: { links: NavLink[] }) {
+export function MobileNav({ links, secondaryLinks = [] }: { links: NavLink[]; secondaryLinks?: NavLink[] }) {
   const pathname = usePathname();
-  return <MobileNavForPath key={pathname} links={links} pathname={pathname} />;
+  return <MobileNavForPath key={pathname} links={links} pathname={pathname} secondaryLinks={secondaryLinks} />;
 }
 
-function MobileNavForPath({ links, pathname }: { links: NavLink[]; pathname: string }) {
+function MobileNavForPath({
+  links,
+  pathname,
+  secondaryLinks,
+}: {
+  links: NavLink[];
+  pathname: string;
+  secondaryLinks: NavLink[];
+}) {
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -123,20 +131,53 @@ function MobileNavForPath({ links, pathname }: { links: NavLink[]; pathname: str
             >
               <h2 id="mobile-navigation-title" className="sr-only">Site navigation</h2>
               <nav className="mx-auto flex max-w-2xl flex-col px-4 pb-4 pt-16">
-                {links.map((link) => (
-                  <ActiveNavLink
-                    key={link.href}
-                    href={link.href}
-                    prefetch={link.prefetch}
-                    className={`flex min-h-12 items-center rounded-md px-2 text-base transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:focus-visible:ring-teal-400 ${
-                      pathname === link.href
-                        ? "text-accent"
-                        : "text-zinc-700 hover:text-teal-600 dark:text-zinc-300 dark:hover:text-teal-400"
-                    }`}
-                  >
-                    {link.label}
-                  </ActiveNavLink>
-                ))}
+                <h3 id="mobile-primary-navigation-title" className="px-2 text-xs font-medium uppercase tracking-wider text-muted">
+                  Primary
+                </h3>
+                <ul aria-labelledby="mobile-primary-navigation-title" className="mt-2 flex flex-col">
+                  {links.map((link) => (
+                    <li key={link.href}>
+                      <ActiveNavLink
+                        href={link.href}
+                        prefetch={link.prefetch}
+                        className={`flex min-h-12 items-center rounded-md px-2 text-base transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:focus-visible:ring-teal-400 ${
+                          pathname === link.href
+                            ? "text-accent"
+                            : "text-zinc-700 hover:text-teal-600 dark:text-zinc-300 dark:hover:text-teal-400"
+                        }`}
+                      >
+                        {link.label}
+                      </ActiveNavLink>
+                    </li>
+                  ))}
+                </ul>
+                {secondaryLinks.length > 0 ? (
+                  <>
+                    <h3
+                      id="mobile-secondary-navigation-title"
+                      className="mt-5 border-t border-line px-2 pt-5 text-xs font-medium uppercase tracking-wider text-muted"
+                    >
+                      More
+                    </h3>
+                    <ul aria-labelledby="mobile-secondary-navigation-title" className="mt-2 flex flex-col">
+                      {secondaryLinks.map((link) => (
+                        <li key={link.href}>
+                          <ActiveNavLink
+                            href={link.href}
+                            prefetch={link.prefetch}
+                            className={`flex min-h-12 items-center rounded-md px-2 text-base transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:focus-visible:ring-teal-400 ${
+                              pathname === link.href
+                                ? "text-accent"
+                                : "text-zinc-700 hover:text-teal-600 dark:text-zinc-300 dark:hover:text-teal-400"
+                            }`}
+                          >
+                            {link.label}
+                          </ActiveNavLink>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : null}
                 <div className="mt-3 border-t border-zinc-200 px-2 pt-4 dark:border-zinc-800">
                   <SocialLinks />
                 </div>

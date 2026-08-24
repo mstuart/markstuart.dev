@@ -3,7 +3,7 @@ import Image from "next/image";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { getAllPosts } from "@/lib/posts";
 import { SubscribeForm } from "@/components/subscribe-form";
-import { writing } from "@/lib/data/writing";
+import { WRITING_THEMES, writing } from "@/lib/data/writing";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata = pageMetadata({
@@ -31,8 +31,25 @@ function formatViews(views: number): string {
 }
 
 type WritingRow =
-  | { kind: "local"; slug: string; title: string; date: string; iconSrc: string }
-  | { kind: "external"; title: string; date: string; url: string; source: string; views?: number; iconSrc: string };
+  | {
+      kind: "local";
+      slug: string;
+      title: string;
+      date: string;
+      format: "article" | "note";
+      theme: (typeof WRITING_THEMES)[number];
+      iconSrc: string;
+    }
+  | {
+      kind: "external";
+      title: string;
+      date: string;
+      url: string;
+      source: string;
+      views?: number;
+      theme: (typeof WRITING_THEMES)[number];
+      iconSrc: string;
+    };
 
 const SOURCE_ICONS: Record<string, string> = {
   "PayPal Technology Blog": "/writing/paypal.png",
@@ -53,6 +70,8 @@ export default function PostsPage() {
     slug: post.slug,
     title: post.title,
     date: post.date,
+    format: post.format,
+    theme: post.theme,
     iconSrc: "/icon.svg",
   }));
   const externalRows: WritingRow[] = writing.map((entry) => ({
@@ -62,6 +81,7 @@ export default function PostsPage() {
     url: entry.url,
     source: entry.source,
     views: entry.views,
+    theme: entry.theme ?? WRITING_THEMES[0],
     iconSrc: SOURCE_ICONS[entry.source],
   }));
   const rows = [...localRows, ...externalRows].sort((a, b) => (a.date < b.date ? 1 : -1));
@@ -78,57 +98,70 @@ export default function PostsPage() {
         {(roundedViews / 1000).toLocaleString("en-US")}K times.
       </p>
       <SubscribeForm />
-      <div className="mt-10 flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
-        {rows.map((row) =>
-          row.kind === "local" ? (
-            <Link
-              key={row.slug}
-              href={`/posts/${row.slug}`}
-              className="group flex items-center gap-3 rounded-md px-2 py-3 -mx-2 transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:hover:bg-zinc-900 dark:focus-visible:ring-teal-400"
-            >
-              <RowIcon src={row.iconSrc} />
-              <span className="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-                <span className="text-zinc-900 transition-colors group-hover:text-teal-600 sm:truncate dark:text-zinc-100 dark:group-hover:text-teal-400">
-                  {row.title}
-                </span>
-                <time
-                  dateTime={row.date}
-                  className="shrink-0 font-mono text-xs tabular-nums text-muted"
-                >
-                  {formatDate(row.date)}
-                </time>
-              </span>
-            </Link>
-          ) : (
-            <a
-              key={row.url}
-              href={row.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex gap-3 rounded-md px-2 py-3 -mx-2 transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:hover:bg-zinc-900 dark:focus-visible:ring-teal-400"
-            >
-              <RowIcon src={row.iconSrc} />
-              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-                  <span className="inline-flex min-w-0 items-center gap-1 text-zinc-900 transition-colors group-hover:text-teal-600 sm:truncate dark:text-zinc-100 dark:group-hover:text-teal-400">
-                    <span className="sm:truncate">{row.title}</span>
-                    <ArrowUpRight size={14} weight="regular" className="shrink-0" />
-                  </span>
-                  <time
-                    dateTime={row.date}
-                    className="shrink-0 font-mono text-xs tabular-nums text-muted"
-                  >
-                    {formatDate(row.date)}
-                  </time>
-                </span>
-                <span className="font-mono text-xs tabular-nums text-muted">
-                  {row.source}
-                  {row.views ? ` · ${formatViews(row.views)}` : ""}
-                </span>
-              </span>
-            </a>
-          )
-        )}
+      <div className="mt-10 space-y-10">
+        {WRITING_THEMES.map((theme, index) => {
+          const themeId = `writing-theme-${index}`;
+          return (
+            <section key={theme} aria-labelledby={themeId}>
+              <h2 id={themeId} className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                {theme}
+              </h2>
+              <div className="mt-3 flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
+                {rows
+                  .filter((row) => row.theme === theme)
+                  .map((row) =>
+                    row.kind === "local" ? (
+                      <Link
+                        key={row.slug}
+                        href={`/posts/${row.slug}`}
+                        className="group flex items-center gap-3 rounded-md px-2 py-3 -mx-2 transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:hover:bg-zinc-900 dark:focus-visible:ring-teal-400"
+                      >
+                        <RowIcon src={row.iconSrc} />
+                        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                          <span className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                            <span className="text-zinc-900 transition-colors group-hover:text-teal-600 sm:truncate dark:text-zinc-100 dark:group-hover:text-teal-400">
+                              {row.title}
+                            </span>
+                            <time dateTime={row.date} className="shrink-0 font-mono text-xs tabular-nums text-muted">
+                              {formatDate(row.date)}
+                            </time>
+                          </span>
+                          <span className="font-mono text-xs text-muted">
+                            {row.format === "note" ? "Note" : "Article"}
+                          </span>
+                        </span>
+                      </Link>
+                    ) : (
+                      <a
+                        key={row.url}
+                        href={row.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex gap-3 rounded-md px-2 py-3 -mx-2 transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:hover:bg-zinc-900 dark:focus-visible:ring-teal-400"
+                      >
+                        <RowIcon src={row.iconSrc} />
+                        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                          <span className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                            <span className="inline-flex min-w-0 items-center gap-1 text-zinc-900 transition-colors group-hover:text-teal-600 sm:truncate dark:text-zinc-100 dark:group-hover:text-teal-400">
+                              <span className="sm:truncate">{row.title}</span>
+                              <ArrowUpRight size={14} weight="regular" className="shrink-0" />
+                            </span>
+                            <time dateTime={row.date} className="shrink-0 font-mono text-xs tabular-nums text-muted">
+                              {formatDate(row.date)}
+                            </time>
+                          </span>
+                          <span className="font-mono text-xs tabular-nums text-muted">
+                            {row.source}
+                            {row.views ? ` · ${formatViews(row.views)}` : ""}
+                          </span>
+                        </span>
+                      </a>
+                    )
+                  )}
+              </div>
+            </section>
+          );
+        })}
       </div>
     </div>
   );

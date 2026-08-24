@@ -10,6 +10,11 @@ export interface ResumeRole {
   short: string;
   /** Full bullets used by the long view. */
   bullets: string[];
+  /** Public artifacts that directly support this role's claims. */
+  evidence?: Array<{
+    label: string;
+    url: string;
+  }>;
 }
 
 export const resumeSummary =
@@ -52,6 +57,12 @@ export const resumeRoles: ResumeRole[] = [
       "Improved shared platform reliability, observability, and engineering quality practices.",
       "Helped shape Rocket Technology's technical career framework, senior engineering interviews, and engineering learning programs.",
     ],
+    evidence: [
+      {
+        label: "Rocket Technology: AI-authored static analysis",
+        url: "https://careers.rocket.com/blog/technology-and-product/ai-authored-static-analysis-code-enforcement",
+      },
+    ],
   },
   {
     company: "eBay",
@@ -67,6 +78,12 @@ export const resumeRoles: ResumeRole[] = [
       "Expanded delivery automation across eBay's Node.js estate.",
       "Set shared Web and Node.js engineering standards and helped teams make consistent technical decisions.",
     ],
+    evidence: [
+      {
+        label: "eBay Live",
+        url: "https://www.ebay.com/ebaylive",
+      },
+    ],
   },
   {
     company: "PayPal",
@@ -76,6 +93,12 @@ export const resumeRoles: ResumeRole[] = [
     short: "Led technical strategy for PayPal SDKs and Checkout Web.",
     bullets: [
       "Led technical strategy for PayPal SDKs and Checkout Web.",
+    ],
+    evidence: [
+      {
+        label: "PayPal Checkout components on GitHub",
+        url: "https://github.com/paypal/paypal-checkout-components",
+      },
     ],
   },
   {
@@ -98,6 +121,12 @@ export const resumeRoles: ResumeRole[] = [
       "Led PayPal's Web and Node.js platform organization, rebuilding the team and refocusing the roadmap on developer needs.",
       "Delivered shared GraphQL and front-end platform capabilities and partnered with senior leadership on platform strategy.",
     ],
+    evidence: [
+      {
+        label: "Scaling GraphQL at PayPal",
+        url: "https://medium.com/paypal-tech/scaling-graphql-at-paypal-b5b5ac098810",
+      },
+    ],
   },
   {
     company: "PayPal",
@@ -108,6 +137,16 @@ export const resumeRoles: ResumeRole[] = [
     bullets: [
       "Led Web platform modernization for PayPal's flagship Checkout product, improving performance and developer delivery.",
       "Drove PayPal's early adoption of GraphQL, building shared foundations and helping teams learn the technology.",
+    ],
+    evidence: [
+      {
+        label: "GraphQL: A Success Story for PayPal Checkout",
+        url: "https://medium.com/paypal-tech/graphql-a-success-story-for-paypal-checkout-3482f724fb53",
+      },
+      {
+        label: "Apollo's PayPal GraphQL case study",
+        url: "https://www.apollographql.com/customers/paypal",
+      },
     ],
   },
   {

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import SiteLayout from "@/app/(site)/layout";
@@ -78,9 +78,11 @@ describe("site navigation accessibility", () => {
     expect(screen.getByRole("main")).toHaveAttribute("tabindex", "-1");
   });
 
-  it("marks the current desktop navigation link", () => {
+  it("marks the current desktop navigation link", async () => {
+    const user = userEvent.setup();
     render(<SiteHeader />);
 
+    await user.click(screen.getByText("More"));
     expect(screen.getByRole("link", { name: "Talks" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "Work" })).not.toHaveAttribute("aria-current");
   });
@@ -91,6 +93,48 @@ describe("site navigation accessibility", () => {
     const nav = screen.getByRole("navigation");
     expect(nav.parentElement).toHaveClass("max-w-5xl");
     expect(nav).toHaveClass("shrink-0");
+  });
+
+  it("opens the secondary desktop destinations from a keyboard-accessible More disclosure", async () => {
+    const user = userEvent.setup();
+    render(<SiteHeader />);
+
+    const nav = screen.getByRole("navigation", { name: "Primary" });
+    expect(Array.from(nav.querySelectorAll(":scope > a")).map((link) => link.textContent)).toEqual([
+      "Work",
+      "Writing",
+      "Projects",
+    ]);
+
+    const more = within(nav).getByText("More");
+    expect(more.tagName).toBe("SUMMARY");
+    more.focus();
+    expect(more).toHaveFocus();
+    await user.click(more);
+
+    expect(more.closest("details")).toHaveAttribute("open");
+    expect(within(nav).getAllByRole("link").map((link) => link.textContent)).toEqual([
+      "Work",
+      "Writing",
+      "Projects",
+      "Press",
+      "Talks",
+      "Listening",
+      "Stack",
+    ]);
+  });
+
+  it("closes the desktop disclosure on Escape and returns focus to More", async () => {
+    const user = userEvent.setup();
+    render(<SiteHeader />);
+
+    const more = screen.getByText("More");
+    await user.click(more);
+    screen.getByRole("link", { name: "Press" }).focus();
+    await user.keyboard("{Escape}");
+
+    expect(more.closest("details")).not.toHaveAttribute("open");
+    expect(more).toHaveFocus();
   });
 
   it("distinguishes an exact current page from its parent section", () => {
@@ -122,6 +166,25 @@ describe("site navigation accessibility", () => {
     expect(document.querySelector("main")).toHaveAttribute("inert");
     expect(document.querySelector("footer")).toHaveAttribute("inert");
     expect(screen.getByRole("link", { name: "Work" })).toHaveFocus();
+  });
+
+  it("separates primary and secondary destinations in the mobile dialog", async () => {
+    const user = userEvent.setup();
+    render(
+      <MobileNav
+        links={[{ href: "/work", label: "Work" }]}
+        secondaryLinks={[{ href: "/press", label: "Press" }]}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /open menu/i }));
+    const dialog = screen.getByRole("dialog", { name: /site navigation/i });
+    const primary = within(dialog).getByRole("list", { name: "Primary" });
+    const secondary = within(dialog).getByRole("list", { name: "More" });
+
+    expect(within(primary).getByRole("link", { name: "Work" })).toBeInTheDocument();
+    expect(within(primary).queryByRole("link", { name: "Press" })).not.toBeInTheDocument();
+    expect(within(secondary).getByRole("link", { name: "Press" })).toBeInTheDocument();
   });
 
   it("traps focus in the mobile menu and restores it on Escape", async () => {

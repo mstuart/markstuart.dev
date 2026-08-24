@@ -1,5 +1,6 @@
 import { createElement } from "react";
 import { Star } from "@phosphor-icons/react/dist/ssr";
+import Link from "next/link";
 import { AllReposFilter } from "@/components/all-repos-filter";
 import { allRepos } from "@/lib/data/all-projects";
 import { npmMaintained, projects } from "@/lib/data/projects";
@@ -23,15 +24,23 @@ function formatMonthYear(date?: string): string | null {
   });
 }
 
+const caseStudySlugs = new Map([
+  ["peek", "peek"],
+  ["tare", "tare"],
+  ["graphql-agent-toolkit", "graphql-agent-toolkit"],
+]);
+
 function ProjectCard({ project }: { project: Project }) {
   const starCount = formatStarCount(project.stars);
   const monthYear = formatMonthYear(project.createdAt);
+  const caseStudySlug = caseStudySlugs.get(project.name);
   return (
-    <article className="border-b border-line md:rounded-lg md:border">
-      <a
-        href={project.url}
-        target="_blank"
-        rel="noopener noreferrer"
+    <article className="relative border-b border-line md:rounded-lg md:border">
+      <Link
+        href={caseStudySlug ? `/projects/${caseStudySlug}` : project.url}
+        aria-label={project.name}
+        target={caseStudySlug ? undefined : "_blank"}
+        rel={caseStudySlug ? undefined : "noopener noreferrer"}
         className="group flex gap-3 rounded-lg py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:p-5"
       >
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-surface-muted text-muted">
@@ -57,7 +66,18 @@ function ProjectCard({ project }: { project: Project }) {
             {project.role === "author" ? "Author" : "Core contributor"}
           </span>
         </div>
-      </a>
+      </Link>
+      {caseStudySlug ? (
+        <a
+          href={project.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${project.name} repository on GitHub`}
+          className="absolute right-0 bottom-4 z-10 rounded-sm text-xs text-muted underline decoration-dotted underline-offset-4 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:right-5 md:bottom-5"
+        >
+          GitHub
+        </a>
+      ) : null}
     </article>
   );
 }

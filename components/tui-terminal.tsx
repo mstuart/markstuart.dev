@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { COMMAND_NAMES, runCommand } from "@/lib/tui-commands";
+import { runCommand } from "@/lib/tui-commands";
 
 interface HistoryEntry {
   input?: string;
@@ -90,13 +90,6 @@ export function TuiTerminal() {
   }
 
   function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Tab") {
-      event.preventDefault();
-      const prefix = input.trim().toLowerCase();
-      const match = COMMAND_NAMES.find((name) => name.startsWith(prefix) && prefix);
-      if (match) setInput(match);
-      return;
-    }
     if (event.key === "ArrowUp") {
       event.preventDefault();
       if (commandLog.length === 0) return;
@@ -120,26 +113,29 @@ export function TuiTerminal() {
   }
 
   return (
-    <div
+    <main
       onClick={() => inputRef.current?.focus()}
       className="min-h-dvh bg-zinc-950 px-4 py-6 font-mono text-sm leading-relaxed text-zinc-300 sm:px-6 sm:text-[15px]"
     >
       <div className="mx-auto max-w-3xl">
-        {history.map((entry, index) => (
-          <div key={index}>
-            {entry.input !== undefined ? (
-              <p className="text-zinc-500">
-                <span className="text-teal-400">$</span> {entry.input}
-              </p>
-            ) : null}
-            {entry.art ? <ArtBlock rows={entry.art} /> : null}
-            {entry.lines.map((line, lineIndex) => (
-              <p key={lineIndex} className="whitespace-pre-wrap break-words">
-                {line || " "}
-              </p>
-            ))}
-          </div>
-        ))}
+        <h1 className="sr-only">Mark Stuart terminal</h1>
+        <div role="log" aria-live="polite" aria-relevant="additions">
+          {history.map((entry, index) => (
+            <div key={index}>
+              {entry.input !== undefined ? (
+                <p className="text-zinc-400">
+                  <span className="text-teal-400">$</span> {entry.input}
+                </p>
+              ) : null}
+              {entry.art ? <ArtBlock rows={entry.art} /> : null}
+              {entry.lines.map((line, lineIndex) => (
+                <p key={lineIndex} className="whitespace-pre-wrap break-words">
+                  {line || " "}
+                </p>
+              ))}
+            </div>
+          ))}
+        </div>
 
         <form onSubmit={submit} className="flex items-center gap-2">
           <span className="shrink-0 text-teal-400">$</span>
@@ -152,11 +148,11 @@ export function TuiTerminal() {
             autoComplete="off"
             autoCapitalize="off"
             aria-label="Terminal input"
-            className="min-w-0 flex-1 border-none bg-transparent text-zinc-100 caret-teal-400 outline-none"
+            className="min-w-0 flex-1 rounded-sm border-none bg-transparent text-zinc-100 caret-teal-400 outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
           />
         </form>
         <div ref={endRef} />
       </div>
-    </div>
+    </main>
   );
 }

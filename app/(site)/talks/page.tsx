@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
 import { talks } from "@/lib/data/talks";
 import { appearances } from "@/lib/data/appearances";
 import { community } from "@/lib/data/community";
+import { pageMetadata } from "@/lib/metadata";
 import { TalksFilter, type TalkListRow } from "@/components/talks-filter";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Talks",
   description:
     "Talks, panels, and appearances — web security, GraphQL, and API platforms, from PayPal's early Node.js days through today.",
-};
+  path: "/talks",
+});
 
 export default function TalksPage() {
   const rows: TalkListRow[] = [
@@ -43,7 +44,7 @@ export default function TalksPage() {
   return (
     <div className="mx-auto max-w-2xl px-6 py-16">
       <h1 className="text-2xl font-medium text-zinc-900 dark:text-zinc-100">Talks</h1>
-      <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="mt-2 text-sm text-muted">
         Talks, panels, and appearances — web security, GraphQL, and API platforms, from PayPal&apos;s early Node.js days through today.
       </p>
       <div className="mt-8">

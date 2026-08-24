@@ -5,11 +5,29 @@
 :root {
   --background: #fafafa;
   --foreground: #18181b;
+  --muted: #52525b;
+  --accent: #0f766e;
+  --accent-hover: #115e59;
+  --line: #71717a;
+  --control: #0f766e;
+  --control-foreground: #ffffff;
+  --control-border: #71717a;
+  --placeholder: #52525b;
+  --surface-muted: #f4f4f5;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-line: var(--line);
+  --color-control: var(--control);
+  --color-control-foreground: var(--control-foreground);
+  --color-control-border: var(--control-border);
+  --color-placeholder: var(--placeholder);
+  --color-surface-muted: var(--surface-muted);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
@@ -18,6 +36,15 @@
 .dark {
   --background: #09090b;
   --foreground: #f4f4f5;
+  --muted: #a1a1aa;
+  --accent: #5eead4;
+  --accent-hover: #99f6e4;
+  --line: #71717a;
+  --control: #2dd4bf;
+  --control-foreground: #09090b;
+  --control-border: #71717a;
+  --placeholder: #a1a1aa;
+  --surface-muted: #18181b;
 }
 
 body {
@@ -30,13 +57,13 @@ body {
 .sh-code {
   --sh-class: #0d6b64;
   --sh-identifier: #27272a;
-  --sh-sign: #71717a;
+  --sh-sign: #52525b;
   --sh-property: #0e7490;
   --sh-entity: #0d6b64;
   --sh-jsxliterals: #0d6b64;
   --sh-string: #0f766e;
   --sh-keyword: #b45309;
-  --sh-comment: #a1a1aa;
+  --sh-comment: #52525b;
 }
 
 .dark .sh-code {
@@ -48,7 +75,7 @@ body {
   --sh-jsxliterals: #5eead4;
   --sh-string: #2dd4bf;
   --sh-keyword: #fbbf24;
-  --sh-comment: #71717a;
+  --sh-comment: #a1a1aa;
 }
 
 .sh__line {

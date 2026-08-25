@@ -12,9 +12,9 @@ export const PROVIDER_PROBES = Object.freeze([
     validate: (body) => body?.status === "ok",
   },
   {
-    label: "Read-only vote state",
+    label: "Unknown vote slug boundary",
     path: "/api/votes?slug=coding-agent-infrastructure",
-    expectedStatus: 200,
+    expectedStatus: 400,
   },
   {
     label: "Invalid unsubscribe token",

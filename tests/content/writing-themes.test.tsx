@@ -103,15 +103,14 @@ describe("Writing page themes", () => {
     const links = within(list).getAllByRole("link");
 
     expect(links).toHaveLength(getAllPosts().length + writing.length);
-    expect(links[0]).toHaveAccessibleName(/Making coding agents dependable/i);
-    expect(links[1]).toHaveAccessibleName(/The new era of static analysis/i);
+    expect(links[0]).toHaveAccessibleName(/The new era of static analysis/i);
 
     for (const title of [...getAllPosts(), ...writing].map((entry) => entry.title)) {
       expect(screen.getAllByText(title)).toHaveLength(1);
     }
 
     expect(screen.getByRole("button", { name: "Subscribe" })).toBeInTheDocument();
-    expect(screen.getAllByText("Article")).toHaveLength(getAllPosts().length);
+    expect(screen.queryAllByText("Article")).toHaveLength(getAllPosts().length);
     expect(screen.getAllByText(/^PayPal Technology Blog/)).toHaveLength(5);
     expect(screen.getByText(/34K views/)).toBeInTheDocument();
     expect(screen.queryByText("Hello, world")).not.toBeInTheDocument();
@@ -137,22 +136,19 @@ describe("Writing page themes", () => {
     expect(ai).toHaveAttribute("aria-pressed", "true");
     expect(within(ai).getByText("✓")).toBeVisible();
     expect(within(all).queryByText("✓")).not.toBeInTheDocument();
-    expect(screen.getByRole("status")).toHaveTextContent(`${aiCount} results`);
+    expect(screen.getByRole("status")).toHaveTextContent(`${aiCount} ${aiCount === 1 ? "result" : "results"}`);
 
     const links = within(screen.getByRole("list", { name: "Writing" })).getAllByRole("link");
     expect(links).toHaveLength(aiCount);
-    expect(links[0]).toHaveAccessibleName(/Making coding agents dependable/i);
-    expect(links[1]).toHaveAccessibleName(/The new era of static analysis/i);
+    expect(links[0]).toHaveAccessibleName(/The new era of static analysis/i);
   });
 
   it("shows each entry's theme as row metadata", () => {
     render(<PostsPage />);
 
-    const localPost = screen.getByRole("link", { name: /Making coding agents dependable/i });
     const externalPost = screen.getByRole("link", { name: /Scaling GraphQL at PayPal/i });
     const securityPost = screen.getByRole("link", { name: /Securing your JS apps w\/ Stateless CSRF/i });
 
-    expect(within(localPost).getByText("AI-enabled engineering")).toBeVisible();
     expect(within(externalPost).getByText("APIs & GraphQL")).toBeVisible();
     expect(within(securityPost).getByText("Web application security")).toBeVisible();
     expect(screen.getByRole("button", { name: "Web application security 1" })).toBeVisible();

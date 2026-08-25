@@ -8,7 +8,7 @@ function expectedResponse(path: string): Response {
     return Response.json({ status: "ok", data: { items: [], nextCursor: null } });
   }
   if (path === "/api/votes?slug=coding-agent-infrastructure") {
-    return Response.json({ count: 0, voted: false }, { headers: { "Set-Cookie": "private-sentinel" } });
+    return Response.json({ error: { code: "unknown_slug" } }, { status: 400 });
   }
   if (path.startsWith("/api/unsubscribe?token=")) {
     return new Response("<h1>Invalid link</h1>", { status: 400 });
@@ -38,7 +38,7 @@ describe("provider smoke", () => {
 
     expect(results).toHaveLength(8);
     expect(results.every((result) => result.ok)).toBe(true);
-    expect(results.map((result) => result.status)).toEqual([200, 200, 400, 410, 401, 401, 405, 405]);
+    expect(results.map((result) => result.status)).toEqual([200, 400, 400, 410, 401, 401, 405, 405]);
     expect(calls.every(({ init }) => init?.method === "GET")).toBe(true);
     expect(calls.every(({ init }) => !init?.headers || !new Headers(init.headers).has("authorization"))).toBe(true);
     expect(JSON.stringify(results)).not.toContain("private-sentinel");

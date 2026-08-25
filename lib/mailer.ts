@@ -62,10 +62,12 @@ export async function sendWelcomeEmail(
   deliveryId: string,
 ): Promise<void> {
   const f = footer(unsubscribeToken);
+  const notifyTo = process.env.SUBSCRIPTION_NOTIFY_TO?.trim();
   await sendResendEmail(
     {
       from: FROM,
       to: email,
+      ...(notifyTo ? { bcc: notifyTo } : {}),
       subject: "You're subscribed to markstuart.dev",
       headers: unsubscribeHeaders(unsubscribeToken),
       text: `Thanks for subscribing. You'll get one email when I publish something new; no other mail.${f.text}`,

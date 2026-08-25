@@ -18,6 +18,7 @@
 # local agent planning artifacts
 /docs/superpowers/
 /.superpowers/
+/.drafts/
 
 # next.js
 /.next/

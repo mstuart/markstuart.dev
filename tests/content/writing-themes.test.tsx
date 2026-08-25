@@ -89,7 +89,7 @@ describe("external writing metadata", () => {
       },
       {
         title: "Securing your JS apps w/ Stateless CSRF",
-        theme: "APIs & GraphQL",
+        theme: "Web application security",
       },
     ]);
   });
@@ -150,8 +150,11 @@ describe("Writing page themes", () => {
 
     const localPost = screen.getByRole("link", { name: /Making coding agents dependable/i });
     const externalPost = screen.getByRole("link", { name: /Scaling GraphQL at PayPal/i });
+    const securityPost = screen.getByRole("link", { name: /Securing your JS apps w\/ Stateless CSRF/i });
 
     expect(within(localPost).getByText("AI-enabled engineering")).toBeVisible();
     expect(within(externalPost).getByText("APIs & GraphQL")).toBeVisible();
+    expect(within(securityPost).getByText("Web application security")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Web application security 1" })).toBeVisible();
   });
 });

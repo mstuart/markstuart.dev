@@ -5,6 +5,7 @@ export const WRITING_THEMES = [
   "Developer platforms & SDKs",
   "APIs & GraphQL",
   "AI-enabled engineering",
+  "Web application security",
 ] as const satisfies readonly WritingTheme[];
 
 export type ThemedWritingEntry = WritingEntry & { theme?: WritingTheme };
@@ -55,6 +56,6 @@ export const writing: ThemedWritingEntry[] = [
     url: "https://medium.com/paypal-engineering/securing-your-js-apps-w-stateless-csrf-9a60ee6bd010",
     source: "PayPal Technology Blog",
     views: 6700,
-    theme: "APIs & GraphQL",
+    theme: "Web application security",
   },
 ];

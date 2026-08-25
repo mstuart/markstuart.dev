@@ -9,7 +9,8 @@ export type PostFormat = "article" | "note";
 export type WritingTheme =
   | "Developer platforms & SDKs"
   | "APIs & GraphQL"
-  | "AI-enabled engineering";
+  | "AI-enabled engineering"
+  | "Web application security";
 
 export interface WritingPostMeta extends PostMeta {
   format: PostFormat;
@@ -29,7 +30,8 @@ function readTheme(value: unknown): WritingTheme {
   if (
     value === "APIs & GraphQL" ||
     value === "AI-enabled engineering" ||
-    value === "Developer platforms & SDKs"
+    value === "Developer platforms & SDKs" ||
+    value === "Web application security"
   ) {
     return value;
   }

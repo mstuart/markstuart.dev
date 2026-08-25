@@ -1,6 +1,6 @@
 import { Buffer } from "node:buffer";
 
-import PostalMime from "postal-mime";
+import PostalMime, { type Address } from "postal-mime";
 import { Webhook } from "svix";
 
 import { publicError } from "@/lib/server/http";
@@ -19,6 +19,7 @@ import {
 } from "@/lib/subscribers-store";
 
 const FORWARD_FROM = "mark@markstuart.dev";
+const INBOUND_RECIPIENT = "mark@markstuart.dev";
 const FORWARD_TIMEOUT_MS = 8_000;
 const MAX_WEBHOOK_BODY_BYTES = 64 * 1024;
 const MAX_RAW_MESSAGE_BYTES = 12 * 1024 * 1024;
@@ -28,8 +29,13 @@ class InboundPayloadTooLargeError extends Error {}
 
 type InboundEvent = {
   type: string;
-  data: { email_id?: string };
+  data: { email_id?: string; to?: string[] };
 };
+
+function mailboxAddress(address: Address | undefined): string | undefined {
+  if (!address || !("address" in address) || !address.address) return undefined;
+  return isValidEmail(address.address) ? address.address.trim() : undefined;
+}
 
 function requireBase64AttachmentContent(
   content: ArrayBuffer | Uint8Array | string,
@@ -115,6 +121,10 @@ async function forwardInboundEmail(
   signal.throwIfAborted();
   const parsed = await PostalMime.parse(rawMessage, { attachmentEncoding: "base64" });
   signal.throwIfAborted();
+  const replyTo =
+    parsed.replyTo
+      ?.map(mailboxAddress)
+      .find((address): address is string => Boolean(address)) ?? mailboxAddress(parsed.from);
   // PostalMime exposes decoded bodies and attachments only after parsing. The raw
   // MIME input is bounded above; this second bound covers its decoded semantics.
   let decodedMessageBytes = Buffer.byteLength(parsed.text ?? "", "utf8");
@@ -146,6 +156,7 @@ async function forwardInboundEmail(
     {
       from: FORWARD_FROM,
       to,
+      reply_to: replyTo,
       subject: metadata.subject || "(no subject)",
       text: parsed.text || undefined,
       html: parsed.html || undefined,
@@ -197,6 +208,13 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   if (event.type !== "email.received" || !event.data.email_id) {
+    return Response.json({ ignored: true });
+  }
+  if (
+    !event.data.to?.some(
+      (recipient) => recipient.trim().toLowerCase() === INBOUND_RECIPIENT,
+    )
+  ) {
     return Response.json({ ignored: true });
   }
   const inboundEmailId = event.data.email_id;

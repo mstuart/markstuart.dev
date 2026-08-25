@@ -12,6 +12,7 @@ export type ResendAttachment = {
 export type ResendMessage = {
   from: string;
   to: string;
+  reply_to?: string;
   subject: string;
   text?: string;
   html?: string;

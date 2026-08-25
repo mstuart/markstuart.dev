@@ -7,7 +7,6 @@ const fetchMock = vi.fn();
 const store = vi.hoisted(() => ({
   beginDeliveryAttempt: vi.fn(),
   isInboundComplete: vi.fn(),
-  isValidEmail: vi.fn(),
   markInboundComplete: vi.fn(),
 }));
 
@@ -16,7 +15,10 @@ vi.mock("svix", () => ({
     verify = verify;
   },
 }));
-vi.mock("@/lib/subscribers-store", () => store);
+vi.mock("@/lib/subscribers-store", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/subscribers-store")>()),
+  ...store,
+}));
 
 import { POST } from "@/app/api/email/inbound/route";
 
@@ -91,7 +93,10 @@ function successfulFetch(input: RequestInfo | URL, init?: RequestInit): Promise<
   throw new Error("unexpected fetch");
 }
 
-function request(eventId = "msg_verified_123") {
+function request(
+  eventId = "msg_verified_123",
+  recipients = ["mark@markstuart.dev"],
+) {
   return new Request("https://markstuart.dev/api/email/inbound", {
     method: "POST",
     headers: {
@@ -99,7 +104,10 @@ function request(eventId = "msg_verified_123") {
       "svix-timestamp": "1724400000",
       "svix-signature": "v1,signature",
     },
-    body: JSON.stringify({ type: "email.received", data: { email_id: "inbound-email-id" } }),
+    body: JSON.stringify({
+      type: "email.received",
+      data: { email_id: "inbound-email-id", to: recipients },
+    }),
   });
 }
 
@@ -120,9 +128,8 @@ beforeEach(() => {
   process.env.RESEND_WEBHOOK_SECRET = "whsec_test";
   process.env.RESEND_API_KEY = "resend-test-key";
   process.env.INBOUND_FORWARD_TO = "owner@example.com";
-  verify.mockReturnValue({ type: "email.received", data: { email_id: "inbound-email-id" } });
+  verify.mockImplementation((payload: string) => JSON.parse(payload));
   store.isInboundComplete.mockResolvedValue(false);
-  store.isValidEmail.mockReturnValue(true);
   store.beginDeliveryAttempt.mockResolvedValue("ready");
   store.markInboundComplete.mockResolvedValue(undefined);
   fetchMock.mockImplementation(successfulFetch);
@@ -167,6 +174,7 @@ describe("inbound deduplication", () => {
     );
     expect(JSON.parse(String(sendInit.body))).toMatchObject({
       to: "owner@example.com",
+      reply_to: "sender@example.com",
       subject: "Original subject",
       text: expect.stringContaining("Original body"),
       attachments: [
@@ -180,6 +188,48 @@ describe("inbound deduplication", () => {
     expect(store.markInboundComplete).toHaveBeenCalledWith("msg_verified_123");
   });
 
+  it("uses the original reply-to address when forwarding", async () => {
+    const rawEmail = RAW_EMAIL.replace(
+      "From: Sender <sender@example.com>",
+      "From: Sender <sender@example.com>\r\nReply-To: Human <reply@example.com>",
+    );
+    fetchMock.mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === "https://storage.example.com/raw-message") {
+        return Promise.resolve(new Response(rawEmail));
+      }
+      return successfulFetch(input, init);
+    });
+
+    const response = await POST(request("msg_reply_to"));
+
+    expect(response.status).toBe(200);
+    const [, , [, sendInit]] = fetchMock.mock.calls as [string, RequestInit][];
+    expect(JSON.parse(String(sendInit.body))).toMatchObject({
+      reply_to: "reply@example.com",
+    });
+  });
+
+  it("falls back to the validated sender when reply-to is invalid", async () => {
+    const rawEmail = RAW_EMAIL.replace(
+      "From: Sender <sender@example.com>",
+      "From: Sender <sender@example.com>\r\nReply-To: reply@localhost",
+    );
+    fetchMock.mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === "https://storage.example.com/raw-message") {
+        return Promise.resolve(new Response(rawEmail));
+      }
+      return successfulFetch(input, init);
+    });
+
+    const response = await POST(request("msg_invalid_reply_to"));
+
+    expect(response.status).toBe(200);
+    const [, , [, sendInit]] = fetchMock.mock.calls as [string, RequestInit][];
+    expect(JSON.parse(String(sendInit.body))).toMatchObject({
+      reply_to: "sender@example.com",
+    });
+  });
+
   it("does not forward a completed Svix event again", async () => {
     store.isInboundComplete.mockResolvedValue(true);
 
@@ -187,6 +237,16 @@ describe("inbound deduplication", () => {
 
     expect(response.status).toBe(200);
     expect(fetchMock).not.toHaveBeenCalled();
+    expect(store.markInboundComplete).not.toHaveBeenCalled();
+  });
+
+  it("ignores verified events for unpublished recipients", async () => {
+    const response = await POST(request("msg_other_recipient", ["other@markstuart.dev"]));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ ignored: true });
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(store.beginDeliveryAttempt).not.toHaveBeenCalled();
     expect(store.markInboundComplete).not.toHaveBeenCalled();
   });
 

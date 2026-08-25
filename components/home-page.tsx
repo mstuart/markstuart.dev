@@ -9,15 +9,10 @@ import { PixelScene5 } from "@/components/px/scene5";
 import { PixelAvatar } from "@/components/px/avatar";
 import { formatStarCount } from "@/lib/format";
 import { projects } from "@/lib/data/projects";
+import { writing } from "@/lib/data/writing";
+import { getAllPosts } from "@/lib/posts";
 import { getProjectIcon } from "@/lib/project-icons";
 import { work } from "@/lib/data/work";
-
-const selectedIdeas = [
-  {
-    title: "Coding Agent Infrastructure",
-    href: "/posts/coding-agent-infrastructure",
-  },
-];
 
 const inlineLinkClass =
   "rounded-lg text-zinc-900 underline decoration-dotted underline-offset-4 transition-colors hover:text-teal-600 hover:decoration-solid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-zinc-100 dark:hover:text-teal-400 dark:focus-visible:ring-teal-400";
@@ -64,6 +59,22 @@ export function HomePage() {
   const selectedProjects = projects
     .filter((project) => project.role === "author" && project.name !== "vitals")
     .sort((a, b) => ((a.createdAt ?? "") < (b.createdAt ?? "") ? 1 : -1))
+    .slice(0, 5);
+  const latestWriting = [
+    ...getAllPosts().map((post) => ({
+      title: post.title,
+      date: post.date,
+      href: `/posts/${post.slug}`,
+      external: false,
+    })),
+    ...writing.map((entry) => ({
+      title: entry.title,
+      date: entry.date,
+      href: entry.url,
+      external: true,
+    })),
+  ]
+    .sort((a, b) => (a.date < b.date ? 1 : -1))
     .slice(0, 5);
   return (
     <div className="relative">
@@ -146,19 +157,33 @@ export function HomePage() {
             </Link>
           </SectionV1>
 
-          <SectionV1 heading="Selected ideas" index={2}>
+          <SectionV1 heading="Latest writing" index={2}>
             <div className="flex flex-col">
-              {selectedIdeas.map((idea) => (
-                <Link
-                  key={idea.href}
-                  href={idea.href}
-                  className="group flex items-baseline justify-between gap-4 rounded-lg px-2 py-3 -mx-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:focus-visible:ring-teal-400"
-                >
+              {latestWriting.map((entry) => {
+                const title = (
                   <span className="truncate text-zinc-600 transition-colors group-hover:text-zinc-950 dark:text-zinc-400 dark:group-hover:text-zinc-50">
-                    {idea.title}
+                    {entry.title}
                   </span>
-                </Link>
-              ))}
+                );
+                const className =
+                  "group flex items-baseline justify-between gap-4 rounded-lg px-2 py-3 -mx-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:focus-visible:ring-teal-400";
+
+                return entry.external ? (
+                  <a
+                    key={entry.href}
+                    href={entry.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={className}
+                  >
+                    {title}
+                  </a>
+                ) : (
+                  <Link key={entry.href} href={entry.href} className={className}>
+                    {title}
+                  </Link>
+                );
+              })}
             </div>
             <Link
               href="/posts"

@@ -14,14 +14,6 @@ import { work } from "@/lib/data/work";
 
 const selectedIdeas = [
   {
-    title: "Scaling GraphQL and Checkout at PayPal",
-    href: "/posts/scaling-graphql-and-checkout-at-paypal",
-  },
-  {
-    title: "Building Federated API Platforms",
-    href: "/posts/building-federated-api-platforms",
-  },
-  {
     title: "Coding Agent Infrastructure",
     href: "/posts/coding-agent-infrastructure",
   },

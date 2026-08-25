@@ -1,82 +1,55 @@
 ---
-title: "What coding-agent infrastructure is still missing"
-date: "2026-08-22"
-description: "What dependable coding agents still need beyond capable models."
+title: "Making coding agents dependable"
+date: "2026-08-25"
+description: "Four assumptions I changed after building tools for context measurement, compression, and API access."
 format: article
 theme: "AI-enabled engineering"
 ---
 
-Coding agents can already do useful engineering work. I'm interested in whether an agent can turn a real task into a verified change without dropping the constraints that made the task correct.
+The broad coding-agent infrastructure checklist is no longer especially interesting. Durable task state, context engineering, sandbox policy, tool permissions, trace evaluation, and post-PR automation are all documented and, in several products, shipping. OpenAI has written about the [agent harness](https://openai.com/index/harness-engineering/), Anthropic about [evaluating trajectories and outcomes](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents), and the MCP maintainers about why [tool annotations are hints rather than enforcement](https://blog.modelcontextprotocol.io/posts/2026-03-16-tool-annotations/). A recent book-length treatment even frames reliable agents around an [evidence chain](https://arxiv.org/abs/2608.13867).
 
-I've been working on that problem through internal platform work and three public tools: [peek](https://github.com/mstuart/peek) for historical session analysis and config experiments, [tare](https://github.com/mstuart/tare) for context compression, and [graphql-agent-toolkit](https://github.com/mstuart/graphql-agent-toolkit) for turning an existing GraphQL contract into agent tools.
+I don't have another checklist to add. I have four narrower lessons from building tools around coding agents. In each case, something could be technically correct while still giving a false sense of completeness.
 
-## A task contract that survives the run
+## A balanced number can still hide most of the system
 
-Many agents begin with prose and gradually turn it into internal state. During a long run, that state is summarized, compacted, split across subagents, or reconstructed from tool output. Important constraints can become weaker each time they're restated.
+I built [peek](https://github.com/mstuart/peek) to inspect historical Claude Code and Codex sessions. I initially thought Codex logs exposed enough information to produce a near-exact account of context composition.
 
-I want a durable task contract that separates:
+The first real capture refuted that. Codex reported 37,476 input tokens. After counting the visible base instructions and dynamic tool definitions, 25,265 tokens were still unexplained: a 67.4% residual.
 
-- the requested outcome
-- explicit scope and prohibited changes
-- assumptions the agent is allowed to make
-- evidence required for completion
-- actions that need human approval
-- the current plan and why it changed
+The accounting equation balanced, but most of the input was not explained. Those are different claims.
 
-Store the task contract as structured state with provenance so repository instructions, agent guesses, current checks, and prior-run memories remain distinguishable.
+That distinction now matters to me more than the chart. An agent system should label what was measured, estimated, inferred, or refuted. An unknown remainder should stay unknown. Otherwise observability becomes a way to make guesses look authoritative.
 
-That gives the system a durable target instead of a plausible ending.
+The same applies to task state. Repository instructions, a user's request, an agent's assumption, a prior-run memory, and a live check may all appear in one context window. They should not become the same kind of fact merely because they are represented as text.
 
-## Context should be selected, measured, and reversible
+## Fewer input tokens can be the wrong optimization
 
-The usual response to an agent missing information is to give it more context. That works until the context window fills with logs, repeated file reads, tool schemas, and obsolete plans. Then the system compacts the history and we discover that token capacity was never the same thing as usable context.
+I built [tare](https://github.com/mstuart/tare) to reduce the context occupied by tool output, logs, JSON, file reads, and history. On its committed `agent_context` corpus, `tare compress` reduced 15,130 tokens to 8,499, or 43.8%.
 
-[peek](https://github.com/mstuart/peek) reads the historical logs already written by Claude Code, Codex, and pi. It reports session totals, composition, compactions, cost attribution, and configuration differences. One of its most useful results was a negative one: an attempted near-exact composition model for Codex left a large unexplained residual, so the hypothesis was published as refuted rather than rounded into a success story.
+That result proves a bounded thing: the transform made that corpus smaller. It does not prove that an agent completed tasks more reliably, cost less overall, or preserved every detail it later needed.
 
-Context infrastructure should tell us what entered the window, what was estimated, what disappeared during compaction, and what changed between two configurations. Native live views and historical analysis serve different jobs; we need both.
+Input size is only one part of the bill. Rewriting a stable cached prefix can forfeit a provider's cache discount. Compressing too aggressively can also make the model spend more output tokens reconstructing what was removed. Tare leaves an explicitly cached prefix alone and treats an output spike as a reason to back off, but I have not published a repeated task-success study showing that this controller improves outcomes.
 
-[tare](https://github.com/mstuart/tare) explores the other side of the problem by compressing tool output, logs, JSON, file reads, and history. Its default transforms are reversible, while row caps, field truncation, telegraphic prose, and code skeletonization are explicit lossy choices. The design also accounts for two costs that naive token reduction misses: rewriting a cached prompt prefix can forfeit provider cache savings, and excessive compression can cause the model to compensate with a longer answer.
+The useful target is not the smallest prompt. It is the lowest total cost that preserves the task: input, cache writes and reads, output, latency, and success. A smaller context can be a worse context.
 
-Context tooling should preserve provenance and stable cached prefixes, compress only retrievable dynamic context, and back off when task outcomes get worse.
+## A valid call can still be the wrong action
 
-## Capability contracts
+[graphql-agent-toolkit](https://github.com/mstuart/graphql-agent-toolkit) generates typed operations and agent tools from a GraphQL schema. Building it reinforced a boundary that type systems cannot cross: a schema can describe how to call an operation, but not whether the caller should.
 
-Tool calling made agents far more useful, but many tool definitions I encounter are still thin wrappers around commands or APIs. A name, a description, and a JSON schema don't tell an agent enough about consequences.
+A mutation can be valid against the schema and still exceed what the user delegated. It can be safe for one set of arguments and destructive for another. It can succeed with credentials broader than the task required.
 
-A capability contract should describe an action's preconditions and likely consequences: whether it's read-only, idempotent, retryable, reversible, expensive, externally visible, or approval-gated. Those properties can depend on arguments, credentials, and current state, so policy still has to be enforced when the tool is called. The result should include evidence another step can verify, not merely a success-shaped string.
+MCP already defines read-only, destructive, idempotent, and open-world hints. The maintainers are explicit that these annotations are untrusted metadata. The decision still has to be made at invocation time from the exact arguments, credentials, current state, and approval that authorized the work.
 
-[graphql-agent-toolkit](https://github.com/mstuart/graphql-agent-toolkit) starts from an existing GraphQL schema. It generates typed operations and agent tools from the schema's types, descriptions, arguments, and relationships instead of inventing a second contract from scratch.
+Type-safe is not policy-safe. A successful tool result should therefore carry evidence another step can check, not just a success-shaped string.
 
-Even then, schema shape is only part of the contract. Authorization still has to be enforced by the underlying system. A mutation should not become safe merely because an agent can discover it. Agent infrastructure needs policy at invocation time, scoped credentials, clear confirmation rules, and an audit trail connected to the human or workflow that delegated the task.
+## Green is a property of evidence, not of a task
 
-## Worktrees are isolation, not a sandbox
+The first real `peek bench` comparison ran one task under two Claude Code configurations. Both passed the supplied verifier. One used 19.1% fewer tokens and cost 93.4% less, with 1.1 seconds more wall time.
 
-Agents need places to make changes without colliding with one another or the developer's checkout. Git worktrees are useful for this. They create separate working trees and indexes, and they make parallel trials practical.
+The honest conclusion is that both configurations passed one verifier once, in that environment, and one run was cheaper. It is not that the cheaper configuration is generally better or more dependable. That would require repeated trials, audited graders, pinned environments, and more representative tasks.
 
-They do not create a security boundary. An agent in a worktree still runs with the operating system permissions of its process. It may have access to credentials, networks, browsers, package hooks, or unrelated files. Calling that setup a sandbox gives everyone the wrong mental model.
+I now read every green result this way. A test pass belongs to a revision, verifier, environment, and time. Review, rebases, deployment, and production traffic can each make earlier evidence stale. "The task passed" throws away the information needed to decide whether it still has.
 
-We need execution environments with explicit capabilities, resource budgets, network policy, secret brokering, and durable artifacts. The environment should be cheap enough for ordinary pull requests, but strong enough that a repository task cannot silently expand into machine-wide authority.
+This is the thread connecting the three tools. A reconciled token count, a smaller context, a valid operation, and a green test can all be correct and insufficient. Making coding agents dependable starts with refusing to launder partial evidence into certainty.
 
-Remote environments isolate better but can lose local state and fast feedback. Local runs preserve that context but carry more risk. The system should choose between them based on the task's authority and state requirements.
-
-## Evaluation has to include the whole trajectory
-
-A test suite passing at the end is necessary for many tasks, but it is not a complete evaluation. The agent may have changed files outside scope, weakened a test, used stale evidence, leaked a secret into a log, or stopped at a green pull request when the requested outcome was a production fix.
-
-I want evaluations at three levels:
-
-1. **Artifact quality.** Is the code, documentation, or configuration correct and maintainable?
-2. **Trajectory quality.** Did the agent respect scope, use appropriate authority, recover from failures, and preserve evidence?
-3. **Outcome quality.** Did the real system reach the requested state, and was that state verified after the final change?
-
-Configuration evaluation also needs real experiments. `peek bench` runs the same task suite under two agent configurations in isolated worktrees, verifies each trial with a user-provided command, then compares the sessions using the same accounting as the rest of the tool. Those trials call real agents, cost money, and execute trusted commands. The benchmark should say so plainly.
-
-Offline replay helps with deterministic tools, but it can't replace live evaluation of model behavior and external systems. I use replay for reproducible tool behavior and live trials for model behavior and external systems, with each result labeled for what it actually proves.
-
-## Delivery after the pull request
-
-Many coding-agent systems stop when they open a pull request. Real delivery continues through CI failures, review feedback, merge conflicts, deployment, and production signals. Each stage can invalidate earlier evidence.
-
-An event-driven lifecycle should resume from durable state when CI completes, re-read the exact revision under review, respond to feedback without undoing unrelated work, and verify the deployed revision rather than assuming a merge caused the intended rollout.
-
-A useful handoff should state what changed, which constraints were applied, what was verified, which evidence is current, and what remains uncertain. The reviewer shouldn't have to reconstruct the run from a transcript.
+I don't yet have evidence that this is enough. I do have evidence that systems become hard to trust when they blur what they observed, what they inferred, what they were allowed to do, and what remains unknown.

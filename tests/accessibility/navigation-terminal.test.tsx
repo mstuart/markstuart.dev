@@ -21,10 +21,6 @@ vi.mock("next-themes", () => ({
   useTheme: () => ({ resolvedTheme: "dark", setTheme: vi.fn() }),
 }));
 
-vi.mock("@/components/px/monogram2", () => ({
-  PixelMonogram2: () => <span aria-hidden="true" />,
-}));
-
 vi.mock("@/components/shared/social-links", () => ({
   SocialLinks: () => <a href="https://example.com">Social</a>,
 }));

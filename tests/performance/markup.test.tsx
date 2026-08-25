@@ -54,6 +54,19 @@ describe("measured homepage prefetch policy", () => {
   });
 });
 
+describe("Header image delivery", () => {
+  it("uses the landing-page profile photo as the optimized brand mark", () => {
+    const image = collectElements(SiteHeader()).find((element) => element.type === Image);
+
+    expect(image?.props).toMatchObject({
+      src: "/avatar.png",
+      alt: "",
+      width: 28,
+      height: 28,
+    });
+  });
+});
+
 describe("Stack image delivery", () => {
   it("routes every curated Stack logo through the Next image optimizer", () => {
     const optimizedSources = collectElements(StackPage())

@@ -18,11 +18,7 @@ describe("homepage positioning", () => {
       .map((link) => link.getAttribute("href"))
       .filter((href) => href?.startsWith("/posts/"));
 
-    expect(localPostLinks).toEqual([
-      "/posts/scaling-graphql-and-checkout-at-paypal",
-      "/posts/building-federated-api-platforms",
-      "/posts/coding-agent-infrastructure",
-    ]);
+    expect(localPostLinks).toEqual(["/posts/coding-agent-infrastructure"]);
     expect(within(selectedIdeas).getByRole("link", { name: "All writing" })).toHaveAttribute("href", "/posts");
   });
 });

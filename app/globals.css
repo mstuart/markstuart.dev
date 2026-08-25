@@ -76,11 +76,6 @@ body {
     inline-size: 28px;
   }
 
-  .site-header-mark > span > div {
-    block-size: 56px;
-    inline-size: 56px;
-  }
-
   .site-header-actions {
     gap: 4px;
   }

@@ -1,8 +1,6 @@
-import Link from "next/link";
-import Image from "next/image";
-import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { getAllPosts } from "@/lib/posts";
 import { SubscribeForm } from "@/components/subscribe-form";
+import { WritingFilter, type WritingRow } from "@/components/writing-filter";
 import { WRITING_THEMES, writing } from "@/lib/data/writing";
 import { pageMetadata } from "@/lib/metadata";
 
@@ -12,57 +10,10 @@ export const metadata = pageMetadata({
   path: "/posts",
 });
 
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
-}
-
-function formatViews(views: number): string {
-  if (views >= 1000) {
-    const thousands = views / 1000;
-    const value = Number.isInteger(thousands) ? String(thousands) : thousands.toFixed(1);
-    return `${value}K views`;
-  }
-  return `${views} views`;
-}
-
-type WritingRow =
-  | {
-      kind: "local";
-      slug: string;
-      title: string;
-      date: string;
-      format: "article" | "note";
-      theme: (typeof WRITING_THEMES)[number];
-      iconSrc: string;
-    }
-  | {
-      kind: "external";
-      title: string;
-      date: string;
-      url: string;
-      source: string;
-      views?: number;
-      theme: (typeof WRITING_THEMES)[number];
-      iconSrc: string;
-    };
-
 const SOURCE_ICONS: Record<string, string> = {
   "PayPal Technology Blog": "/work/paypal.png",
   "Rocket Technology Blog": "/work/rocket.png",
 };
-
-function RowIcon({ src }: { src: string }) {
-  return (
-    <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-muted ring-1 ring-line/20">
-      <Image src={src} alt="" width={32} height={32} className="h-full w-full object-contain" />
-    </span>
-  );
-}
 
 export default function PostsPage() {
   const localRows: WritingRow[] = getAllPosts().map((post) => ({
@@ -98,71 +49,7 @@ export default function PostsPage() {
         {(roundedViews / 1000).toLocaleString("en-US")}K times.
       </p>
       <SubscribeForm />
-      <div className="mt-10 space-y-10">
-        {WRITING_THEMES.map((theme, index) => {
-          const themeId = `writing-theme-${index}`;
-          return (
-            <section key={theme} aria-labelledby={themeId}>
-              <h2 id={themeId} className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                {theme}
-              </h2>
-              <div className="mt-3 flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
-                {rows
-                  .filter((row) => row.theme === theme)
-                  .map((row) =>
-                    row.kind === "local" ? (
-                      <Link
-                        key={row.slug}
-                        href={`/posts/${row.slug}`}
-                        className="group flex items-center gap-3 rounded-md px-2 py-3 -mx-2 transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:hover:bg-zinc-900 dark:focus-visible:ring-teal-400"
-                      >
-                        <RowIcon src={row.iconSrc} />
-                        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                          <span className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-                            <span className="text-zinc-900 transition-colors group-hover:text-teal-600 sm:truncate dark:text-zinc-100 dark:group-hover:text-teal-400">
-                              {row.title}
-                            </span>
-                            <time dateTime={row.date} className="shrink-0 font-mono text-xs tabular-nums text-muted">
-                              {formatDate(row.date)}
-                            </time>
-                          </span>
-                          <span className="font-mono text-xs text-muted">
-                            {row.format === "note" ? "Note" : "Article"}
-                          </span>
-                        </span>
-                      </Link>
-                    ) : (
-                      <a
-                        key={row.url}
-                        href={row.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group flex gap-3 rounded-md px-2 py-3 -mx-2 transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:hover:bg-zinc-900 dark:focus-visible:ring-teal-400"
-                      >
-                        <RowIcon src={row.iconSrc} />
-                        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                          <span className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-                            <span className="inline-flex min-w-0 items-center gap-1 text-zinc-900 transition-colors group-hover:text-teal-600 sm:truncate dark:text-zinc-100 dark:group-hover:text-teal-400">
-                              <span className="sm:truncate">{row.title}</span>
-                              <ArrowUpRight size={14} weight="regular" className="shrink-0" />
-                            </span>
-                            <time dateTime={row.date} className="shrink-0 font-mono text-xs tabular-nums text-muted">
-                              {formatDate(row.date)}
-                            </time>
-                          </span>
-                          <span className="font-mono text-xs tabular-nums text-muted">
-                            {row.source}
-                            {row.views ? ` · ${formatViews(row.views)}` : ""}
-                          </span>
-                        </span>
-                      </a>
-                    )
-                  )}
-              </div>
-            </section>
-          );
-        })}
-      </div>
+      <WritingFilter rows={rows} />
     </div>
   );
 }

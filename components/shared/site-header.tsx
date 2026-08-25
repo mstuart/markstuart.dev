@@ -1,6 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
 import { TerminalWindow } from "@phosphor-icons/react/dist/ssr";
-import { PixelMonogram2 } from "@/components/px/monogram2";
 import { ActiveNavLink } from "@/components/shared/active-nav-link";
 import { MobileNav } from "@/components/shared/mobile-nav";
 import { MoreNav } from "@/components/shared/more-nav";
@@ -31,9 +31,13 @@ export function SiteHeader() {
           className="site-header-brand flex min-h-11 min-w-0 items-center gap-2 whitespace-nowrap rounded-md font-medium text-foreground transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           <span aria-hidden="true" className="site-header-mark block h-7 w-7 shrink-0 overflow-hidden rounded-md">
-            <span className="block origin-top-left scale-50">
-              <PixelMonogram2 />
-            </span>
+            <Image
+              src="/avatar.png"
+              alt=""
+              width={28}
+              height={28}
+              className="h-7 w-7 object-cover"
+            />
           </span>
           <span className="site-header-label">{site.name}</span>
         </Link>

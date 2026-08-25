@@ -2,6 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import PostsPage from "@/app/(site)/posts/page";
 import { writing } from "@/lib/data/writing";
@@ -95,42 +96,16 @@ describe("external writing metadata", () => {
 });
 
 describe("Writing page themes", () => {
-  it("shows one unified, non-duplicated list organized under exactly three themes", () => {
+  it("shows one non-duplicated list ordered newest first", () => {
     render(<PostsPage />);
 
-    expect(screen.getAllByRole("heading", { level: 2 }).map((heading) => heading.textContent)).toEqual([
-      "Developer platforms & SDKs",
-      "APIs & GraphQL",
-      "AI-enabled engineering",
-    ]);
+    const list = screen.getByRole("list", { name: "Writing" });
+    const links = within(list).getAllByRole("link");
 
-    const developerSection = screen.getByRole("region", {
-      name: "Developer platforms & SDKs",
-    });
-    const apiSection = screen.getByRole("region", { name: "APIs & GraphQL" });
-    const aiSection = screen.getByRole("region", { name: "AI-enabled engineering" });
-
-    expect(within(developerSection).getByText("Hello, world")).toBeInTheDocument();
-    expect(
-      within(developerSection).getByText(
-        "Building federated API platforms for large organizations"
-      )
-    ).toBeInTheDocument();
-    expect(within(apiSection).getByText("Scaling GraphQL at PayPal")).toBeInTheDocument();
-    expect(
-      within(apiSection).getByText("What I learned scaling GraphQL and Checkout at PayPal")
-    ).toBeInTheDocument();
-    expect(
-      within(apiSection).getByText("Securing your JS apps w/ Stateless CSRF")
-    ).toBeInTheDocument();
-    expect(
-      within(aiSection).getByText(
-        "The new era of static analysis: AI-authored, deterministically enforced"
-      )
-    ).toBeInTheDocument();
-    expect(
-      within(aiSection).getByText("What coding-agent infrastructure is still missing")
-    ).toBeInTheDocument();
+    expect(links).toHaveLength(getAllPosts().length + writing.length);
+    expect(links[0]).toHaveAccessibleName(/Making coding agents dependable/i);
+    expect(links[1]).toHaveAccessibleName(/Hello, world/i);
+    expect(links[2]).toHaveAccessibleName(/The new era of static analysis/i);
 
     for (const title of [...getAllPosts(), ...writing].map((entry) => entry.title)) {
       expect(screen.getAllByText(title)).toHaveLength(1);
@@ -141,5 +116,43 @@ describe("Writing page themes", () => {
     expect(screen.getAllByText(/^PayPal Technology Blog/)).toHaveLength(5);
     expect(screen.getByText(/34K views/)).toBeInTheDocument();
     expect(screen.getByText("Aug 19, 2026")).toBeInTheDocument();
+  });
+
+  it("filters the list by theme with a visible selected state and result announcement", async () => {
+    const user = userEvent.setup();
+    render(<PostsPage />);
+    const localPosts = getAllPosts();
+    const totalCount = localPosts.length + writing.length;
+    const aiCount =
+      localPosts.filter((post) => post.theme === "AI-enabled engineering").length +
+      writing.filter((entry) => entry.theme === "AI-enabled engineering").length;
+
+    const all = screen.getByRole("button", { name: `All ${totalCount}` });
+    const ai = screen.getByRole("button", { name: `AI-enabled engineering ${aiCount}` });
+
+    expect(all).toHaveAttribute("aria-pressed", "true");
+    expect(within(all).getByText("✓")).toBeVisible();
+
+    await user.click(ai);
+
+    expect(ai).toHaveAttribute("aria-pressed", "true");
+    expect(within(ai).getByText("✓")).toBeVisible();
+    expect(within(all).queryByText("✓")).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(`${aiCount} results`);
+
+    const links = within(screen.getByRole("list", { name: "Writing" })).getAllByRole("link");
+    expect(links).toHaveLength(aiCount);
+    expect(links[0]).toHaveAccessibleName(/Making coding agents dependable/i);
+    expect(links[1]).toHaveAccessibleName(/The new era of static analysis/i);
+  });
+
+  it("shows each entry's theme as row metadata", () => {
+    render(<PostsPage />);
+
+    const localPost = screen.getByRole("link", { name: /Making coding agents dependable/i });
+    const externalPost = screen.getByRole("link", { name: /Scaling GraphQL at PayPal/i });
+
+    expect(within(localPost).getByText("AI-enabled engineering")).toBeVisible();
+    expect(within(externalPost).getByText("APIs & GraphQL")).toBeVisible();
   });
 });

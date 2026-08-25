@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import PostsPage from "@/app/(site)/posts/page";
 import { writing } from "@/lib/data/writing";
 import { getAllPosts } from "@/lib/posts";
+import { useFixturePosts } from "@/tests/fixtures/use-fixture-posts";
 
 const temporaryRoots: string[] = [];
 
@@ -96,6 +97,8 @@ describe("external writing metadata", () => {
 });
 
 describe("Writing page themes", () => {
+  useFixturePosts();
+
   it("shows one non-duplicated list ordered newest first", () => {
     render(<PostsPage />);
 

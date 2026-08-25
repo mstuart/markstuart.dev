@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { describe, expect, it, vi } from "vitest";
 import { generateMetadata as generatePostMetadata } from "@/app/(site)/posts/[slug]/page";
 import type { PostMeta } from "@/lib/types";
+import { useFixturePosts } from "@/tests/fixtures/use-fixture-posts";
 
 interface MetadataHelpers {
   pageMetadata: (input: {
@@ -25,6 +26,8 @@ async function loadModule<T>(id: string): Promise<T | null> {
 }
 
 describe("route metadata", () => {
+  useFixturePosts();
+
   it("creates route-specific canonical and social URLs", async () => {
     const helpers = await loadModule<MetadataHelpers>("@/lib/metadata");
 

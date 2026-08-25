@@ -3,7 +3,12 @@ import path from "node:path";
 import matter from "gray-matter";
 import type { Post, PostMeta } from "@/lib/types";
 
-const POSTS_DIR = path.join(process.cwd(), "content", "posts");
+// Resolved per call so tests can point at a fixture directory via
+// MARKSTUART_POSTS_DIR without affecting production, which always reads the
+// real content/posts under the current working directory.
+function postsDir(): string {
+  return process.env.MARKSTUART_POSTS_DIR ?? path.join(process.cwd(), "content", "posts");
+}
 
 export type PostFormat = "article" | "note";
 export type WritingTheme =
@@ -40,7 +45,7 @@ function readTheme(value: unknown): WritingTheme {
 
 function readSlugs(): string[] {
   return fs
-    .readdirSync(POSTS_DIR)
+    .readdirSync(postsDir())
     .filter((file) => file.endsWith(".mdx"))
     .map((file) => file.replace(/\.mdx$/, ""));
 }
@@ -48,7 +53,7 @@ function readSlugs(): string[] {
 export function getAllPosts(): WritingPostMeta[] {
   return readSlugs()
     .map((slug) => {
-      const raw = fs.readFileSync(path.join(POSTS_DIR, `${slug}.mdx`), "utf8");
+      const raw = fs.readFileSync(path.join(postsDir(), `${slug}.mdx`), "utf8");
       const { data, content } = matter(raw);
       return {
         slug,
@@ -66,7 +71,7 @@ export function getAllPosts(): WritingPostMeta[] {
 }
 
 export function getPost(slug: string): WritingPost | null {
-  const filePath = path.join(POSTS_DIR, `${slug}.mdx`);
+  const filePath = path.join(postsDir(), `${slug}.mdx`);
   if (!fs.existsSync(filePath)) {
     return null;
   }

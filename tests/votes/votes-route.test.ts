@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { GET, POST } from "@/app/api/votes/route";
+import { useFixturePosts } from "@/tests/fixtures/use-fixture-posts";
 
 const ENV_KEYS = [
   "KV_REST_API_URL",
@@ -19,6 +20,8 @@ afterEach(() => {
 });
 
 describe("votes route", () => {
+  useFixturePosts();
+
   it("rejects non-JSON and cross-site vote posts before touching vote storage", async () => {
     const nonJson = await POST(
       new Request("https://example.test/api/votes", {

@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { GET } from "@/app/feed.xml/route";
 import { writing } from "@/lib/data/writing";
+import { useFixturePosts } from "@/tests/fixtures/use-fixture-posts";
 
 describe("RSS feed", () => {
+  useFixturePosts();
+
   it("publishes author, source categories, and authored summaries", async () => {
     const response = GET();
     const xml = await response.text();

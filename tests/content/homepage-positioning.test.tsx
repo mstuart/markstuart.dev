@@ -1,11 +1,14 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { HomePage } from "@/components/home-page";
+import { useFixturePosts } from "@/tests/fixtures/use-fixture-posts";
 
 vi.mock("@/components/px/avatar", () => ({ PixelAvatar: () => null }));
 vi.mock("@/components/px/scene5", () => ({ PixelScene5: () => null }));
 
 describe("homepage positioning", () => {
+  useFixturePosts();
+
   it("shows the five latest posts with the same row details as the writing page", () => {
     render(<HomePage />);
 

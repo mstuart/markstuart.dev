@@ -6,12 +6,21 @@ vi.mock("@/components/px/avatar", () => ({ PixelAvatar: () => null }));
 vi.mock("@/components/px/scene5", () => ({ PixelScene5: () => null }));
 
 describe("public homepage content safety", () => {
-  it("shows State Farm among previous employers without storing its logo", () => {
+  it("shows each employer with its company logo", () => {
     render(<HomePage />);
 
-    const stateFarm = screen.getByRole("link", { name: "State Farm" });
-    expect(stateFarm).toHaveAttribute("href", "https://www.statefarm.com/");
-    expect(stateFarm.querySelector("img")).toBeNull();
+    const employerLogos = [
+      ["Rocket", "/work/rocket.png"],
+      ["eBay", "/work/ebay.png"],
+      ["PayPal", "/work/paypal.png"],
+      ["State Farm", "/work/statefarm.png"],
+    ] as const;
+
+    for (const [name, src] of employerLogos) {
+      const image = screen.getByRole("link", { name }).querySelector("img");
+      expect(image).not.toBeNull();
+      expect(decodeURIComponent(image?.getAttribute("src") ?? "")).toContain(src);
+    }
   });
 
   it("shows all five featured projects under Building without a contributor row", () => {

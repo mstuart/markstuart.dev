@@ -10,7 +10,9 @@ export interface StackItem {
   name: string;
   description: string;
   url?: string;
-  /** Phosphor icon name used for the generic item tile. */
+  /** Path under /public for a real app or brand icon tile. */
+  iconSrc?: string;
+  /** Phosphor icon name, used when the item has no brand logo. */
   icon?: string;
   tags: Platform[];
 }
@@ -28,12 +30,14 @@ export const stackSections: StackSection[] = [
         name: 'MacBook Pro 14"',
         description: "M4 Max, 36 GB RAM. One machine for everything.",
         url: "https://www.amazon.com/dp/B0DMKZSTQH?tag=mstuartsite-20",
+        iconSrc: "/stack/apple.png",
         tags: ["Physical"],
       },
       {
         name: "LG UltraGear 45GX950A",
         description: '45" 5K2K OLED at 165Hz, or 330Hz in WFHD. The whole workspace on one panel.',
         url: "https://www.amazon.com/dp/B0DYG9DKX8?tag=mstuartsite-20",
+        iconSrc: "/stack/lg.png",
         tags: ["Physical"],
       },
       {
@@ -48,12 +52,14 @@ export const stackSections: StackSection[] = [
         description:
           "75% mechanical, Gateron Reds. Loud enough to be satisfying, quiet enough for calls.",
         url: "https://www.amazon.com/dp/B07QBPCGY2?tag=mstuartsite-20",
+        iconSrc: "/stack/keychron.png",
         tags: ["Physical"],
       },
       {
         name: "Anker 7-in-2 USB-C Hub",
         description: "One cable connects the desk setup to power, display, and peripherals.",
         url: "https://www.amazon.com/dp/B0BNZ5V1TF?tag=mstuartsite-20",
+        iconSrc: "/stack/anker.png",
         tags: ["Physical"],
       },
       {
@@ -67,18 +73,21 @@ export const stackSections: StackSection[] = [
         name: "Logitech Brio 4K",
         description: "The webcam on the monitor mount, for the calls that need a face.",
         url: "https://www.amazon.com/dp/B09NBWWP79?tag=mstuartsite-20",
+        iconSrc: "/stack/logitech.png",
         tags: ["Physical"],
       },
       {
         name: "AirPods Pro 3",
         description: "Noise cancelling for focus blocks, and the only headphones I never forget.",
         url: "https://www.amazon.com/dp/B0FQFB8FMG?tag=mstuartsite-20",
+        iconSrc: "/stack/airpods.png",
         tags: ["Physical"],
       },
       {
         name: "Sennheiser HD 6XX",
         description: "Open-back headphones from Drop with replaceable ear pads.",
         url: "https://drop.com/buy/massdrop-sennheiser-hd6xx",
+        iconSrc: "/stack/sennheiser.png",
         tags: ["Physical"],
       },
       {
@@ -110,10 +119,12 @@ export const stackSections: StackSection[] = [
         name: "Claude Code",
         description: "A coding assistant for development and review.",
         url: "https://claude.com/claude-code",
+        iconSrc: "/stack/claude.png",
         tags: ["macOS", "Web"],
       },
       {
         name: "agent-browser",
+        iconSrc: "/stack/agentbrowser.png",
         description: "Browser automation for testing web interfaces.",
         url: "https://github.com/vercel-labs/agent-browser",
         tags: ["macOS"],
@@ -122,10 +133,12 @@ export const stackSections: StackSection[] = [
         name: "LM Studio",
         description: "A desktop interface for local model experiments.",
         url: "https://lmstudio.ai/",
+        iconSrc: "/stack/lmstudio.png",
         tags: ["macOS", "Windows"],
       },
       {
         name: "Ollama",
+        iconSrc: "/stack/ollama.png",
         description: "Local models without a UI, for scripts and experiments.",
         url: "https://ollama.com/",
         tags: ["macOS", "Windows"],
@@ -134,6 +147,7 @@ export const stackSections: StackSection[] = [
         name: "Wispr Flow",
         description: "Voice dictation that keeps up with how fast I want to prompt.",
         url: "https://wisprflow.ai/",
+        iconSrc: "/stack/wisprflow.png",
         tags: ["macOS", "Windows", "iOS"],
       },
     ],
@@ -145,22 +159,26 @@ export const stackSections: StackSection[] = [
         name: "VS Code",
         description: "Editor for the code I still read and write by hand.",
         url: "https://code.visualstudio.com/",
+        iconSrc: "/stack/vscode.png",
         tags: ["macOS", "Windows", "Web"],
       },
       {
         name: "Ghostty",
         description: "A fast native terminal for development work.",
         url: "https://ghostty.org/",
+        iconSrc: "/stack/ghostty.png",
         tags: ["macOS"],
       },
       {
         name: "zsh + Oh My Zsh",
+        iconSrc: "/stack/ohmyzsh.png",
         description: "A flexible shell with a practical set of developer tools.",
         url: "https://ohmyz.sh/",
         tags: ["macOS"],
       },
       {
         name: "tmux",
+        iconSrc: "/stack/tmux.png",
         description: "Sessions that survive whatever the terminal is doing.",
         url: "https://github.com/tmux/tmux",
         tags: ["macOS"],
@@ -181,42 +199,49 @@ export const stackSections: StackSection[] = [
         name: "Google Chrome",
         description: "A browser for development, testing, and everyday use.",
         url: "https://www.google.com/chrome/",
+        iconSrc: "/stack/chrome.png",
         tags: ["macOS", "Windows", "iOS"],
       },
       {
         name: "Slack",
         description: "Work happens here whether I like it or not.",
         url: "https://slack.com/",
+        iconSrc: "/stack/slack.png",
         tags: ["macOS", "Windows", "iOS"],
       },
       {
         name: "Docker",
         description: "Local services and the odd reproduction case.",
         url: "https://www.docker.com/",
+        iconSrc: "/stack/docker.png",
         tags: ["macOS", "Windows"],
       },
       {
         name: "Zoom",
         description: "Meetings, when Slack is not enough.",
         url: "https://zoom.us/",
+        iconSrc: "/stack/zoom.png",
         tags: ["macOS", "Windows", "iOS"],
       },
       {
         name: "Divvy",
         description: "Window management I set up a decade ago and never think about.",
         url: "https://mizage.com/divvy/",
+        iconSrc: "/stack/divvy.png",
         tags: ["macOS"],
       },
       {
         name: "Hidden Bar",
         description: "Keeps the menu bar from becoming a second dock.",
         url: "https://github.com/dwarvesf/hidden",
+        iconSrc: "/stack/hiddenbar.png",
         tags: ["macOS"],
       },
       {
         name: "Pearcleaner",
         description: "Clean uninstalls when apps leave.",
         url: "https://github.com/alienator88/Pearcleaner",
+        iconSrc: "/stack/pearcleaner.png",
         tags: ["macOS"],
       },
     ],

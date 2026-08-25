@@ -51,7 +51,8 @@ describe("public profile content safety", () => {
     expect(publicStack).not.toMatch(
       /bought|purchased|second set|Fitbit|Google Health|vitals project|1Password|Every secret|all installed via Homebrew/i,
     );
-    expect(stackSections.every((section) => section.items.every((item) => !Object.hasOwn(item, "iconSrc")))).toBe(true);
+    expect(stackSections.some((section) => section.items.some((item) => item.iconSrc))).toBe(true);
+    expect(codex?.iconSrc).toBeUndefined();
     expect(codex?.icon).toBeUndefined();
   });
 

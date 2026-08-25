@@ -99,11 +99,18 @@ describe("Press design contracts", () => {
     expect(within(manuscripts as HTMLElement).getByText(/Federated GraphQL on \.NET/i)).toBeInTheDocument();
   });
 
-  it("uses generic interface icons instead of stored third-party press artwork", () => {
+  it("uses restored press logos with generic icons for rows without a logo", () => {
     const { container } = render(<PressPage />);
 
-    expect(container.querySelector("img")).not.toBeInTheDocument();
-    expect(container.querySelector("svg")).toBeInTheDocument();
+    const logos = container.querySelectorAll("img");
+    expect(logos).toHaveLength(12);
+    expect([...logos].every((logo) => logo.getAttribute("alt") === "")).toBe(true);
+    const bookRow = screen
+      .getByRole("link", { name: /Production Ready GraphQL/i })
+      .closest("li");
+    const fallbackTile = bookRow?.firstElementChild?.firstElementChild;
+    expect(fallbackTile?.querySelector("img")).not.toBeInTheDocument();
+    expect(fallbackTile?.querySelector("svg")).toBeInTheDocument();
   });
 });
 

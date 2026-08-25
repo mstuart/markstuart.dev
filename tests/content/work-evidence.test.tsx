@@ -2,6 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { ResumeView } from "@/components/resume-view";
+import { resumeRoles } from "@/lib/data/resume";
 
 const roleEvidence = [
   {
@@ -64,6 +65,29 @@ function expectPublicEvidence() {
 }
 
 describe("work evidence", () => {
+  it("shows a company logo beside every resume role", () => {
+    render(<ResumeView />);
+    const roleRows = Array.from(
+      screen.getByRole("heading", { name: "Experience" }).nextElementSibling?.children ?? [],
+    );
+    const companyLogos: Record<string, string> = {
+      Rocket: "/work/rocket.png",
+      eBay: "/work/ebay.png",
+      PayPal: "/work/paypal.png",
+      "Qplay, Inc.": "/work/qplay.png",
+      "State Farm Insurance": "/work/statefarm.png",
+    };
+
+    expect(roleRows).toHaveLength(resumeRoles.length);
+    for (const [index, role] of resumeRoles.entries()) {
+      const image = roleRows[index]?.querySelector("img");
+      expect(decodeURIComponent(image?.getAttribute("src") ?? "")).toContain(
+        companyLogos[role.company],
+      );
+      expect(image).toHaveAttribute("alt", "");
+    }
+  });
+
   it("keeps safe public receipts attached to their roles in both resume views", async () => {
     const user = userEvent.setup();
     render(<ResumeView />);

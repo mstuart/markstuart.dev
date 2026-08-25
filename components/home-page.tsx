@@ -1,5 +1,6 @@
 import { createElement } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Star } from "@phosphor-icons/react/dist/ssr";
 import { SocialLinks } from "@/components/shared/social-links";
 import { SectionV1 } from "@/components/v1/section";
@@ -32,15 +33,10 @@ const inlineLinkClass =
 const chipClass =
   "inline-flex items-center gap-1.5 rounded-md bg-surface-muted px-2 py-0.5 text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
 
-function LogoChip({ name, href }: { name: string; href: string }) {
+function LogoChip({ name, src, href }: { name: string; src: string; href: string }) {
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" className={chipClass}>
-      <span
-        aria-hidden="true"
-        className="flex h-4 w-4 items-center justify-center rounded-[3px] bg-background font-serif text-[10px] text-muted ring-1 ring-line"
-      >
-        {name.charAt(0)}
-      </span>
+      <Image src={src} alt="" width={16} height={16} className="h-4 w-4 rounded-[3px] object-contain" />
       {name}
     </a>
   );
@@ -111,11 +107,11 @@ export function HomePage() {
             <div className="mt-6 space-y-2 text-sm text-muted">
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
                 <span>Now at</span>
-                <LogoChip name="Rocket" href="https://www.rocketcompanies.com/" />
+                <LogoChip name="Rocket" src="/work/rocket.png" href="https://www.rocketcompanies.com/" />
                 <span>previously</span>
-                <LogoChip name="eBay" href="https://www.ebay.com/" />
-                <LogoChip name="PayPal" href="https://www.paypal.com/" />
-                <LogoChip name="State Farm" href="https://www.statefarm.com/" />
+                <LogoChip name="eBay" src="/work/ebay.png" href="https://www.ebay.com/" />
+                <LogoChip name="PayPal" src="/work/paypal.png" href="https://www.paypal.com/" />
+                <LogoChip name="State Farm" src="/work/statefarm.png" href="https://www.statefarm.com/" />
               </p>
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
                 <span>Building</span>

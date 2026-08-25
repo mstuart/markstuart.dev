@@ -48,23 +48,18 @@ type WritingRow =
       source: string;
       views?: number;
       theme: (typeof WRITING_THEMES)[number];
+      iconSrc: string;
     };
+
+const SOURCE_ICONS: Record<string, string> = {
+  "PayPal Technology Blog": "/work/paypal.png",
+  "Rocket Technology Blog": "/work/rocket.png",
+};
 
 function RowIcon({ src }: { src: string }) {
   return (
     <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-muted ring-1 ring-line/20">
       <Image src={src} alt="" width={32} height={32} className="h-full w-full object-contain" />
-    </span>
-  );
-}
-
-function SourceTile({ source }: { source: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-surface-muted font-serif text-sm text-muted ring-1 ring-line/20"
-    >
-      {source.charAt(0)}
     </span>
   );
 }
@@ -87,6 +82,7 @@ export default function PostsPage() {
     source: entry.source,
     views: entry.views,
     theme: entry.theme ?? WRITING_THEMES[0],
+    iconSrc: SOURCE_ICONS[entry.source],
   }));
   const rows = [...localRows, ...externalRows].sort((a, b) => (a.date < b.date ? 1 : -1));
   // Sum of per-post Medium view counts, rounded down to a clean figure so the
@@ -143,7 +139,7 @@ export default function PostsPage() {
                         rel="noopener noreferrer"
                         className="group flex gap-3 rounded-md px-2 py-3 -mx-2 transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:hover:bg-zinc-900 dark:focus-visible:ring-teal-400"
                       >
-                        <SourceTile source={row.source} />
+                        <RowIcon src={row.iconSrc} />
                         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                           <span className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
                             <span className="inline-flex min-w-0 items-center gap-1 text-zinc-900 transition-colors group-hover:text-teal-600 sm:truncate dark:text-zinc-100 dark:group-hover:text-teal-400">

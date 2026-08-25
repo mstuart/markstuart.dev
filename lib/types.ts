@@ -27,7 +27,7 @@ export interface Talk {
   url?: string;
   note?: string;
   links?: TalkLink[];
-  /** Legacy compatibility field; stored third-party artwork is not rendered. */
+  /** Path to a small logo tile under /public. */
   iconSrc?: string;
 }
 
@@ -37,7 +37,7 @@ export interface Appearance {
   date: string;
   url?: string;
   description?: string;
-  /** Legacy compatibility field; stored third-party artwork is not rendered. */
+  /** Path to a small logo tile under /public. */
   iconSrc?: string;
 }
 
@@ -46,7 +46,7 @@ export interface Attended {
   date: string;
   note?: string;
   url?: string;
-  /** Legacy compatibility field; stored third-party artwork is not rendered. */
+  /** Path to a small logo tile under /public. */
   iconSrc?: string;
 }
 
@@ -69,7 +69,7 @@ export interface Mention {
   description: string;
   url: string;
   urls?: string[];
-  /** Legacy compatibility field; stored third-party artwork is not rendered. */
+  /** Path to a small logo tile under /public. */
   iconSrc?: string;
 }
 

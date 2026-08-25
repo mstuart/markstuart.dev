@@ -18,6 +18,7 @@ export const mentions: Mention[] = [
     description:
       "Apollo's official PayPal case study quotes Mark, credited as Sr. Manager of Web Platform, on GraphQL's impact on Checkout.",
     url: "https://www.apollographql.com/customers/paypal",
+    iconSrc: "/press/apollo.png",
   },
   {
     kind: "press",
@@ -26,6 +27,7 @@ export const mentions: Mention[] = [
     description:
       "Apollo blog post by George Snowflack quotes Mark, credited as Director of Engineering at PayPal, on UI developers' time spent building UI.",
     url: "https://www.apollographql.com/blog/my-first-6-months-at-apollo-graphql",
+    iconSrc: "/press/apollo.png",
   },
   {
     kind: "book",
@@ -42,6 +44,7 @@ export const mentions: Mention[] = [
     description:
       "Featured \"GraphQL: A Success Story for PayPal Checkout\" as a kickoff to further PayPal GraphQL pieces.",
     url: "https://graphqlweekly.com/issues/116",
+    iconSrc: "/press/graphqlweekly.png",
   },
   {
     kind: "newsletter",
@@ -50,6 +53,7 @@ export const mentions: Mention[] = [
     description:
       "Featured \"GraphQL Resolvers: Best Practices\" as a well-written summary of effective resolver practices.",
     url: "https://graphqlweekly.com/issues/124",
+    iconSrc: "/press/graphqlweekly.png",
   },
   {
     kind: "newsletter",
@@ -58,6 +62,7 @@ export const mentions: Mention[] = [
     description:
       "Featured \"Scaling GraphQL at PayPal,\" covering the adoption, tooling, and journey from REST to Batch REST to GraphQL.",
     url: "https://graphqlweekly.com/issues/167",
+    iconSrc: "/press/graphqlweekly.png",
   },
   {
     kind: "newsletter",
@@ -66,6 +71,7 @@ export const mentions: Mention[] = [
     description:
       "Events section listed Mark as a speaker at GraphQL Enterprise Connect 2020, an online meetup with This Dot Labs, PayPal, and Braintree.",
     url: "https://graphqlweekly.com/issues/194",
+    iconSrc: "/press/graphqlweekly.png",
   },
   {
     kind: "education",
@@ -74,6 +80,7 @@ export const mentions: Mention[] = [
     description:
       "Course materials list GraphQL Resolvers: Best Practices as assigned reading for the GraphQL server practicum.",
     url: "https://github.com/ULL-MII-SYTWS/vuepress-apuntes/blob/main/docs/cursos/sytws/2023-2024/practicas/graphql-server.md",
+    iconSrc: "/press/ull.png",
   },
   {
     kind: "education",
@@ -82,6 +89,7 @@ export const mentions: Mention[] = [
     description:
       "Curated GraphQL learning resource credits GraphQL Resolvers: Best Practices in its Building the Server section.",
     url: "https://github.com/Novvum/36-graphql-concepts",
+    iconSrc: "/press/novvum.png",
   },
   {
     kind: "education",
@@ -90,6 +98,7 @@ export const mentions: Mention[] = [
     description:
       "GraphQL course repo's Day 2 lesson on resolvers links Mark by name alongside the Resolvers Best Practices post.",
     url: "https://github.com/thinkb4/a-walk-in-graphql/blob/develop/lessons/day_02/day_02.md",
+    iconSrc: "/press/thinkb4.png",
   },
   {
     kind: "education",
@@ -114,6 +123,7 @@ export const mentions: Mention[] = [
     description:
       "PayPal Tech blog post by Shruti Kapoor thanks Mark for leading GraphQL adoption at PayPal and credits him as an interview source.",
     url: "https://medium.com/paypal-tech/graphql-at-paypal-an-adoption-story-b7e01175f2b7",
+    iconSrc: "/work/paypal.png",
   },
   {
     kind: "community",
@@ -130,6 +140,7 @@ export const mentions: Mention[] = [
     description:
       "PayPal added to graphql.org's community adoption page via PR #518; Mark was cc'd as PayPal's GraphQL contact.",
     url: "https://github.com/graphql/graphql.github.io/pull/518",
+    iconSrc: "/press/graphql.png",
   },
   {
     kind: "community",
@@ -137,6 +148,7 @@ export const mentions: Mention[] = [
     description:
       "Three of Mark's PayPal GraphQL posts were submitted to Hacker News independently, each with modest engagement.",
     url: "https://news.ycombinator.com/item?id=21420027",
+    iconSrc: "/press/hn.svg",
     urls: [
       "https://news.ycombinator.com/item?id=21420027",
       "https://news.ycombinator.com/item?id=20627481",

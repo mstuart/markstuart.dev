@@ -10,16 +10,64 @@ import { HomePage } from "@/components/home-page";
 vi.mock("@/components/px/avatar", () => ({ PixelAvatar: () => null }));
 vi.mock("@/components/px/scene5", () => ({ PixelScene5: () => null }));
 
-const removedAssetDirectories = [
-  "public/press",
-  "public/talks",
-  "public/stack",
-  "public/work",
-  "public/writing",
-];
+const removedAssetDirectories = ["public/writing"];
+
+const restoredLogoPaths = [
+  "press/apollo.png",
+  "press/graphql.png",
+  "press/graphqlweekly.png",
+  "press/hn.svg",
+  "press/novvum.png",
+  "press/thinkb4.png",
+  "press/ull.png",
+  "stack/agentbrowser.png",
+  "stack/airpods.png",
+  "stack/anker.png",
+  "stack/apple.png",
+  "stack/chrome.png",
+  "stack/claude.png",
+  "stack/divvy.png",
+  "stack/docker.png",
+  "stack/ghostty.png",
+  "stack/hiddenbar.png",
+  "stack/keychron.png",
+  "stack/lg.png",
+  "stack/lmstudio.png",
+  "stack/logitech.png",
+  "stack/ohmyzsh.png",
+  "stack/ollama.png",
+  "stack/pearcleaner.png",
+  "stack/sennheiser.png",
+  "stack/slack.png",
+  "stack/tmux.png",
+  "stack/vscode.png",
+  "stack/wisprflow.png",
+  "stack/zoom.png",
+  "talks/codetv.png",
+  "talks/dotw.png",
+  "talks/enterjs.png",
+  "talks/github.png",
+  "talks/graphql.png",
+  "talks/hasura.png",
+  "talks/html5devconf.png",
+  "talks/midwestjs.png",
+  "talks/platformsh.png",
+  "talks/thisdot.png",
+  "work/ebay.png",
+  "work/paypal.png",
+  "work/qplay.png",
+  "work/rocket.png",
+  "work/statefarm.png",
+].sort();
+
+function expectImagePath(container: Element, path: string) {
+  const image = container.querySelector("img");
+  expect(image).not.toBeNull();
+  expect(decodeURIComponent(image?.getAttribute("src") ?? "")).toContain(path);
+}
 
 describe("public-release asset policy", () => {
-  it("keeps third-party artwork out of the repository", () => {
+  it("keeps only the explicitly restored logos", () => {
     for (const directory of removedAssetDirectories) {
       expect(existsSync(directory), `${directory} should not exist`).toBe(false);
     }
@@ -28,10 +76,10 @@ describe("public-release asset policy", () => {
       .map(String)
       .filter((path) => /\.(?:avif|gif|ico|jpe?g|png|svg|webp)$/i.test(path))
       .sort();
-    expect(retainedPublicVisuals).toEqual(["avatar.png", "poster-cat-8bit.png"]);
+    expect(retainedPublicVisuals).toEqual(["avatar.png", "poster-cat-8bit.png", ...restoredLogoPaths].sort());
   });
 
-  it("keeps employer names and links after removing employer logos", () => {
+  it("keeps employer names, links, and restored logos together", () => {
     render(<HomePage />);
 
     const employerLinks = [
@@ -44,41 +92,77 @@ describe("public-release asset policy", () => {
     for (const [name, href] of employerLinks) {
       const link = screen.getByRole("link", { name });
       expect(link).toHaveAttribute("href", href);
-      expect(link.querySelector("img")).toBeNull();
+      expect(link.querySelector("img")).not.toBeNull();
     }
   });
 
-  it("keeps press, talk, writing, and Stack evidence links without stored brand images", () => {
+  it("restores logos to press, talks, writing, and Stack", () => {
     const { unmount: unmountPress } = render(<PressPage />);
-    expect(
-      screen.getByRole("link", { name: /PayPal \+ Apollo GraphQL customer case study/i }),
-    ).toHaveAttribute("href", "https://www.apollographql.com/customers/paypal");
-    expect(document.querySelector("img")).toBeNull();
+    for (const [name, path] of [
+      [/PayPal \+ Apollo GraphQL customer case study/i, "/press/apollo.png"],
+      [/GraphQL Weekly, Issue 116/i, "/press/graphqlweekly.png"],
+      [/Universidad de La Laguna/i, "/press/ull.png"],
+      [/36 GraphQL Concepts Every Developer Should Know/i, "/press/novvum.png"],
+      [/A Walk in GraphQL, Day 2 lesson/i, "/press/thinkb4.png"],
+      [/GraphQL at PayPal: An Adoption Story/i, "/work/paypal.png"],
+      [/graphql\.org, "Who's Using GraphQL" page/i, "/press/graphql.png"],
+      [/Discussed on Hacker News/i, "/press/hn.svg"],
+    ] as const) {
+      const pressLink = screen.getByRole("link", { name });
+      expectImagePath(pressLink.closest("li")!, path);
+    }
     unmountPress();
 
     const { unmount: unmountTalks } = render(<TalksPage />);
-    expect(
-      screen.getByRole("link", { name: /Does your API spark joy/i }),
-    ).toHaveAttribute("href", "https://www.youtube.com/watch?v=tgdTC-EZKMg");
-    expect(document.querySelector("img")).toBeNull();
+    const talkLogoPaths = screen.getAllByRole("listitem").map((row) => {
+      const source = row.querySelector("img")?.getAttribute("src") ?? "";
+      return new URL(source, "https://markstuart.dev").searchParams.get("url");
+    });
+    expect(talkLogoPaths.sort()).toEqual([
+      "/talks/codetv.png",
+      "/talks/dotw.png",
+      "/talks/enterjs.png",
+      "/talks/github.png",
+      "/talks/graphql.png",
+      "/talks/hasura.png",
+      "/talks/html5devconf.png",
+      "/talks/midwestjs.png",
+      "/talks/platformsh.png",
+      "/talks/thisdot.png",
+      "/talks/thisdot.png",
+      "/talks/thisdot.png",
+      "/work/paypal.png",
+      "/work/paypal.png",
+    ].sort());
     unmountTalks();
 
     const { unmount: unmountPosts } = render(<PostsPage />);
-    const writingLink = screen.getByRole("link", { name: /Scaling GraphQL at PayPal/i });
-    expect(writingLink).toHaveAttribute(
-      "href",
-      "https://medium.com/paypal-tech/scaling-graphql-at-paypal-b5b5ac098810",
-    );
-    expect(writingLink.querySelector("img")).toBeNull();
+    const rocketLink = screen.getByRole("link", {
+      name: /The new era of static analysis: AI-authored, deterministically enforced/i,
+    });
+    expectImagePath(rocketLink, "/work/rocket.png");
+    for (const name of [
+      /Scaling GraphQL at PayPal/i,
+      /GraphQL: Instrumenting your API and unlocking superpowers/i,
+      /GraphQL Resolvers: Best Practices/i,
+      /GraphQL: A Success Story for PayPal Checkout/i,
+      /Securing your JS apps w\/ Stateless CSRF/i,
+    ]) {
+      expectImagePath(screen.getByRole("link", { name }), "/work/paypal.png");
+    }
     unmountPosts();
 
     render(<StackPage />);
-    const stackLink = screen.getByRole("link", { name: /MacBook Pro 14/i });
-    expect(stackLink).toHaveAttribute(
-      "href",
-      "https://www.amazon.com/dp/B0DMKZSTQH?tag=mstuartsite-20",
+    const stackLogoPaths = Array.from(document.querySelectorAll("img")).map((image) => {
+      const source = image.getAttribute("src") ?? "";
+      return new URL(source, "https://markstuart.dev").searchParams.get("url");
+    });
+    expect(stackLogoPaths.sort()).toEqual(
+      restoredLogoPaths
+        .filter((path) => path.startsWith("stack/"))
+        .map((path) => `/${path}`)
+        .sort(),
     );
-    expect(stackLink.querySelector("img")).toBeNull();
   });
 
   it("documents every retained visual asset and the Phosphor icon basis", () => {
@@ -87,17 +171,23 @@ describe("public-release asset policy", () => {
     for (const path of [
       "public/avatar.png",
       "public/poster-cat-8bit.png",
+      "public/work/ebay.png",
+      "public/work/paypal.png",
+      "public/work/qplay.png",
+      "public/work/rocket.png",
+      "public/work/statefarm.png",
       "app/icon.svg",
       "app/apple-icon.tsx",
       "app/opengraph-image.tsx",
     ]) {
       expect(ledger, `${path} should appear in the retained-assets ledger`).toContain(path);
     }
+    for (const pattern of ["public/press/*", "public/stack/*.png", "public/talks/*.png"]) {
+      expect(ledger).toContain(pattern);
+    }
     expect(ledger).toContain("@phosphor-icons/react@2.1.10");
     expect(ledger).toContain("https://github.com/phosphor-icons/react");
     expect(ledger).toContain("https://openai.com/policies/terms-of-use/");
-    expect(ledger).toMatch(
-      /no stored third-party employer, publication, conference, product, or tool\s+artwork remains/i,
-    );
+    expect(ledger).toMatch(/employer marks[\s\S]*nominative/i);
   });
 });

@@ -76,6 +76,13 @@ for (const [path, heading] of [
   });
 }
 
+test("removed posts return a real 404", async ({ page }) => {
+  const response = await page.goto("/posts/hello-world");
+
+  expect(response?.status()).toBe(404);
+  await expect(page.getByRole("heading", { level: 1, name: "Page not found" })).toBeVisible();
+});
+
 test("subscribe form is accessible without submitting", async ({ page }) => {
   await page.goto("/posts");
   const email = page.getByRole("textbox", { name: "Email address" });

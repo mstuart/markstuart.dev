@@ -96,6 +96,12 @@ describe("route metadata", () => {
       images: ["/opengraph-image"],
     });
   });
+
+  it("limits post routes to published slugs", async () => {
+    const route = await loadModule<{ dynamicParams?: boolean }>("@/app/(site)/posts/[slug]/page");
+
+    expect(route?.dynamicParams).toBe(false);
+  });
 });
 
 describe("structured data", () => {

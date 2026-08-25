@@ -9,6 +9,8 @@ import { UpvoteButton } from "@/components/upvote-button";
 import { blogPostingJsonLd, pageMetadata, serializeJsonLd } from "@/lib/metadata";
 import { getAllPosts, getPost } from "@/lib/posts";
 
+export const dynamicParams = false;
+
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString("en-US", {
     year: "numeric",

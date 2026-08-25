@@ -13,7 +13,7 @@ export const PROVIDER_PROBES = Object.freeze([
   },
   {
     label: "Read-only vote state",
-    path: "/api/votes?slug=hello-world",
+    path: "/api/votes?slug=coding-agent-infrastructure",
     expectedStatus: 200,
   },
   {

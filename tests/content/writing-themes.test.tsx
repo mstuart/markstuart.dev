@@ -104,8 +104,7 @@ describe("Writing page themes", () => {
 
     expect(links).toHaveLength(getAllPosts().length + writing.length);
     expect(links[0]).toHaveAccessibleName(/Making coding agents dependable/i);
-    expect(links[1]).toHaveAccessibleName(/Hello, world/i);
-    expect(links[2]).toHaveAccessibleName(/The new era of static analysis/i);
+    expect(links[1]).toHaveAccessibleName(/The new era of static analysis/i);
 
     for (const title of [...getAllPosts(), ...writing].map((entry) => entry.title)) {
       expect(screen.getAllByText(title)).toHaveLength(1);
@@ -115,7 +114,7 @@ describe("Writing page themes", () => {
     expect(screen.getAllByText("Article")).toHaveLength(getAllPosts().length);
     expect(screen.getAllByText(/^PayPal Technology Blog/)).toHaveLength(5);
     expect(screen.getByText(/34K views/)).toBeInTheDocument();
-    expect(screen.getByText("Aug 19, 2026")).toBeInTheDocument();
+    expect(screen.queryByText("Hello, world")).not.toBeInTheDocument();
   });
 
   it("filters the list by theme with a visible selected state and result announcement", async () => {

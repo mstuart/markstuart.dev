@@ -72,7 +72,7 @@ function SelectedMark({ active }: { active: boolean }) {
   );
 }
 
-function WritingRowContent({ row }: { row: WritingRow }) {
+export function WritingRowContent({ row }: { row: WritingRow }) {
   return (
     <>
       <RowIcon src={row.iconSrc} />

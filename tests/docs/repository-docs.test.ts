@@ -106,7 +106,7 @@ describe("repository documentation", () => {
       "lib/data/all-projects.ts",
       "lib/data/community.ts",
       "lib/data/projects.ts",
-      "content/posts/hello-world.mdx",
+      "content/posts/coding-agent-infrastructure.mdx",
     ]
       .map(read)
       .join("\n");

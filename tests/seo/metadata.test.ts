@@ -76,23 +76,23 @@ describe("route metadata", () => {
 
   it("retains RSS, article, publication, image, and complete Twitter metadata for posts", async () => {
     const value = await generatePostMetadata({
-      params: Promise.resolve({ slug: "hello-world" }),
+      params: Promise.resolve({ slug: "coding-agent-infrastructure" }),
     } as PageProps<"/posts/[slug]">);
 
     expect(value.alternates).toMatchObject({
-      canonical: "/posts/hello-world",
+      canonical: "/posts/coding-agent-infrastructure",
       types: { "application/rss+xml": "/feed.xml" },
     });
     expect(value.openGraph).toMatchObject({
       type: "article",
-      url: "/posts/hello-world",
-      publishedTime: "2026-08-19",
+      url: "/posts/coding-agent-infrastructure",
+      publishedTime: "2026-08-25",
       images: ["/opengraph-image"],
     });
     expect(value.twitter).toMatchObject({
       card: "summary_large_image",
-      title: "Hello, world",
-      description: "A short note on what this space is for.",
+      title: "Making coding agents dependable",
+      description: "Four assumptions I changed after building tools for context measurement, compression, and API access.",
       images: ["/opengraph-image"],
     });
   });

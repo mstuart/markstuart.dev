@@ -4,12 +4,13 @@ import Image from "next/image";
 import { ArrowRight, Star } from "@phosphor-icons/react/dist/ssr";
 import { SocialLinks } from "@/components/shared/social-links";
 import { SectionV1 } from "@/components/v1/section";
+import { WritingRowContent, type WritingRow } from "@/components/writing-filter";
 import styles from "@/components/v1/entrance.module.css";
 import { PixelScene5 } from "@/components/px/scene5";
 import { PixelAvatar } from "@/components/px/avatar";
 import { formatStarCount } from "@/lib/format";
 import { projects } from "@/lib/data/projects";
-import { writing } from "@/lib/data/writing";
+import { WRITING_THEMES, writing } from "@/lib/data/writing";
 import { getAllPosts } from "@/lib/posts";
 import { getProjectIcon } from "@/lib/project-icons";
 import { work } from "@/lib/data/work";
@@ -19,6 +20,11 @@ const inlineLinkClass =
 
 const chipClass =
   "inline-flex items-center gap-1.5 rounded-md bg-surface-muted px-2 py-0.5 text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
+
+const SOURCE_ICONS: Record<string, string> = {
+  "PayPal Technology Blog": "/work/paypal.png",
+  "Rocket Technology Blog": "/work/rocket.png",
+};
 
 function LogoChip({ name, src, href }: { name: string; src: string; href: string }) {
   return (
@@ -60,18 +66,25 @@ export function HomePage() {
     .filter((project) => project.role === "author" && project.name !== "vitals")
     .sort((a, b) => ((a.createdAt ?? "") < (b.createdAt ?? "") ? 1 : -1))
     .slice(0, 5);
-  const latestWriting = [
+  const latestWriting: WritingRow[] = [
     ...getAllPosts().map((post) => ({
+      kind: "local" as const,
+      slug: post.slug,
       title: post.title,
       date: post.date,
-      href: `/posts/${post.slug}`,
-      external: false,
+      format: post.format,
+      theme: post.theme,
+      iconSrc: "/icon.svg",
     })),
     ...writing.map((entry) => ({
+      kind: "external" as const,
       title: entry.title,
       date: entry.date,
-      href: entry.url,
-      external: true,
+      url: entry.url,
+      source: entry.source,
+      views: entry.views,
+      theme: entry.theme ?? WRITING_THEMES[0],
+      iconSrc: SOURCE_ICONS[entry.source],
     })),
   ]
     .sort((a, b) => (a.date < b.date ? 1 : -1))
@@ -158,33 +171,29 @@ export function HomePage() {
           </SectionV1>
 
           <SectionV1 heading="Latest writing" index={2}>
-            <div className="flex flex-col">
-              {latestWriting.map((entry) => {
-                const title = (
-                  <span className="truncate text-zinc-600 transition-colors group-hover:text-zinc-950 dark:text-zinc-400 dark:group-hover:text-zinc-50">
-                    {entry.title}
-                  </span>
-                );
-                const className =
-                  "group flex items-baseline justify-between gap-4 rounded-lg px-2 py-3 -mx-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:focus-visible:ring-teal-400";
-
-                return entry.external ? (
-                  <a
-                    key={entry.href}
-                    href={entry.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={className}
-                  >
-                    {title}
-                  </a>
-                ) : (
-                  <Link key={entry.href} href={entry.href} className={className}>
-                    {title}
-                  </Link>
-                );
-              })}
-            </div>
+            <ul aria-label="Latest writing" className="flex flex-col divide-y divide-line">
+              {latestWriting.map((row) => (
+                <li key={row.kind === "local" ? row.slug : row.url}>
+                  {row.kind === "local" ? (
+                    <Link
+                      href={`/posts/${row.slug}`}
+                      className="group -mx-2 flex items-center gap-3 rounded-md px-2 py-3 transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                    >
+                      <WritingRowContent row={row} />
+                    </Link>
+                  ) : (
+                    <a
+                      href={row.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group -mx-2 flex items-center gap-3 rounded-md px-2 py-3 transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                    >
+                      <WritingRowContent row={row} />
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ul>
             <Link
               href="/posts"
               className="group mt-6 inline-flex items-center gap-1 rounded-lg text-sm text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"

@@ -24,7 +24,7 @@ describe("votes route", () => {
       new Request("https://example.test/api/votes", {
         method: "POST",
         headers: { "content-type": "text/plain", origin: "https://example.test" },
-        body: JSON.stringify({ slug: "hello-world" }),
+        body: JSON.stringify({ slug: "coding-agent-infrastructure" }),
       }),
     );
     const crossSite = await POST(
@@ -35,7 +35,7 @@ describe("votes route", () => {
           origin: "https://attacker.example",
           "sec-fetch-site": "cross-site",
         },
-        body: JSON.stringify({ slug: "hello-world" }),
+        body: JSON.stringify({ slug: "coding-agent-infrastructure" }),
       }),
     );
 
@@ -49,7 +49,7 @@ describe("votes route", () => {
     vi.stubEnv("NODE_ENV", "production");
     process.env.VOTE_SECRET = "vote-secret";
 
-    const response = await GET(new Request("https://example.test/api/votes?slug=hello-world"));
+    const response = await GET(new Request("https://example.test/api/votes?slug=coding-agent-infrastructure"));
 
     expect(response.status).toBe(503);
     await expect(response.json()).resolves.toMatchObject({ error: { code: "not_configured" } });
@@ -61,7 +61,7 @@ describe("votes route", () => {
     process.env.VOTE_SECRET = "vote-secret";
     vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(Response.json({ result: [0, 0] }))));
 
-    const response = await GET(new Request("https://example.test/api/votes?slug=hello-world"));
+    const response = await GET(new Request("https://example.test/api/votes?slug=coding-agent-infrastructure"));
 
     expect(response.status).toBe(200);
     expect(response.headers.get("set-cookie")).toMatch(
@@ -89,7 +89,7 @@ describe("votes route", () => {
           origin: "https://example.test",
           cookie: "mark-voter=00000000-0000-4000-8000-000000000000.tampered",
         },
-        body: JSON.stringify({ slug: "hello-world" }),
+        body: JSON.stringify({ slug: "coding-agent-infrastructure" }),
       }),
     );
 
@@ -122,7 +122,7 @@ describe("votes route", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    const initial = await GET(new Request("https://example.test/api/votes?slug=hello-world"));
+    const initial = await GET(new Request("https://example.test/api/votes?slug=coding-agent-infrastructure"));
     const voterCookie = initial.headers.get("set-cookie")?.split(";", 1)[0];
 
     expect(voterCookie).toMatch(/^mark-voter=[0-9a-f-]+\.[0-9a-f]+$/);
@@ -136,7 +136,7 @@ describe("votes route", () => {
             origin: "https://example.test",
             cookie: voterCookie!,
           },
-          body: JSON.stringify({ slug: "hello-world" }),
+          body: JSON.stringify({ slug: "coding-agent-infrastructure" }),
         }),
       );
     const [first, second] = await Promise.all([request(), request()]);
@@ -179,7 +179,7 @@ describe("votes route", () => {
             origin: "https://example.test",
             "x-forwarded-for": clientIp,
           },
-          body: JSON.stringify({ slug: "hello-world" }),
+          body: JSON.stringify({ slug: "coding-agent-infrastructure" }),
         }),
       );
 
@@ -217,7 +217,7 @@ describe("votes route", () => {
       new Request("https://example.test/api/votes", {
         method: "POST",
         headers: { "content-type": "application/json", origin: "https://example.test" },
-        body: JSON.stringify({ slug: "hello-world" }),
+        body: JSON.stringify({ slug: "coding-agent-infrastructure" }),
       }),
     );
 
@@ -251,7 +251,7 @@ describe("votes route", () => {
             origin: "https://example.test",
             "x-forwarded-for": clientIp,
           },
-          body: JSON.stringify({ slug: "hello-world" }),
+          body: JSON.stringify({ slug: "coding-agent-infrastructure" }),
         }),
       );
 

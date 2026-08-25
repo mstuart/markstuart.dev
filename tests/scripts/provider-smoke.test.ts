@@ -7,7 +7,7 @@ function expectedResponse(path: string): Response {
   if (path === "/api/listening?cursor=60") {
     return Response.json({ status: "ok", data: { items: [], nextCursor: null } });
   }
-  if (path === "/api/votes?slug=hello-world") {
+  if (path === "/api/votes?slug=coding-agent-infrastructure") {
     return Response.json({ count: 0, voted: false }, { headers: { "Set-Cookie": "private-sentinel" } });
   }
   if (path.startsWith("/api/unsubscribe?token=")) {

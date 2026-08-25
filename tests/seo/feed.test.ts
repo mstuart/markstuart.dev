@@ -12,7 +12,9 @@ describe("RSS feed", () => {
     expect(xml).toContain("<dc:creator>Mark Stuart</dc:creator>");
     expect(xml).toContain("<category>Rocket Technology Blog</category>");
     expect(xml).toContain("<category>PayPal Technology Blog</category>");
-    expect(xml).toContain("I finally gave my writing a home");
+    expect(xml).toContain(
+      "Four assumptions I changed after building tools for context measurement, compression, and API access."
+    );
     expect(xml).toContain(
       "How AI-authored static analysis can turn natural-language engineering rules into deterministic code enforcement."
     );

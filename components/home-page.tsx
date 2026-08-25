@@ -8,6 +8,7 @@ import { WritingRowContent, type WritingRow } from "@/components/writing-filter"
 import styles from "@/components/v1/entrance.module.css";
 import { PixelScene5 } from "@/components/px/scene5";
 import { PixelAvatar } from "@/components/px/avatar";
+import { CompanyTile } from "@/components/resume-view";
 import { formatStarCount } from "@/lib/format";
 import { projects } from "@/lib/data/projects";
 import { WRITING_THEMES, writing } from "@/lib/data/writing";
@@ -148,14 +149,17 @@ export function HomePage() {
             <div className="space-y-6">
               {work.map((entry) => (
                 <div key={`${entry.company}-${entry.role}`} className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="text-zinc-900 dark:text-zinc-100">
-                      <span className="font-medium">{entry.role}</span>
-                      <span className="text-muted"> at {entry.company}</span>
-                    </p>
-                    {entry.summary ? (
-                      <p className="mt-1 text-sm text-muted">{entry.summary}</p>
-                    ) : null}
+                  <div className="flex min-w-0 items-start gap-3">
+                    <CompanyTile company={entry.company} />
+                    <div className="min-w-0">
+                      <p className="text-zinc-900 dark:text-zinc-100">
+                        <span className="font-medium">{entry.role}</span>
+                        <span className="text-muted"> at {entry.company}</span>
+                      </p>
+                      {entry.summary ? (
+                        <p className="mt-1 text-sm text-muted">{entry.summary}</p>
+                      ) : null}
+                    </div>
                   </div>
                   <span className="shrink-0 text-xs text-muted">{entry.period}</span>
                 </div>

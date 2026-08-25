@@ -23,6 +23,24 @@ describe("public homepage content safety", () => {
     }
   });
 
+  it("shows the matching company logo beside each homepage work entry", () => {
+    render(<HomePage />);
+    const section = screen.getByRole("heading", { name: "Work" }).closest("section");
+
+    expect(section).not.toBeNull();
+    if (!section) return;
+
+    const logos = Array.from(section.querySelectorAll("img"));
+    expect(logos).toHaveLength(3);
+    for (const [logo, src] of logos.map((logo, index) => [
+      logo,
+      ["/work/rocket.png", "/work/ebay.png", "/work/paypal.png"][index],
+    ] as const)) {
+      expect(decodeURIComponent(logo.getAttribute("src") ?? "")).toContain(src);
+      expect(logo).toHaveAttribute("alt", "");
+    }
+  });
+
   it("shows all five featured projects under Building without a contributor row", () => {
     render(<HomePage />);
 

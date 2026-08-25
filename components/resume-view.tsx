@@ -28,7 +28,7 @@ const COMPANY_LOGOS: Record<string, string> = {
   "State Farm Insurance": "/work/statefarm.png",
 };
 
-function CompanyTile({ company }: { company: string }) {
+export function CompanyTile({ company }: { company: string }) {
   const src = COMPANY_LOGOS[company];
   return (
     <span

@@ -12,11 +12,21 @@ const roleEvidence = [
         label: "Rocket Technology: AI-authored static analysis",
         url: "https://careers.rocket.com/blog/technology-and-product/ai-authored-static-analysis-code-enforcement",
       },
+      {
+        label: "Rocket and Mr. Cooper acquisition",
+        url: "https://www.rocketcompanies.com/press-release/mr-cooper-americas-largest-servicer-joins-rocket-the-nations-largest-lender/",
+      },
     ],
   },
   {
     role: "Distinguished Engineer at eBay",
-    links: [{ label: "eBay Live", url: "https://www.ebay.com/ebaylive" }],
+    links: [
+      { label: "eBay Live", url: "https://www.ebay.com/ebaylive" },
+      {
+        label: "eBay Velocity Initiative",
+        url: "https://www.infoq.com/presentations/platform-engineering-lessons/",
+      },
+    ],
   },
   {
     role: "Sr. Principal Engineer at PayPal",
@@ -24,6 +34,14 @@ const roleEvidence = [
       {
         label: "PayPal Checkout components on GitHub",
         url: "https://github.com/paypal/paypal-checkout-components",
+      },
+      {
+        label: "Faster PayPal integration experience",
+        url: "https://developer.paypal.com/community/blog/faster-payments-integration/",
+      },
+      {
+        label: "PayPal One Touch reaches 10M users",
+        url: "https://newsroom.paypal-corp.com/10M-People-Use-One-Touch-TM-Just-Six-Months-After-Launch",
       },
     ],
   },
@@ -33,6 +51,10 @@ const roleEvidence = [
       {
         label: "Scaling GraphQL at PayPal",
         url: "https://medium.com/paypal-tech/scaling-graphql-at-paypal-b5b5ac098810",
+      },
+      {
+        label: "Kraken.js Node.js framework and libraries",
+        url: "https://github.com/krakenjs",
       },
     ],
   },
@@ -46,6 +68,42 @@ const roleEvidence = [
       {
         label: "Apollo's PayPal GraphQL case study",
         url: "https://www.apollographql.com/customers/paypal",
+      },
+    ],
+  },
+  {
+    role: "Staff Software Engineer at PayPal",
+    links: [
+      {
+        label: "PayPal's mobile-first website",
+        url: "https://techcrunch.com/2014/03/08/paypal-is-rolling-out-its-new-mobile-first-website-globally-with-less-words-more-images/",
+      },
+    ],
+  },
+  {
+    role: "Sr. Software Engineer at Qplay, Inc.",
+    links: [
+      {
+        label: "Qplay launch",
+        url: "https://finance.yahoo.com/news/official-tivo-co-founders-start-160054697.html",
+      },
+    ],
+  },
+  {
+    role: "Sr. Software Engineer at PayPal",
+    links: [
+      {
+        label: "Release the Kraken: PayPal, Node.js, and Lean UX",
+        url: "https://nearform.com/insights/release-the-kraken-how-paypal-is-being-revolutionised-by-node-js-and-lean-ux/",
+      },
+    ],
+  },
+  {
+    role: "Software Engineer at State Farm Insurance",
+    links: [
+      {
+        label: "State Farm mobile web",
+        url: "https://www.retaildive.com/ex/mobilecommercedaily/state-farm-boasts-mobile-web-as-preferred-touch-point-for-consumers",
       },
     ],
   },

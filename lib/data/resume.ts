@@ -62,6 +62,10 @@ export const resumeRoles: ResumeRole[] = [
         label: "Rocket Technology: AI-authored static analysis",
         url: "https://careers.rocket.com/blog/technology-and-product/ai-authored-static-analysis-code-enforcement",
       },
+      {
+        label: "Rocket and Mr. Cooper acquisition",
+        url: "https://www.rocketcompanies.com/press-release/mr-cooper-americas-largest-servicer-joins-rocket-the-nations-largest-lender/",
+      },
     ],
   },
   {
@@ -83,6 +87,10 @@ export const resumeRoles: ResumeRole[] = [
         label: "eBay Live",
         url: "https://www.ebay.com/ebaylive",
       },
+      {
+        label: "eBay Velocity Initiative",
+        url: "https://www.infoq.com/presentations/platform-engineering-lessons/",
+      },
     ],
   },
   {
@@ -98,6 +106,14 @@ export const resumeRoles: ResumeRole[] = [
       {
         label: "PayPal Checkout components on GitHub",
         url: "https://github.com/paypal/paypal-checkout-components",
+      },
+      {
+        label: "Faster PayPal integration experience",
+        url: "https://developer.paypal.com/community/blog/faster-payments-integration/",
+      },
+      {
+        label: "PayPal One Touch reaches 10M users",
+        url: "https://newsroom.paypal-corp.com/10M-People-Use-One-Touch-TM-Just-Six-Months-After-Launch",
       },
     ],
   },
@@ -125,6 +141,10 @@ export const resumeRoles: ResumeRole[] = [
       {
         label: "Scaling GraphQL at PayPal",
         url: "https://medium.com/paypal-tech/scaling-graphql-at-paypal-b5b5ac098810",
+      },
+      {
+        label: "Kraken.js Node.js framework and libraries",
+        url: "https://github.com/krakenjs",
       },
     ],
   },
@@ -169,6 +189,12 @@ export const resumeRoles: ResumeRole[] = [
       "Led modernization of PayPal's Consumer Web applications and their shared platform foundations.",
       "Founded JSLunch and helped organize JS@PayPal, a company-wide engineering conference that continues today.",
     ],
+    evidence: [
+      {
+        label: "PayPal's mobile-first website",
+        url: "https://techcrunch.com/2014/03/08/paypal-is-rolling-out-its-new-mobile-first-website-globally-with-less-words-more-images/",
+      },
+    ],
   },
   {
     company: "Qplay, Inc.",
@@ -178,6 +204,12 @@ export const resumeRoles: ResumeRole[] = [
     short: "First UI engineer at the TiVo founders' video-discovery startup.",
     bullets: [
       "First UI engineer at a video-discovery startup founded by TiVo alumni. Built its hybrid mobile experience and helped grow the UI team.",
+    ],
+    evidence: [
+      {
+        label: "Qplay launch",
+        url: "https://finance.yahoo.com/news/official-tivo-co-founders-start-160054697.html",
+      },
     ],
   },
   {
@@ -189,6 +221,12 @@ export const resumeRoles: ResumeRole[] = [
     bullets: [
       "Helped modernize Checkout with Node.js and contributed to PayPal's shared JavaScript SDK.",
     ],
+    evidence: [
+      {
+        label: "Release the Kraken: PayPal, Node.js, and Lean UX",
+        url: "https://nearform.com/insights/release-the-kraken-how-paypal-is-being-revolutionised-by-node-js-and-lean-ux/",
+      },
+    ],
   },
   {
     company: "State Farm Insurance",
@@ -198,6 +236,12 @@ export const resumeRoles: ResumeRole[] = [
     short: "Led the rebuild of State Farm's mobile web experience as a single-page app.",
     bullets: [
       "Software engineer across web platforms, including leading the Mobile Web single-page-app rebuild.",
+    ],
+    evidence: [
+      {
+        label: "State Farm mobile web",
+        url: "https://www.retaildive.com/ex/mobilecommercedaily/state-farm-boasts-mobile-web-as-preferred-touch-point-for-consumers",
+      },
     ],
   },
 ];

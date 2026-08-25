@@ -2,6 +2,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { GET, POST } from "@/app/api/votes/route";
 
+vi.mock("@/lib/posts", () => ({
+  getAllPosts: () => [{ slug: "coding-agent-infrastructure" }],
+}));
+
 const ENV_KEYS = [
   "KV_REST_API_URL",
   "KV_REST_API_TOKEN",

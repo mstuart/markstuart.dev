@@ -22,6 +22,7 @@ All assignments in `.env.example` are deliberately blank.
 | Resend | `RESEND_API_KEY` | Required for confirmation, welcome, post notification, and inbound forwarding. |
 | Resend inbound verification | `RESEND_WEBHOOK_SECRET` | Required only when the inbound webhook is enabled. |
 | Inbound forwarding destination | `INBOUND_FORWARD_TO` | Required server-only private address when inbound forwarding is enabled. Never expose its value in client code, responses, logs, or documentation. |
+| Subscription notification destination | `SUBSCRIPTION_NOTIFY_TO` | Optional server-only private address BCC'd on the durable welcome email after confirmation. Never expose its value in client code, responses, logs, or documentation. |
 
 The application also reads the platform-provided `NODE_ENV`; do not add or override it in `.env.local` or Vercel.
 
@@ -91,6 +92,14 @@ human unsubscribe changes require deliberate POST requests; the standards-based
 one-click unsubscribe is also a POST.
 
 Never inspect or copy subscriber addresses during routine verification. Use an address controlled for testing, confirm that duplicate GETs cause no state change, and remove or suppress the test subscription through the public flow.
+
+For a private local count, configure the production Redis credentials in
+`.env.local` and run `npm run subscribers`. To deliberately print the sorted
+active addresses, run `npm run subscribers -- --show-emails`; treat that
+terminal output as personal data and never paste it into tickets, logs, or
+agent artifacts. When `SUBSCRIPTION_NOTIFY_TO` is configured, the welcome
+email accepted by Resend privately BCCs that address, so the notification is
+durable and idempotent with the existing welcome job.
 
 ## Notification and inbound mail
 

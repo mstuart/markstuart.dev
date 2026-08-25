@@ -33,6 +33,7 @@
     "runtime": "node scripts/verify-runtime.mjs",
     "smoke": "node scripts/smoke-start.mjs",
     "smoke:providers": "node scripts/provider-smoke.mjs",
+    "subscribers": "node --env-file-if-exists=.env.local scripts/subscribers.mjs",
     "check": "npm run policy && npm run runtime && npm run lint && npm run typecheck && npm test && npm run coverage && npm run build && npm run e2e && npm run smoke"
   },
   "dependencies": {
@@ -61,6 +62,7 @@
     "@vitest/coverage-v8": "^4.1.11",
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
+    "jiti": "2.7.0",
     "jsdom": "^30.0.1",
     "tailwindcss": "^4",
     "typescript": "^5",

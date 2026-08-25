@@ -66,6 +66,7 @@ describe("repository documentation", () => {
         "SPOTIFY_CLIENT_SECRET",
         "SPOTIFY_REFRESH_TOKEN",
         "SPOTIFY_SETUP_NO_OPEN",
+        "SUBSCRIPTION_NOTIFY_TO",
         "UPSTASH_REDIS_REST_TOKEN",
         "UPSTASH_REDIS_REST_URL",
         "VOTE_SECRET",
@@ -106,7 +107,6 @@ describe("repository documentation", () => {
       "lib/data/all-projects.ts",
       "lib/data/community.ts",
       "lib/data/projects.ts",
-      "content/posts/coding-agent-infrastructure.mdx",
     ]
       .map(read)
       .join("\n");

@@ -13,5 +13,9 @@ console.log(`markstuart.dev commands
   npm run smoke     Start the build with next start and probe 200/404 routes.
   npm run smoke:providers
                     Probe production provider boundaries with read-only GETs.
+  npm run subscribers
+                    Print the active subscriber count from local Redis config.
+  npm run subscribers -- --show-emails
+                    Explicitly print active subscriber email addresses.
   npm run check     Run the complete local and CI quality gate.
 `);

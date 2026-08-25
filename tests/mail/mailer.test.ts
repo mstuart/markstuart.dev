@@ -29,6 +29,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   process.env.RESEND_API_KEY = "resend-test-key";
   process.env.MAIL_IDEMPOTENCY_SECRET = "mail-test-secret";
+  delete process.env.SUBSCRIPTION_NOTIFY_TO;
   fetchMock.mockImplementation(async () => Response.json({ id: "email-id" }));
   vi.stubGlobal("fetch", fetchMock);
 });
@@ -72,6 +73,19 @@ describe("provider idempotency", () => {
   it("uses the durable welcome job id for retry-safe delivery", async () => {
     await sendWelcomeEmail("reader@example.com", "unsubscribe-token", "welcome-job");
 
+    expect(sentRequest().headers.get("idempotency-key")).toBe("welcome/welcome-job");
+    expect(sentRequest().body.bcc).toBeUndefined();
+  });
+
+  it("privately copies configured subscription notifications on the durable welcome email", async () => {
+    process.env.SUBSCRIPTION_NOTIFY_TO = "owner@example.com";
+
+    await sendWelcomeEmail("reader@example.com", "unsubscribe-token", "welcome-job");
+
+    expect(sentRequest().body).toMatchObject({
+      to: "reader@example.com",
+      bcc: "owner@example.com",
+    });
     expect(sentRequest().headers.get("idempotency-key")).toBe("welcome/welcome-job");
   });
 

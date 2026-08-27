@@ -60,6 +60,13 @@ const restoredLogoPaths = [
   "work/statefarm.png",
 ].sort();
 
+const articleAssetPaths = [
+  "posts/jquery-universal-browser-api/john-resig-jsconf-us-2010.jpg",
+  "posts/jquery-universal-browser-api/jquery-chain-carbon-mobile.png",
+  "posts/jquery-universal-browser-api/jquery-chain-carbon.png",
+  "posts/jquery-universal-browser-api/paul-irish-jquery-source-youtube.jpg",
+].sort();
+
 function expectImagePath(container: Element, path: string) {
   const image = container.querySelector("img");
   expect(image).not.toBeNull();
@@ -67,7 +74,7 @@ function expectImagePath(container: Element, path: string) {
 }
 
 describe("public-release asset policy", () => {
-  it("keeps only the explicitly restored logos", () => {
+  it("keeps only the explicitly approved visual assets", () => {
     for (const directory of removedAssetDirectories) {
       expect(existsSync(directory), `${directory} should not exist`).toBe(false);
     }
@@ -76,7 +83,9 @@ describe("public-release asset policy", () => {
       .map(String)
       .filter((path) => /\.(?:avif|gif|ico|jpe?g|png|svg|webp)$/i.test(path))
       .sort();
-    expect(retainedPublicVisuals).toEqual(["avatar.png", "poster-cat-8bit.png", ...restoredLogoPaths].sort());
+    expect(retainedPublicVisuals).toEqual(
+      ["avatar.png", "poster-cat-8bit.png", ...articleAssetPaths, ...restoredLogoPaths].sort(),
+    );
   });
 
   it("keeps employer names, links, and restored logos together", () => {

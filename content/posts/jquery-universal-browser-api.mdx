@@ -1,0 +1,184 @@
+---
+title: "jQuery: the universal browser API the web needed"
+date: "2026-08-26"
+description: "A tribute to the people who made inconsistent browsers feel like one coherent, expressive platform."
+format: article
+theme: "Developer platforms & SDKs"
+---
+
+This is the first post in a series I'm calling _The Web We Inherited_. I want to revisit the tools and people whose work became part of the web beneath us. These are projects I learned from and depended on. Some became so common that I stopped noticing them at all.
+
+I want to give their authors their due. I also want to understand which technical decisions made the work last and what those decisions can teach us about the developer platforms, SDKs, and APIs we build today.
+
+I want to begin with jQuery. It shaped how I wrote JavaScript, and the community around it changed how I thought about the web.
+
+The first web conference I attended was [jQuery Conference 2010: Boston](https://blog.jquery.com/2010/08/24/jquery-conference-2010-boston-announcement/). [John Resig](https://johnresig.com/) and [Richard Worth](https://github.com/rdworth) gave the keynotes. [Paul Irish](https://www.paulirish.com/) spoke about HTML5, and [Alex Sexton](https://github.com/SlexAxton) gave a talk called "jQuery's Best Friends." [Rebecca Murphey](https://rmurphey.com/), [Yehuda Katz](https://yehudakatz.com/), [Scott Gonzalez](https://github.com/scottgonzalez), [Doug Neiner](https://dougneiner.com/), and many others from the jQuery community were there. An amazing amount of web talent was concentrated in one place.
+
+Boston was part of the story. jQuery had been gathering people there since 2007, and Bocoup hosted the 2010 training day from its loft. The city and the community around jQuery felt like an incubator for people who would go on to shape browsers, libraries, standards, developer tools, and the way frontend teams worked.
+
+That weekend became a jumping-off point for me. The conference made the people and the thinking behind code I used every day feel real. From where I stood, the web exploded over the following year and JavaScript took off. The program was already reaching into HTML5, mobile interfaces, application structure, and testing. People were working out the next version of web development in talks and hallway conversations.
+
+jQuery arrived when "the browser" was really a collection of incompatible implementations. Event models differed. DOM methods disagreed. Ajax required branches. Even finding the same elements could produce different behavior.
+
+jQuery gathered that everyday work into a small API, tested it across browsers, and made the ugly branches somebody else's problem. DOM scripting, CSS selectors, animation, and Ajax all had prior histories. jQuery made them feel like parts of one system.
+
+[John Resig](https://johnresig.com/) ([LinkedIn](https://www.linkedin.com/in/jeresig), [X](https://x.com/jeresig)) assembled and released jQuery. Generations of volunteers followed, represented today by the [jQuery team](https://jquery.com/team/) and core maintainers [Timmy Willison](https://github.com/timmywil), [Richard Gibson](https://github.com/gibson042), and [Michał Gołębiowski-Owczarek](https://github.com/mgol).
+
+Plugin authors, documentation writers, bug reporters, test-case reducers, mailing-list helpers, conference organizers, educators, sponsors, and application developers turned their library into a shared layer of the web.
+
+<figure className="my-8">
+  <img
+    src="/posts/jquery-universal-browser-api/john-resig-jsconf-us-2010.jpg"
+    alt="John Resig speaking onstage at JSConf US in April 2010"
+    width={1280}
+    height={853}
+    loading="lazy"
+    decoding="async"
+    className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800"
+  />
+  <figcaption className="mt-2 text-sm leading-6 text-muted">
+    John Resig speaking at JSConf US in April 2010. Photo by{" "}
+    <a href="https://www.flickr.com/photos/jsconf/4586826039/">JS Conf</a>,
+    resized from the original, via{" "}
+    <a href="https://commons.wikimedia.org/wiki/File:John_Resig_(4586826039).jpg">
+      Wikimedia Commons
+    </a>{" "}
+    and licensed{" "}
+    <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a>.
+  </figcaption>
+</figure>
+
+## The video that sent me into the source
+
+[Paul Irish](https://www.paulirish.com/) ([LinkedIn](https://www.linkedin.com/in/paulirish), [X](https://x.com/paul_irish))'s 2010 screencast ["10 Things I Learned From the jQuery Source"](https://www.paulirish.com/2010/10-things-i-learned-from-the-jquery-source/), rerecorded after his TXJS talk, changed how I looked at libraries. He opened jQuery and walked through the JavaScript patterns, browser workarounds, and design decisions below `$()`. Libraries stopped looking like black boxes. I started reading their source to understand the language, and that habit still shapes how I evaluate developer platforms.
+
+<figure className="my-8">
+  <a
+    href="https://www.youtube.com/watch?v=i_qE1iAmjFg"
+    aria-label="Watch Paul Irish's 10 Things I Learned from the jQuery Source on YouTube"
+    className="group block no-underline"
+  >
+    <img
+      src="/posts/jquery-universal-browser-api/paul-irish-jquery-source-youtube.jpg"
+      alt="Paul Irish in the video 10 Things I Learned from the jQuery Source"
+      width={1280}
+      height={720}
+      loading="lazy"
+      decoding="async"
+      className="w-full rounded-lg border border-zinc-200 transition-opacity group-hover:opacity-90 dark:border-zinc-800"
+    />
+  </a>
+  <figcaption className="mt-2 text-sm leading-6 text-muted">
+    <a href="https://www.youtube.com/watch?v=i_qE1iAmjFg">
+      Watch Paul Irish walk through the jQuery source on YouTube.
+    </a>
+  </figcaption>
+</figure>
+
+## One API for a room full of incompatible outlets
+
+Imagine that every electrical outlet in a building has a different shape. One room needs a round plug, another a flat plug, and a third requires you to wiggle the switch twice before anything happens.
+
+jQuery was the adapter panel. A developer described what to find and what to do. jQuery translated that request into the browser-specific operations underneath.
+
+<figure className="my-8">
+  <picture>
+    <source
+      media="(max-width: 639px)"
+      srcSet="/posts/jquery-universal-browser-api/jquery-chain-carbon-mobile.png"
+      width={806}
+      height={596}
+    />
+    <img
+      src="/posts/jquery-universal-browser-api/jquery-chain-carbon.png"
+      alt="A jQuery chain that selects .notice, adds the is-ready class, sets aria-live to polite, and fades the element out when clicked"
+      width={1360}
+      height={596}
+      loading="lazy"
+      decoding="async"
+      className="h-auto w-full rounded-lg border border-zinc-200 dark:border-zinc-800"
+    />
+  </picture>
+</figure>
+
+The `$()` call finds every element matching the CSS-style selector and wraps those elements in a jQuery object. `.addClass()` updates the collection, returns a chainable object, and hands it to `.attr()`, then `.on()`. The developer does not write an explicit loop or a separate browser branch.
+
+That chain is not an asynchronous pipeline. Most mutating and traversal methods return the same collection or a related one, which makes another call possible immediately. Getter forms such as `.attr("aria-live")` return a value and end the chain. Plugins can join the same vocabulary by adding methods to `$.fn`, the prototype shared by jQuery objects.
+
+The small syntax hid a large promise: the selection, manipulation, event, and effect should mean the same thing wherever jQuery said it supported the browser.
+
+## August 2005: the selector experiment
+
+The idea appeared in public before the library did.
+
+On August 22, 2005, Resig published ["Selectors in Javascript"](https://johnresig.com/blog/selectors-in-javascript/). He had been studying [Ben Nolan](https://bennolan.com/)'s Behaviour library, which associated CSS-like selectors with functions, but found its declarations too verbose and its hierarchical selection awkward. His alternative already contained the recognizable shape of jQuery: select `#foo ol li`, set an attribute, bind a click handler, narrow the selection, change a style, and keep chaining.
+
+This was part of a lineage. [Simon Willison](https://simonwillison.net/)'s `getElementsBySelector`, [Dean Edwards](https://web.archive.org/web/20240622195300/http://dean.edwards.name/my/cssQuery/)'s cssQuery, Prototype, Behaviour, and other libraries were exploring how JavaScript could work more naturally with documents. Resig later [explained the path to jQuery](https://www.khanacademy.org/transcript/x8a4834c03f619394): several experiments and small libraries coalesced around the gap between the JavaScript language and the cumbersome browser DOM.
+
+He finished the first release over winter break while still in college. On January 14, 2006, he introduced "jQuery: New Wave Javascript" at BarCampNYC. His [contemporary write-up](https://johnresig.com/blog/barcampnyc-wrap-up/) appeared two days later. The public [jQuery history](https://jquery.com/history/) records the mailing list, first third-party plugin, and project blog arriving before the end of that month.
+
+The project moved quickly, but not fully formed. Ajax entered the core in February. Licensing, source access, documentation, tests, and project organization evolved through the year. [jQuery 1.0 arrived on August 26, 2006](https://blog.jquery.com/2006/08/26/jquery-10/), almost exactly a year after the selector post.
+
+## One collection, one fluent vocabulary
+
+jQuery's deepest ergonomic decision was the collection, not the `$` character.
+
+Native DOM APIs historically returned a single element here, a live collection there, and another array-like object somewhere else. Operations often required a manual loop. jQuery made selecting one element and selecting fifty feel alike. A method such as `.addClass()`, `.css()`, or `.on()` operated over the collection. Traversal methods such as `.find()`, `.parent()`, and `.filter()` produced another collection.
+
+This made code read in the same order as the intention:
+
+```text
+find these things -> narrow them -> change them -> listen to them
+```
+
+The wrapper did not imprison developers in an alternate universe. An indexed jQuery collection exposed its underlying DOM elements, `.get()` returned them explicitly, and `this` inside a traditional jQuery event handler was the DOM element. The project later [described that coexistence as intentional](https://blog.jquery.com/2014/01/15/the-jquery-foundation-and-standards/). jQuery was a layer over the platform, not a replacement programming language.
+
+Overloading `$()` also compressed common entry points. A string could be a selector or HTML to create. A DOM element could be wrapped. A function could run when the document was ready to manipulate, earlier than waiting for every image to finish. The surface was approachable enough for a beginner, while escape hatches remained available for deeper work.
+
+## What "works across browsers" required
+
+The famous convenience was backed by unglamorous compatibility engineering.
+
+Consider events. Standards-oriented browsers used `addEventListener`. Older Internet Explorer exposed `attachEvent`. One supplied an event argument. Another commonly expected `window.event`. Event targets, mouse buttons, coordinates, related elements, and removal behavior differed. The [jQuery 1.2.6 event source](https://github.com/jquery/jquery/blob/1.2.6/src/event.js) shows both registration paths and a normalization pass that copied properties, turned `srcElement` into `target`, calculated missing page coordinates, and produced a consistent `which` value.
+
+That normalized object let application code use one handler shape. jQuery also supplied event namespaces, synthetic triggering, and eventually the unified `.on()` API for direct handlers and delegation. Delegation attached a handler higher in the document and matched events from current or future descendants. Interfaces that changed after initial load could use the same handler.
+
+None of these abstractions was perfect, and some early "magic" later became technical debt. The impressive part was the feedback loop: a browser discrepancy became a reduced test, a patch, and then shared protection for every user of the next release.
+
+"Support" was therefore a test claim, not a hopeful compatibility badge. The core team's stated rule was that a browser counted as fully supported only when jQuery's unit suite ran against it regularly. Those tests checked that the public API produced consistent results, even when the underlying operations differed. An event from a text node, a cloned checkbox, or an Ajax status peculiar to one engine became durable institutional memory. Application teams received that memory by replacing one script file. The project's long-running habit of testing real implementations is as central to its achievement as the fluent syntax. [The team's browser-support explanation](https://blog.jquery.com/2014/04/02/browser-support-in-jquery-1-12-and-beyond/) made the principle explicit.
+
+## Plugins made the core larger without making it bigger
+
+Eleven days after the BarCamp introduction, Resig announced [Michael Geary](https://mg.to/)'s [first third-party jQuery plugin](https://blog.jquery.com/2006/01/25/first-jquery-plugin/), a remote JSON loader. That speed revealed how consequential `$.fn` would be.
+
+A plugin was simply a method added to the jQuery object prototype. If it returned `this`, it participated in chaining. It received the same collection semantics and could compose core traversal, data, events, Ajax, and effects. The barrier was low enough that developers built form validators, galleries, lightboxes, table tools, menus, carousels, editors, date pickers, and countless site-specific behaviors without asking the core team to adopt every feature.
+
+The ecosystem was not uniformly excellent. Plugin quality, accessibility, maintenance, and naming varied. But a shared extension shape made components discoverable and transferable between projects. In 2007 the community opened a [plugin repository](https://blog.jquery.com/2007/06/18/new-plugin-repository/) with releases, ratings, demos, documentation, bug reports, and feature requests. [Karl Swedberg](https://karlswedberg.com/) credited the web team and singled out [Mike Hostetler](https://github.com/mikehostetler)'s work establishing it.
+
+The people around the code mattered just as much. Resig's 2006 introduction to [the early jQuery teams](https://blog.jquery.com/2006/12/18/meet-the-people-behind-jquery/) credited [Jörn Zaefferer](https://github.com/jzaefferer) with rebuilding the test suite, [Brandon Aaron](https://brandonaaron.net/) with core bug fixes and CSS/DOM work, [Mike Alsup](https://github.com/malsup) with the Form Plugin and improvements flowing back into Ajax, and Swedberg with tutorials and patient help for newcomers. It also described separate development, evangelism, web, and design teams.
+
+Documentation, examples, tests, and answers turned a concise API into a common language.
+
+## The platform caught up through collective work
+
+Modern DOM code can select with `querySelectorAll`, match with `matches`, edit classes through `classList`, register events with `addEventListener`, request resources with `fetch`, schedule work with promises, and animate through CSS or the Web Animations API. Browser engines now share a broad suite of tests and standards that did not exist in 2006.
+
+That convergence was not jQuery single-handedly turning its API into the platform. Standards authors, browser engineers, library communities, test-suite maintainers, accessibility experts, and developers all shaped it. Some native APIs preceded jQuery. Others evolved beside it. None is a one-for-one copy of the full jQuery behavior.
+
+jQuery did contribute evidence and people. Years of compatibility bugs exposed where specifications or implementations failed developers. In 2011, Yehuda Katz and Paul Irish led a new [jQuery Standards Team](https://blog.jquery.com/2011/10/24/announcing-the-jquery-standards-team/) intended to carry developer needs to standards bodies and browser vendors. The jQuery Foundation later joined W3C and Ecma International, while contributors including Katz, [Rick Waldron](https://github.com/rwaldron), Paul Irish, and others participated directly in standards work.
+
+The project wanted browsers to fix their bugs and native APIs to work predictably so libraries could build higher-level value instead of repairing the floor. The [jQuery Foundation's 2014 standards essay](https://blog.jquery.com/2014/01/15/the-jquery-foundation-and-standards/) said as much while also defending the collection API's lasting ergonomics.
+
+As the floor improved, "use the platform" became practical for more projects. That is a shared success, not proof that the adapter was unnecessary when the outlets differed.
+
+## "You might not need it" misses the history
+
+For a new site targeting evergreen browsers, native DOM APIs may be enough. A framework may own rendering and events. CSS may handle the animation. `fetch` may handle the request. Avoiding an unnecessary dependency can be a sound decision.
+
+That deployment decision says very little about what jQuery accomplished.
+
+It made browser behavior tractable when incompatibility was a daily design constraint. It paired selectors with collection semantics, made chaining readable, turned browser bugs into shared tests, gave Ajax and effects a common home, and opened an extension point that let thousands of authors teach the core new tricks. Its documentation and community helped an enormous population move from snippets to structured client-side programs.
+
+Resig recognized the shape and made the first release. The early team turned it into dependable infrastructure. Plugin authors proved the extension model. The jQuery Foundation and today's OpenJS Foundation gave the work an institutional home. Willison, Gibson, Gołębiowski-Owczarek, [Dave Methvin](https://github.com/dmethvin), Zaefferer, Aaron, Alsup, Swedberg, and generations of contributors carried the long middle and the still-active present.
+
+The browser platform converged through work across standards groups, browser teams, and library communities. While that was happening, jQuery gave developers a universal-feeling API they could use on the browsers in front of them. A dependency-free `querySelectorAll()` call in 2026 still rests on the browser convergence that jQuery helped developers wait for.

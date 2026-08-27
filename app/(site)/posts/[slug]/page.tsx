@@ -5,7 +5,9 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { SampleBadge } from "@/components/shared/sample-badge";
 import { Code, Pre } from "@/components/mdx/code-block";
+import { PostShareLinks } from "@/components/post-share-links";
 import { UpvoteButton } from "@/components/upvote-button";
+import { site } from "@/lib/data/site";
 import { blogPostingJsonLd, pageMetadata, serializeJsonLd } from "@/lib/metadata";
 import { getAllPosts, getPost } from "@/lib/posts";
 
@@ -59,7 +61,7 @@ export default async function PostPage(props: PageProps<"/posts/[slug]">) {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-16">
+    <div className="mx-auto max-w-3xl px-6 py-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(blogPostingJsonLd(post)) }}
@@ -86,12 +88,13 @@ export default async function PostPage(props: PageProps<"/posts/[slug]">) {
           </time>
         </header>
 
-        <div className="prose-quiet mt-8 font-serif text-[17px] leading-8 text-zinc-800 dark:text-zinc-200 [&_p]:mb-5 [&_a]:text-accent [&_a]:underline [&_a]:underline-offset-4 [&_strong]:font-semibold">
+        <div className="prose-quiet mt-8 font-serif text-[17px] leading-8 text-zinc-800 dark:text-zinc-200 [&_p]:mb-5 [&_a]:text-accent [&_a]:underline [&_a]:underline-offset-4 [&_h2]:mb-4 [&_h2]:mt-12 [&_h2]:font-sans [&_h2]:text-xl [&_h2]:font-medium [&_h2]:leading-7 [&_h2]:tracking-tight [&_h2]:text-zinc-900 [&_strong]:font-semibold dark:[&_h2]:text-zinc-100">
           <MDXRemote source={post.content} components={{ pre: Pre, code: Code }} />
         </div>
 
-        <footer className="mt-10">
+        <footer className="mt-10 flex flex-wrap items-center justify-between gap-4">
           <UpvoteButton slug={post.slug} />
+          <PostShareLinks title={post.title} url={`${site.url}/posts/${post.slug}`} />
         </footer>
       </article>
     </div>

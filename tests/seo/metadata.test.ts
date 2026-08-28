@@ -82,6 +82,39 @@ describe("route metadata", () => {
     expect(value).toEqual({});
   });
 
+  it("uses the article-specific social image for published post metadata", async () => {
+    const value = await generatePostMetadata({
+      params: Promise.resolve({ slug: "jquery-universal-browser-api" }),
+    } as PageProps<"/posts/[slug]">);
+
+    expect(value.openGraph).toMatchObject({
+      images: ["/posts/jquery-universal-browser-api/opengraph-image"],
+    });
+    expect(value.twitter).toMatchObject({
+      images: ["/posts/jquery-universal-browser-api/opengraph-image"],
+    });
+  });
+
+  it("serves the article-specific social image as a PNG", async () => {
+    const route = await loadModule<{
+      GET: (
+        request: Request,
+        context: { params: Promise<{ slug: string }> }
+      ) => Promise<Response>;
+    }>("@/app/(site)/posts/[slug]/opengraph-image/route");
+
+    expect(route).not.toBeNull();
+    if (!route) return;
+
+    const response = await route.GET(
+      new Request("https://markstuart.dev/posts/jquery-universal-browser-api/opengraph-image"),
+      { params: Promise.resolve({ slug: "jquery-universal-browser-api" }) }
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toBe("image/png");
+  });
+
   it("limits post routes to published slugs", async () => {
     const route = await loadModule<{ dynamicParams?: boolean }>("@/app/(site)/posts/[slug]/page");
 

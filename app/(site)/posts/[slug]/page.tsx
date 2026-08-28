@@ -40,6 +40,7 @@ export async function generateMetadata(props: PageProps<"/posts/[slug]">): Promi
     description: post.description,
     path,
     type: "article",
+    image: `${path}/opengraph-image`,
   });
 
   return {

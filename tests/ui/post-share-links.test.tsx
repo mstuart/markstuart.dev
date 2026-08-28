@@ -6,7 +6,7 @@ import { PostShareLinks } from "@/components/post-share-links";
 
 const article = {
   title: "jQuery: the compatibility layer that shaped the web",
-  url: "https://markstuart.dev/posts/jquery-universal-browser-api",
+  url: "https://markstuart.dev/posts/jquery-compatibility-layer-shaped-web",
 };
 
 afterEach(() => {
@@ -20,11 +20,11 @@ describe("PostShareLinks", () => {
 
     expect(screen.getByRole("link", { name: "Share on X" })).toHaveAttribute(
       "href",
-      "https://twitter.com/intent/tweet?text=jQuery%3A+the+compatibility+layer+that+shaped+the+web&url=https%3A%2F%2Fmarkstuart.dev%2Fposts%2Fjquery-universal-browser-api",
+      "https://twitter.com/intent/tweet?text=jQuery%3A+the+compatibility+layer+that+shaped+the+web&url=https%3A%2F%2Fmarkstuart.dev%2Fposts%2Fjquery-compatibility-layer-shaped-web",
     );
     expect(screen.getByRole("link", { name: "Share on LinkedIn" })).toHaveAttribute(
       "href",
-      "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fmarkstuart.dev%2Fposts%2Fjquery-universal-browser-api",
+      "https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fmarkstuart.dev%2Fposts%2Fjquery-compatibility-layer-shaped-web",
     );
   });
 

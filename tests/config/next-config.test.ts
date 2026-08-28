@@ -51,4 +51,14 @@ describe("Next configuration", () => {
       value: "noindex, nofollow",
     });
   });
+
+  it("permanently redirects the previous jQuery article URL", async () => {
+    const redirects = await nextConfig.redirects?.();
+
+    expect(redirects).toContainEqual({
+      source: "/posts/jquery-universal-browser-api/:path*",
+      destination: "/posts/jquery-compatibility-layer-shaped-web/:path*",
+      permanent: true,
+    });
+  });
 });

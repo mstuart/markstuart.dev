@@ -5,7 +5,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { expect, it } from "vitest";
 
 it("renders the John Resig photo credit as one flowing caption", async () => {
-  const source = readFileSync("content/posts/jquery-universal-browser-api.mdx", "utf8");
+  const source = readFileSync("content/posts/jquery-compatibility-layer-shaped-web.mdx", "utf8");
   const { content } = matter(source);
   const markup = renderToStaticMarkup(await MDXRemote({ source: content }));
   const container = document.createElement("div");

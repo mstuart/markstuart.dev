@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { PostShareLinks } from "@/components/post-share-links";
 
 const article = {
-  title: "jQuery: the universal browser API the web needed",
+  title: "jQuery: the compatibility layer that shaped the web",
   url: "https://markstuart.dev/posts/jquery-universal-browser-api",
 };
 
@@ -20,7 +20,7 @@ describe("PostShareLinks", () => {
 
     expect(screen.getByRole("link", { name: "Share on X" })).toHaveAttribute(
       "href",
-      "https://twitter.com/intent/tweet?text=jQuery%3A+the+universal+browser+API+the+web+needed&url=https%3A%2F%2Fmarkstuart.dev%2Fposts%2Fjquery-universal-browser-api",
+      "https://twitter.com/intent/tweet?text=jQuery%3A+the+compatibility+layer+that+shaped+the+web&url=https%3A%2F%2Fmarkstuart.dev%2Fposts%2Fjquery-universal-browser-api",
     );
     expect(screen.getByRole("link", { name: "Share on LinkedIn" })).toHaveAttribute(
       "href",

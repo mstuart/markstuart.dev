@@ -84,14 +84,14 @@ describe("route metadata", () => {
 
   it("uses the article-specific social image for published post metadata", async () => {
     const value = await generatePostMetadata({
-      params: Promise.resolve({ slug: "jquery-universal-browser-api" }),
+      params: Promise.resolve({ slug: "jquery-compatibility-layer-shaped-web" }),
     } as PageProps<"/posts/[slug]">);
 
     expect(value.openGraph).toMatchObject({
-      images: ["/posts/jquery-universal-browser-api/opengraph-image"],
+      images: ["/posts/jquery-compatibility-layer-shaped-web/opengraph-image"],
     });
     expect(value.twitter).toMatchObject({
-      images: ["/posts/jquery-universal-browser-api/opengraph-image"],
+      images: ["/posts/jquery-compatibility-layer-shaped-web/opengraph-image"],
     });
   });
 
@@ -107,8 +107,8 @@ describe("route metadata", () => {
     if (!route) return;
 
     const response = await route.GET(
-      new Request("https://markstuart.dev/posts/jquery-universal-browser-api/opengraph-image"),
-      { params: Promise.resolve({ slug: "jquery-universal-browser-api" }) }
+      new Request("https://markstuart.dev/posts/jquery-compatibility-layer-shaped-web/opengraph-image"),
+      { params: Promise.resolve({ slug: "jquery-compatibility-layer-shaped-web" }) }
     );
 
     expect(response.status).toBe(200);

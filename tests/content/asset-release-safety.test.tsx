@@ -61,10 +61,10 @@ const restoredLogoPaths = [
 ].sort();
 
 const articleAssetPaths = [
-  "posts/jquery-universal-browser-api/john-resig-jsconf-us-2010.jpg",
-  "posts/jquery-universal-browser-api/jquery-chain-carbon-mobile.png",
-  "posts/jquery-universal-browser-api/jquery-chain-carbon.png",
-  "posts/jquery-universal-browser-api/paul-irish-jquery-source-youtube.jpg",
+  "posts/jquery-compatibility-layer-shaped-web/john-resig-jsconf-us-2010.jpg",
+  "posts/jquery-compatibility-layer-shaped-web/jquery-chain-carbon-mobile.png",
+  "posts/jquery-compatibility-layer-shaped-web/jquery-chain-carbon.png",
+  "posts/jquery-compatibility-layer-shaped-web/paul-irish-jquery-source-youtube.jpg",
 ].sort();
 
 function expectImagePath(container: Element, path: string) {

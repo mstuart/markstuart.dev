@@ -53,6 +53,11 @@ const nextConfig: NextConfig = {
         destination: "/feed.xml",
         permanent: true,
       },
+      {
+        source: "/posts/jquery-universal-browser-api/:path*",
+        destination: "/posts/jquery-compatibility-layer-shaped-web/:path*",
+        permanent: true,
+      },
     ];
   },
 };

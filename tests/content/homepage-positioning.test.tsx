@@ -19,7 +19,7 @@ describe("homepage positioning", () => {
       .filter((href) => href !== "/posts");
 
     expect(postLinks).toEqual([
-      "/posts/jquery-universal-browser-api",
+      "/posts/jquery-compatibility-layer-shaped-web",
       "https://careers.rocket.com/blog/technology-and-product/ai-authored-static-analysis-code-enforcement",
       "https://medium.com/paypal-tech/scaling-graphql-at-paypal-b5b5ac098810",
       "https://medium.com/paypal-tech/graphql-instrumenting-your-api-and-unlocking-superpowers-c0bc3a9dc451",

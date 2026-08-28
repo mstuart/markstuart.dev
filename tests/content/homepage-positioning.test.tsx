@@ -34,7 +34,7 @@ describe("homepage positioning", () => {
       expect(decodeURIComponent(link.querySelector("img")?.getAttribute("src") ?? "")).toContain(logo);
     }
 
-    for (const date of ["Aug 26, 2026", "May 19, 2026", "Oct 30, 2019", "Mar 13, 2019", "Dec 11, 2018"]) {
+    for (const date of ["Aug 27, 2026", "May 19, 2026", "Oct 30, 2019", "Mar 13, 2019", "Dec 11, 2018"]) {
       expect(within(latestWriting).getByText(date)).toBeVisible();
     }
     for (const views of ["34K views", "11.6K views", "269K views"]) {

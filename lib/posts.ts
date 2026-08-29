@@ -38,6 +38,14 @@ function readTheme(value: unknown): WritingTheme {
   return "Developer platforms & SDKs";
 }
 
+function readPreviousSlugs(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+  const slugs = value.filter((entry): entry is string => typeof entry === "string");
+  return slugs.length > 0 ? slugs : undefined;
+}
+
 function readSlugs(): string[] {
   return fs
     .readdirSync(POSTS_DIR)
@@ -60,6 +68,7 @@ export function getAllPosts(): WritingPostMeta[] {
         sample: Boolean(data.sample),
         format: readFormat(data.format),
         theme: readTheme(data.theme),
+        previousSlugs: readPreviousSlugs(data.previousSlugs),
       };
     })
     .sort((a, b) => (a.date < b.date ? 1 : -1));
@@ -82,6 +91,7 @@ export function getPost(slug: string): WritingPost | null {
     sample: Boolean(data.sample),
     format: readFormat(data.format),
     theme: readTheme(data.theme),
+    previousSlugs: readPreviousSlugs(data.previousSlugs),
     content,
   };
 }

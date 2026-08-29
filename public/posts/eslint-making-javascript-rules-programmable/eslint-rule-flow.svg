@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="680" viewBox="0 0 1400 680" role="img" aria-labelledby="title desc">
+  <title id="title">How an ESLint rule processes JavaScript</title>
+  <desc id="desc">Four connected panels show source code, an abstract syntax tree, rule visitors, and editor diagnostics with a fix.</desc>
+  <style>
+    :root {
+      --surface: #f4f4f5;
+      --panel: #ffffff;
+      --rule: #d4d4d8;
+      --ink: #211a43;
+      --muted: #5b5477;
+      --tree: #f7f5ff;
+      --tree-ink: #312e81;
+      --code: #171723;
+      --code-key: #c4b5fd;
+      --code-text: #f8fafc;
+      --code-muted: #94a3b8;
+      --report: #fff7ed;
+      --report-rule: #fb923c;
+      --report-ink: #9a3412;
+      --report-copy: #7c2d12;
+      --fix: #ecfdf5;
+      --fix-rule: #34d399;
+      --fix-ink: #065f46;
+      --fix-copy: #047857;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --surface: #18181b;
+        --panel: #27272a;
+        --rule: #52525b;
+        --ink: #f4f4f5;
+        --muted: #d4d4d8;
+        --tree: #312e4f;
+        --tree-ink: #ddd6fe;
+        --report: #431407;
+        --report-ink: #fed7aa;
+        --report-copy: #fdba74;
+        --fix: #022c22;
+        --fix-ink: #a7f3d0;
+        --fix-copy: #6ee7b7;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0 0 12 6 0 12Z" fill="#6d5bd0"/>
+    </marker>
+  </defs>
+  <rect width="1400" height="680" rx="28" fill="var(--surface)"/>
+  <g fill="var(--panel)" stroke="var(--rule)">
+    <rect x="70" y="110" width="270" height="440" rx="20"/>
+    <rect x="390" y="110" width="270" height="440" rx="20"/>
+    <rect x="710" y="110" width="270" height="440" rx="20"/>
+    <rect x="1030" y="110" width="300" height="440" rx="20"/>
+  </g>
+  <g font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" fill="var(--ink)">
+    <text x="100" y="158" font-size="25" font-weight="700">1. Source</text>
+    <text x="420" y="158" font-size="25" font-weight="700">2. Parse</text>
+    <text x="740" y="158" font-size="25" font-weight="700">3. Visit</text>
+    <text x="1060" y="158" font-size="25" font-weight="700">4. Report</text>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="18">
+    <rect x="100" y="205" width="210" height="120" rx="12" fill="var(--code)"/>
+    <text x="122" y="244" fill="var(--code-key)">fetch</text><text x="178" y="244" fill="var(--code-text)">(url)</text>
+    <text x="122" y="278" fill="var(--code-muted)">// use client</text>
+    <text x="122" y="304" fill="var(--code-muted)">// wrapper</text>
+  </g>
+  <g stroke="#8b7ed8" stroke-width="2" fill="var(--tree)">
+    <rect x="465" y="202" width="120" height="42" rx="10"/>
+    <rect x="420" y="302" width="150" height="42" rx="10"/>
+    <rect x="500" y="404" width="125" height="42" rx="10"/>
+    <path d="M525 244v58M500 344v60" fill="none"/>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="15" fill="var(--tree-ink)" text-anchor="middle">
+    <text x="525" y="228">Program</text>
+    <text x="495" y="328">CallExpression</text>
+    <text x="562" y="430">Identifier</text>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace">
+    <rect x="740" y="205" width="210" height="175" rx="12" fill="var(--code)"/>
+    <text x="760" y="240" font-size="16" fill="var(--code-key)">CallExpression</text>
+    <text x="760" y="275" font-size="15" fill="var(--code-text)">if (name ===</text>
+    <text x="760" y="302" font-size="15" fill="var(--code-text)">  "fetch")</text>
+    <text x="760" y="343" font-size="15" fill="#67e8f9">context.report()</text>
+  </g>
+  <g font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <rect x="1060" y="205" width="240" height="112" rx="12" fill="var(--report)" stroke="var(--report-rule)"/>
+    <circle cx="1087" cy="234" r="9" fill="var(--report-rule)"/>
+    <text x="1108" y="242" font-size="17" font-weight="700" fill="var(--report-ink)">Unexpected fetch()</text>
+    <text x="1080" y="278" font-size="15" fill="var(--report-copy)">Use the shared client.</text>
+    <text x="1080" y="300" font-size="14" fill="var(--report-ink)">line 12, column 3</text>
+    <rect x="1060" y="350" width="240" height="92" rx="12" fill="var(--fix)" stroke="var(--fix-rule)"/>
+    <text x="1080" y="386" font-size="17" font-weight="700" fill="var(--fix-ink)">Optional fix</text>
+    <text x="1080" y="416" font-size="15" fill="var(--fix-copy)">client.request(url)</text>
+  </g>
+  <g stroke="#6d5bd0" stroke-width="4" fill="none" marker-end="url(#arrow)">
+    <path d="M340 330h38"/>
+    <path d="M660 330h38"/>
+    <path d="M980 330h38"/>
+  </g>
+  <g font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="17" fill="var(--muted)" text-anchor="middle">
+    <text x="205" y="504">Characters in a file</text>
+    <text x="525" y="504">Structure and locations</text>
+    <text x="845" y="504">Project-specific knowledge</text>
+    <text x="1180" y="504">Feedback where you work</text>
+  </g>
+</svg>

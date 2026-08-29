@@ -1,0 +1,140 @@
+---
+title: "ESLint: making JavaScript's rules programmable"
+date: "2026-08-28"
+description: "A look back at the people who made JavaScript linting extensible, and what their work taught me about code review and platform design."
+format: article
+theme: "Developer platforms & SDKs"
+---
+
+This is the second post in _The Web We Inherited_, my series about the tools and people I learned from as the web grew up around us. I started with [jQuery](/posts/jquery-compatibility-layer-shaped-web) and what its design can still teach us about building SDKs, APIs, libraries, and developer platforms. ESLint changed how we reviewed JavaScript. Repeated feedback could become a rule that ran automatically.
+
+## What Jamund showed us at PayPal
+
+While working on replatforming PayPal.com into Node.js, our team reviewed a lot of code together. The same comments kept coming back: use the shared helper here, avoid that API, we have seen it break. Every pull request. We still caught real problems, but review time kept going toward decisions the team had already made.
+
+In 2014, [Jamund Ferguson](https://github.com/xjamundx) ([LinkedIn](https://www.linkedin.com/in/jamund/), [X](https://x.com/anxietytech)) showed me that an ESLint plugin could carry those decisions for us, and he showed me the abstract syntax tree underneath. Once I saw JavaScript as a tree of nodes, linting stopped feeling like a bag of style checks because a rule could find one kind of call and explain the problem on that line. The same check could run in CI.
+
+We began writing rules from our review comments, and the replatform team adopted custom plugins before they became common across PayPal. The company was also making a public bet on Node.js. In 2013, PayPal [described moving one of its busiest applications to Node](https://medium.com/paypal-tech/node-js-at-paypal-4e2d1d08ce4f) and said future consumer web applications would follow. Our review practices had to keep up with JavaScript moving from browser to server.
+
+<figure className="my-8">
+  <a
+    href="https://speakerdeck.com/xjamundx/hiking-through-the-javascript-forest"
+    aria-label="View Jamund Ferguson's Hiking Through the JavaScript Forest slides on Speaker Deck"
+    className="group block no-underline"
+  >
+    <img
+      src="/posts/eslint-making-javascript-rules-programmable/jamund-ferguson-javascript-forest.jpg"
+      alt="Opening slide from Jamund Ferguson's Hiking Through the JavaScript Forest talk"
+      width={769}
+      height={577}
+      loading="lazy"
+      decoding="async"
+      className="h-auto w-full rounded-lg border border-zinc-200 transition-opacity group-hover:opacity-90 dark:border-zinc-800"
+    />
+  </a>
+  <figcaption className="mt-2 text-sm leading-6 text-muted">
+    Jamund used his 2016 talk <a href="https://speakerdeck.com/xjamundx/hiking-through-the-javascript-forest">"Hiking Through the JavaScript Forest"</a> to explain how ASTs power ESLint rules and codemods, and the full deck is on Speaker Deck.
+  </figcaption>
+</figure>
+
+<figure className="my-8">
+  <div className="flex items-center justify-center rounded-lg border border-zinc-200 bg-white px-10 py-10 dark:border-zinc-800">
+    <img
+      src="/posts/eslint-making-javascript-rules-programmable/eslint-logo-color.svg"
+      alt="ESLint logo"
+      width={406}
+      height={116}
+      loading="lazy"
+      decoding="async"
+      className="h-auto w-full max-w-sm"
+    />
+  </div>
+  <figcaption className="mt-2 text-sm leading-6 text-muted">
+    The official <a href="https://eslint.org/">ESLint</a> logo for the <a href="https://openjsf.org/projects">OpenJS Foundation</a> project.
+  </figcaption>
+</figure>
+
+## Before teams could add their own rules
+
+[Douglas Crockford](https://www.crockford.com/) [published JSLint in 2002](https://jshint.com/relicensing-2020/). It proved that JavaScript could be checked before it ran, caught code Crockford considered unsafe or confusing, and carried his opinions about good JavaScript straight into the tool. Teams got the benefit of those opinions, along with little room to disagree.
+
+In 2011, [Anton Kovalyov](https://antonkovalyov.com/) [forked JSLint to create JSHint](https://antonkovalyov.com/jshint.html), giving teams room to adjust warnings to fit their conventions. That made JSHint easier to adopt, though writing a check for one company's peculiar problem still meant working inside the project.
+
+[Nicholas Zakas](https://humanwhocodes.com/) used and contributed to JSHint. It let a company configure existing rules. Adding a rule for something unique to that company's code still required changes inside JSHint.
+
+Zakas had already helped design CSS Lint, where rules were isolated and testable. For JavaScript, he wanted rules loaded at runtime. He also insisted that ESLint's own rules use the public extension contract, giving plugin authors the same machinery as the core team.
+
+## The IE7 bug behind ESLint
+
+At Box, a customer reported that the web application failed in Internet Explorer 7. The trigger was mundane: a developer had called the native `XMLHttpRequest` object instead of Box's wrapper, and the customer's security policy disabled the ActiveX machinery beneath it. Box's tests never covered that environment. Zakas later [wrote down how the customer bug led to ESLint](https://eslint.org/blog/2021/11/the-inception-of-eslint/), but at the time Box fixed it with a regular-expression check for direct uses of `XMLHttpRequest`.
+
+The regex fixed that case. Zakas wanted a checker that could read code instead of searching raw text, and [Ariya Hidayat](https://ariya.io/) had built Esprima, a JavaScript parser written in JavaScript.
+
+[Yusuke Suzuki](https://github.com/Constellation) had built `estraverse` for walking syntax trees and `escope` for understanding variables and scope. Hidayat spoke at Box about Esprima. Over the next couple of weekends, Zakas assembled those projects into the first ESLint prototype and [introduced it publicly in July 2013](https://humanwhocodes.com/blog/2013/07/16/introducing-eslint/).
+
+Jamund joined early. His [first merged ESLint changes](https://github.com/eslint/eslint/commits?author=xjamundx) landed that July, and his later work included core rules, formatters, [`eslint-plugin-standard`](https://github.com/standard/eslint-plugin-standard), and [`eslint-plugin-modules`](https://github.com/xjamundx/eslint-plugin-modules). He also became a major contributor to [`eslint-plugin-promise`](https://github.com/eslint-community/eslint-plugin-promise). When Jamund taught our team about plugins, he knew the platform from the inside because he had helped build it.
+
+## Code becomes a tree
+
+Source code looks like text to us. A parser turns it into nested objects. Jamund's shorthand was that an abstract syntax tree is a DOM for your code. A function call becomes a `CallExpression` with a name and arguments beneath it, while an `if` statement carries a test and two branches and every node remembers where it came from in the file.
+
+The parser describes the program. ESLint walks the resulting tree and calls each rule when it reaches a node that rule asked to see. A rule's `create(context)` function returns those listeners. It might subscribe to `CallExpression` to catch a forbidden API or inspect an import.
+
+When a listener finds a problem, [`context.report()`](https://eslint.org/docs/latest/extend/custom-rules#reporting-problems) attaches a message to the relevant node and source location. A fixable rule can return a precise text edit, which ESLint checks for overlaps before applying the safe set and running the rules again for up to ten passes.
+
+<figure className="my-8">
+  <picture>
+    <source
+      media="(max-width: 639px)"
+      srcSet="/posts/eslint-making-javascript-rules-programmable/eslint-rule-flow-mobile.svg"
+      width={720}
+      height={1120}
+    />
+    <img
+      src="/posts/eslint-making-javascript-rules-programmable/eslint-rule-flow.svg"
+      alt="Diagram showing JavaScript source code parsed into an abstract syntax tree, visited by ESLint rules, and returned as editor diagnostics and fixes"
+      width={1400}
+      height={680}
+      loading="lazy"
+      decoding="async"
+      className="h-auto w-full rounded-lg border border-zinc-200 dark:border-zinc-800"
+    />
+  </picture>
+  <figcaption className="mt-2 text-sm leading-6 text-muted">
+    One parse feeds the interested rules and returns messages with optional fixes.
+  </figcaption>
+</figure>
+
+Parsing, traversal, and rule evaluation stay separate so ESLint can handle the walk and reporting while each rule answers one question. Tests can pass in tiny valid and invalid snippets without starting an application.
+
+An AST can prove that code called `fetch` or identify which module supplied a name. Control flow goes further. It can check that every path through a function returns. The product requirement lives outside the AST. Type-aware plugins and cross-file analysis provide extra context, but a rule author still has to decide what the code can prove.
+
+A few false positives taught us how quickly a rule becomes annoying when it guesses. We tested code that should pass alongside obvious failures, then added awkward examples until the rule knew where to stop.
+
+## The extension point changed code review
+
+ESLint runs its built-in rules through the same extension model available to plugin authors, so a company rule receives the same nodes and reports through the same public interface without requiring a private fork.
+
+At PayPal, that moved mechanical feedback closer to the author. Right in the editor. Its message explained the problem and its tests recorded the cases we meant to allow, giving reviewers their time back for behavior and architecture.
+
+On the next pull request, someone had to remember the comment and type it again. Once we put the decision in a versioned plugin, every repository that installed it got the rule. We could start with a warning. After we saw where it fired and fixed the existing cases, we raised it to an error.
+
+A React project and a security team need different checks. Plugins let each group publish its own package instead of pushing every opinion into ESLint itself, with shareable configurations bundling those choices and ESLint supplying the parser and rule machinery underneath.
+
+## Where configuration got complicated
+
+The original configuration system walked up ancestor directories and merged several file formats. Along the way, it resolved plugin names and extended presets. Overrides added another layer. A developer could end up staring at a warning with no obvious answer for why that rule was running on that file. Some plugins also depended on internal APIs, so major releases affected rule authors and application teams.
+
+The ESLint team has been [unusually direct about those costs](https://eslint.org/blog/2022/08/new-config-system-part-1/). Flat config replaced custom package loading with normal JavaScript imports and cut down the number of places configuration could hide. By then, projects and plugins depended on the old behavior.
+
+## What ESLint taught me about extension design
+
+When I design an SDK or plugin system now, I ask where users will put the knowledge we cannot predict. Forking the tool usually creates another problem, so ESLint gave users a small, supported contract.
+
+Then the project ran its own core through that contract, making the ESLint team a customer of the same public API, and I still look for that property when I evaluate platform hooks.
+
+Flat config changed my view of compatibility. People had built plugins and company tooling on the original behavior, so changing it took years.
+
+ESLint joined the jQuery Foundation in 2016. Today, [Zakas](https://github.com/nzakas), [Milos Djermanovic](https://github.com/mdjermanovic), [Francesco Trotta](https://github.com/fasttime), and the wider [ESLint team](https://eslint.org/team/) continue the work with plugin authors and contributors across JavaScript.
+
+I still think about those PayPal reviews. Jamund helped us turn one repeated comment into a tested rule. It ran before the pull request opened, leaving the reviewer time to ask a harder question about the change itself.

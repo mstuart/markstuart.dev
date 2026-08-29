@@ -17,10 +17,23 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3
 
 class VoteSigningNotConfiguredError extends Error {}
 
-// Only known post slugs are valid vote keys.
+// Only known post slugs are valid vote keys. A post's previous slugs stay
+// valid so links published before a rename keep working.
 function isValidSlug(slug: string | null): slug is string {
   if (!slug) return false;
-  return getAllPosts().some((post) => post.slug === slug);
+  return getAllPosts().some(
+    (post) => post.slug === slug || (post.previousSlugs ?? []).includes(slug),
+  );
+}
+
+// Existing votes live under the slug a post was first published as. Map any
+// current-or-previous slug to that canonical key so a rename preserves the
+// count and voter dedup instead of stranding them under the old slug.
+function voteStorageSlug(slug: string): string {
+  const post = getAllPosts().find(
+    (candidate) => candidate.slug === slug || (candidate.previousSlugs ?? []).includes(slug),
+  );
+  return post?.previousSlugs?.[0] ?? slug;
 }
 
 function voteSecret(): string {
@@ -133,11 +146,12 @@ function voteFailure(error: unknown, operation: "get_votes" | "add_vote"): Respo
 export async function GET(request: Request) {
   const slug = new URL(request.url).searchParams.get("slug");
   if (!isValidSlug(slug)) return invalidSlugResponse();
+  const storeSlug = voteStorageSlug(slug);
 
   try {
     const voter = voterIdentity(request);
     return jsonWithVoterCookie(
-      await getVoteState(slug, voteFingerprint("voter", slug, voter.voterId), voter.voterId),
+      await getVoteState(storeSlug, voteFingerprint("voter", storeSlug, voter.voterId), voter.voterId),
       voter.setCookie,
     );
   } catch (error) {
@@ -161,12 +175,13 @@ export async function POST(request: Request) {
     // A malformed request has no valid slug.
   }
   if (!isValidSlug(slug)) return invalidSlugResponse();
+  const storeSlug = voteStorageSlug(slug);
 
   try {
     const existingVoterId = verifiedVoterId(request);
-    const client = clientAbuseFingerprint(request, slug);
+    const client = clientAbuseFingerprint(request, storeSlug);
     if (!existingVoterId) {
-      const rateLimit = await consumeVoteRateLimit(slug, client);
+      const rateLimit = await consumeVoteRateLimit(storeSlug, client);
       if (!rateLimit.allowed) {
         const response = publicError("vote_rate_limited", 429, randomUUID());
         response.headers.set("Retry-After", String(rateLimit.retryAfter));
@@ -175,7 +190,7 @@ export async function POST(request: Request) {
     }
     const voter = voterIdentity(request);
     return jsonWithVoterCookie(
-      await addVote(slug, voteFingerprint("voter", slug, voter.voterId), client, voter.voterId),
+      await addVote(storeSlug, voteFingerprint("voter", storeSlug, voter.voterId), client, voter.voterId),
       voter.setCookie,
     );
   } catch (error) {

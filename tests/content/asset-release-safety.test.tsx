@@ -61,6 +61,10 @@ const restoredLogoPaths = [
 ].sort();
 
 const articleAssetPaths = [
+  "posts/eslint-making-javascript-rules-programmable/eslint-logo-color.svg",
+  "posts/eslint-making-javascript-rules-programmable/eslint-rule-flow-mobile.svg",
+  "posts/eslint-making-javascript-rules-programmable/eslint-rule-flow.svg",
+  "posts/eslint-making-javascript-rules-programmable/jamund-ferguson-javascript-forest.jpg",
   "posts/jquery-compatibility-layer-shaped-web/john-resig-jsconf-us-2010.jpg",
   "posts/jquery-compatibility-layer-shaped-web/jquery-chain-carbon-mobile.png",
   "posts/jquery-compatibility-layer-shaped-web/jquery-chain-carbon.png",

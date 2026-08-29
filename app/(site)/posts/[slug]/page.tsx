@@ -65,7 +65,11 @@ export default async function PostPage(props: PageProps<"/posts/[slug]">) {
     <div className="mx-auto max-w-3xl px-6 py-16">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serializeJsonLd(blogPostingJsonLd(post)) }}
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(
+            blogPostingJsonLd(post, `/posts/${post.slug}/opengraph-image`),
+          ),
+        }}
       />
       <Link
         href="/posts"

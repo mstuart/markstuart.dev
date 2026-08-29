@@ -54,8 +54,11 @@ export const personJsonLd = {
   sameAs: site.social.map((link) => link.href),
 };
 
-export function blogPostingJsonLd(post: PostMeta) {
+export function blogPostingJsonLd(post: PostMeta, image?: string) {
   const url = `${site.url}/posts/${post.slug}`;
+  const imageUrl = image
+    ? new URL(image, site.url).toString()
+    : `${site.url}${DEFAULT_SOCIAL_IMAGE}`;
 
   return {
     "@context": "https://schema.org",
@@ -65,7 +68,7 @@ export function blogPostingJsonLd(post: PostMeta) {
     datePublished: post.date,
     url,
     mainEntityOfPage: url,
-    image: `${site.url}${DEFAULT_SOCIAL_IMAGE}`,
+    image: imageUrl,
     author: {
       "@type": "Person",
       name: site.name,

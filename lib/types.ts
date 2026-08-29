@@ -8,6 +8,9 @@ export interface PostMeta {
   /** Reading time in minutes, computed from the post body. */
   minutes: number;
   sample?: boolean;
+  /** Earlier slugs this post was published under, oldest first. Used to keep
+   * notification and vote state stable across a slug rename. */
+  previousSlugs?: string[];
 }
 
 export interface Post extends PostMeta {

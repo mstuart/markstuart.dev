@@ -155,7 +155,12 @@ export async function GET(request: Request): Promise<Response> {
       });
     }
     const notified = new Set(await getNotifiedSlugs());
-    const fresh = getAllPosts().filter((post) => !post.sample && !notified.has(post.slug));
+    // A post is already announced if its current slug OR any slug it was
+    // previously published under is in the notified set. This prevents a slug
+    // rename from re-announcing an existing post to subscribers.
+    const isAnnounced = (post: PostMeta) =>
+      notified.has(post.slug) || (post.previousSlugs ?? []).some((slug) => notified.has(slug));
+    const fresh = getAllPosts().filter((post) => !post.sample && !isAnnounced(post));
     const announced: string[] = [];
     let sent = 0;
     let failed = 0;

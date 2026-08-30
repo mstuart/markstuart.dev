@@ -69,6 +69,9 @@ const articleAssetPaths = [
   "posts/jquery-compatibility-layer-shaped-web/jquery-chain-carbon-mobile.png",
   "posts/jquery-compatibility-layer-shaped-web/jquery-chain-carbon.png",
   "posts/jquery-compatibility-layer-shaped-web/paul-irish-jquery-source-youtube.jpg",
+  "posts/stripe-developer-experience-reset-the-standard/stripe-api-2011.jpg",
+  "posts/stripe-developer-experience-reset-the-standard/workbench-debug.webp",
+  "posts/stripe-developer-experience-reset-the-standard/workbench-inspector.png",
 ].sort();
 
 function expectImagePath(container: Element, path: string) {

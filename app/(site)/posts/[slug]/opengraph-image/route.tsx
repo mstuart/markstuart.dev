@@ -58,7 +58,7 @@ export async function GET(
               background: "#2dd4bf",
             }}
           />
-          THE WEB WE INHERITED
+          {(post.series ?? "The Web We Inherited").toUpperCase()}
         </div>
 
         <div

@@ -103,7 +103,7 @@ describe("Writing page themes", () => {
     const links = within(list).getAllByRole("link");
 
     expect(links).toHaveLength(getAllPosts().length + writing.length);
-    expect(links[0]).toHaveAccessibleName(/How 6to5 became Babel/i);
+    expect(links[0]).toHaveAccessibleName(/Stripe: the developer experience that reset the standard/i);
 
     for (const title of [...getAllPosts(), ...writing].map((entry) => entry.title)) {
       expect(screen.getAllByText(title)).toHaveLength(1);

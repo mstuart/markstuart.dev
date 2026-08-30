@@ -19,7 +19,7 @@ describe("homepage positioning", () => {
       .filter((href) => href !== "/posts");
 
     expect(postLinks).toEqual([
-      "/posts/babel-modern-javascript",
+      "/posts/stripe-developer-experience-reset-the-standard",
       "/posts/eslint-making-javascript-rules-programmable",
       "/posts/jquery-compatibility-layer-shaped-web",
       "https://careers.rocket.com/blog/technology-and-product/ai-authored-static-analysis-code-enforcement",
@@ -34,7 +34,7 @@ describe("homepage positioning", () => {
       expect(decodeURIComponent(link.querySelector("img")?.getAttribute("src") ?? "")).toContain(logo);
     }
 
-    for (const date of ["Aug 29, 2026", "Aug 28, 2026", "Aug 27, 2026", "May 19, 2026", "Oct 30, 2019"]) {
+    for (const date of ["Aug 30, 2026", "Aug 28, 2026", "Aug 27, 2026", "May 19, 2026", "Oct 30, 2019"]) {
       expect(within(latestWriting).getByText(date)).toBeVisible();
     }
     for (const views of ["34K views"]) {

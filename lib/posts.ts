@@ -15,11 +15,13 @@ export type WritingTheme =
 export interface WritingPostMeta extends PostMeta {
   format: PostFormat;
   theme: WritingTheme;
+  series?: string;
 }
 
 export interface WritingPost extends Post {
   format: PostFormat;
   theme: WritingTheme;
+  series?: string;
 }
 
 function readFormat(value: unknown): PostFormat {
@@ -46,6 +48,10 @@ function readPreviousSlugs(value: unknown): string[] | undefined {
   return slugs.length > 0 ? slugs : undefined;
 }
 
+function readSeries(value: unknown): string | undefined {
+  return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
 function readSlugs(): string[] {
   return fs
     .readdirSync(POSTS_DIR)
@@ -68,6 +74,7 @@ export function getAllPosts(): WritingPostMeta[] {
         sample: Boolean(data.sample),
         format: readFormat(data.format),
         theme: readTheme(data.theme),
+        series: readSeries(data.series),
         previousSlugs: readPreviousSlugs(data.previousSlugs),
       };
     })
@@ -91,6 +98,7 @@ export function getPost(slug: string): WritingPost | null {
     sample: Boolean(data.sample),
     format: readFormat(data.format),
     theme: readTheme(data.theme),
+    series: readSeries(data.series),
     previousSlugs: readPreviousSlugs(data.previousSlugs),
     content,
   };

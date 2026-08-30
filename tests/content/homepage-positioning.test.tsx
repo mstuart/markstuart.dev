@@ -19,25 +19,25 @@ describe("homepage positioning", () => {
       .filter((href) => href !== "/posts");
 
     expect(postLinks).toEqual([
+      "/posts/stripe-developer-experience-reset-the-standard",
       "/posts/eslint-making-javascript-rules-programmable",
       "/posts/jquery-compatibility-layer-shaped-web",
       "https://careers.rocket.com/blog/technology-and-product/ai-authored-static-analysis-code-enforcement",
       "https://medium.com/paypal-tech/scaling-graphql-at-paypal-b5b5ac098810",
-      "https://medium.com/paypal-tech/graphql-instrumenting-your-api-and-unlocking-superpowers-c0bc3a9dc451",
     ]);
 
     const writingLinks = within(latestWriting).getAllByRole("link").filter((link) => link.getAttribute("href") !== "/posts");
     for (const [link, logo] of writingLinks.map((link, index) => [
       link,
-      ["/icon.svg", "/icon.svg", "/work/rocket.png", "/work/paypal.png", "/work/paypal.png"][index],
+      ["/icon.svg", "/icon.svg", "/icon.svg", "/work/rocket.png", "/work/paypal.png"][index],
     ] as const)) {
       expect(decodeURIComponent(link.querySelector("img")?.getAttribute("src") ?? "")).toContain(logo);
     }
 
-    for (const date of ["Aug 28, 2026", "Aug 27, 2026", "May 19, 2026", "Oct 30, 2019", "Mar 13, 2019"]) {
+    for (const date of ["Aug 30, 2026", "Aug 28, 2026", "Aug 27, 2026", "May 19, 2026", "Oct 30, 2019"]) {
       expect(within(latestWriting).getByText(date)).toBeVisible();
     }
-    for (const views of ["34K views", "11.6K views"]) {
+    for (const views of ["34K views"]) {
       expect(within(latestWriting).getByText(new RegExp(views))).toBeVisible();
     }
     expect(within(latestWriting).queryByText("Hello, world")).not.toBeInTheDocument();

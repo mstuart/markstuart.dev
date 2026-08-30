@@ -37,13 +37,14 @@ async function readPostsFrom(frontmatter: string) {
 describe("local writing metadata", () => {
   it("preserves a declared note format and primary theme", async () => {
     const posts = await readPostsFrom(
-      `title: Example\ndate: "2026-08-24"\ndescription: Example description\nformat: note\ntheme: APIs & GraphQL`
+      `title: Example\ndate: "2026-08-24"\ndescription: Example description\nformat: note\ntheme: APIs & GraphQL\nseries: Example Series`
     );
 
     expect(posts).toHaveLength(1);
     expect(posts[0]).toMatchObject({
       format: "note",
       theme: "APIs & GraphQL",
+      series: "Example Series",
     });
   });
 
@@ -130,6 +131,7 @@ describe("Writing page themes", () => {
 
     expect(all).toHaveAttribute("aria-pressed", "true");
     expect(within(all).getByText("✓")).toBeVisible();
+    expect(within(ai).queryByText("✓")).not.toBeInTheDocument();
 
     await user.click(ai);
 
@@ -143,14 +145,18 @@ describe("Writing page themes", () => {
     expect(links[0]).toHaveAccessibleName(/The new era of static analysis/i);
   });
 
-  it("shows each entry's theme as row metadata", () => {
+  it("shows each entry's theme and series as row metadata", () => {
     render(<PostsPage />);
 
     const externalPost = screen.getByRole("link", { name: /Scaling GraphQL at PayPal/i });
     const securityPost = screen.getByRole("link", { name: /Securing your JS apps w\/ Stateless CSRF/i });
+    const stripePost = screen.getByRole("link", { name: /Stripe: the developer experience/i });
+    const eslintPost = screen.getByRole("link", { name: /ESLint: making JavaScript's rules programmable/i });
 
     expect(within(externalPost).getByText("APIs & GraphQL")).toBeVisible();
     expect(within(securityPost).getByText("Web application security")).toBeVisible();
+    expect(within(stripePost).getByText("Series: Building for Developers")).toBeVisible();
+    expect(within(eslintPost).getByText("Series: The Web We Inherited")).toBeVisible();
     expect(screen.getByRole("button", { name: "Web application security 1" })).toBeVisible();
   });
 });

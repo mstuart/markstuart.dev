@@ -23,6 +23,7 @@ export default function PostsPage() {
     date: post.date,
     format: post.format,
     theme: post.theme,
+    series: post.series,
     iconSrc: "/icon.svg",
   }));
   const externalRows: WritingRow[] = writing.map((entry) => ({

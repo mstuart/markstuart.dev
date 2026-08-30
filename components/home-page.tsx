@@ -75,6 +75,7 @@ export function HomePage() {
       date: post.date,
       format: post.format,
       theme: post.theme,
+      series: post.series,
       iconSrc: "/icon.svg",
     })),
     ...writing.map((entry) => ({

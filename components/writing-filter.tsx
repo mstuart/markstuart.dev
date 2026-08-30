@@ -15,6 +15,7 @@ export type WritingRow =
       date: string;
       format: PostFormat;
       theme: WritingTheme;
+      series?: string;
       iconSrc: string;
     }
   | {
@@ -65,9 +66,13 @@ function pillClass(active: boolean) {
 }
 
 function SelectedMark({ active }: { active: boolean }) {
+  if (!active) {
+    return null;
+  }
+
   return (
     <span aria-hidden="true" className="inline-flex w-3 justify-center font-medium">
-      {active ? "✓" : null}
+      ✓
     </span>
   );
 }
@@ -93,6 +98,11 @@ export function WritingRowContent({ row }: { row: WritingRow }) {
             {row.kind === "local" ? (row.format === "note" ? "Note" : "Article") : row.source}
             {row.kind === "external" && row.views ? ` · ${formatViews(row.views)}` : ""}
           </span>
+          {row.kind === "local" && row.series ? (
+            <span className="max-w-full break-words rounded-md border border-line px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide">
+              Series: {row.series}
+            </span>
+          ) : null}
           <span className="rounded-md bg-surface-muted px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide">
             {row.theme}
           </span>

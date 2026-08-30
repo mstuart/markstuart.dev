@@ -1,0 +1,120 @@
+---
+title: "Bret Victor and the cost of waiting to see"
+date: "2026-08-30"
+description: "What Inventing on Principle taught a generation of tool builders about feedback, representation, and the ideas developers never get to try."
+format: article
+theme: "Developer platforms & SDKs"
+series: "Building for Developers"
+---
+
+In January 2012, [Bret Victor](https://worrydream.com/) stood onstage at the Canadian University Software Engineering Conference and changed a number in a piece of code.
+
+The drawing beside the code moved immediately. He dragged another number with the mouse. The picture changed again, with no save, build, reload, or trip through a separate settings panel. The code and its effect occupied the same moment.
+
+[Jamis Charles](https://jamischarles.com/) was the person who first introduced me to Victor's work. At PayPal, we organized JSLunch sessions where we would gather over lunch, watch a conference talk, and discuss it afterward. I remember Jamis putting one of Victor's talks in front of the group and opening a door into this legendary body of work, which has shaped how I think about developer tools ever since.
+
+I have returned to ["Inventing on Principle"](https://worrydream.com/InventingOnPrinciple/) many times since. It has become one of those talks whose demonstrations are easy to recognize and whose argument is easy to flatten into "live reload is good." Victor was asking for something deeper. A creator should have an immediate connection to the thing being created, with enough control and representation to understand what each decision did.
+
+This is the second post in _Building for Developers_, my series about products and people who changed what good developer experience feels like. The first looked at [how Stripe reset the standard](/posts/stripe-developer-experience-reset-the-standard). I am interested in the ideas we can carry into SDKs, APIs, tools, and platforms now. Victor's work belongs near the beginning because it asks a question I still use: how much of a developer's thinking does our product make them hold in their head?
+
+<figure className="my-8">
+  <a href="https://worrydream.com/InventingOnPrinciple/" className="group block no-underline">
+    <img
+      src="/posts/bret-victor-feedback-loop/inventing-on-principle.png"
+      alt="Bret Victor presenting Inventing on Principle at CUSEC in 2012"
+      width={1280}
+      height={720}
+      loading="lazy"
+      decoding="async"
+      className="h-auto w-full rounded-lg border border-zinc-200 transition-opacity group-hover:opacity-90 dark:border-zinc-800"
+    />
+  </a>
+  <figcaption className="mt-2 text-sm leading-6 text-muted">
+    Bret Victor presented <a href="https://worrydream.com/InventingOnPrinciple/">"Inventing on Principle"</a> at CUSEC on January 20, 2012. The conference <a href="https://2012.cusec.net/first-video-posted-bret-victor/">published the original recording</a>.
+  </figcaption>
+</figure>
+
+## The delay was hiding the idea
+
+The usual way to build a UI application in 2012 split the work into two worlds. You edited source code in one window, ran the application, inspected the output somewhere else, remembered what looked wrong, returned to the source, and tried again.
+
+That loop still sounds familiar.
+
+Each trip had a cost measured in seconds, but the larger cost landed in attention. You had to remember which change produced which result, and if the result surprised you, the application rarely showed the path between input and effect. Some experiments required enough setup that you skipped them.
+
+Victor's first demo placed code and output side by side, with numbers in the source becoming draggable controls. A loop drawing a tree left a visual trace of every iteration, so the developer could see which piece of code produced each mark on the canvas.
+
+The distinction matters. A preview answers, "What does the application look like now?" A useful creative tool also answers, "Which decision caused this part, and what happens if I move it?"
+
+Imagine teaching a child to mix paint while hiding the paper until the end of every minute. The child can still learn, but every color choice becomes a memory exercise. Put the paper in front of them and the mixture teaches while they move the brush. Victor wanted developer tools to keep the paper visible.
+
+## Immediate feedback needs a representation
+
+Fast output alone can produce fast confusion. A log stream that races past, a preview that flickers without explanation, or an API response containing forty undocumented fields all arrive quickly. None gives the developer a strong model of what happened.
+
+Victor paired immediacy with representation. In one animation demo, the developer moved an object through the desired path while the system recorded the motion, skipping the usual form full of coordinates and timing values. In a platform game, he scrubbed backward through time and watched the character's state at each frame, while a circuit example made current visible as it moved through the diagram.
+
+Those interfaces exposed the dimensions that mattered for the work. Position could be manipulated as position. Time could be inspected as time. Current could be seen moving through a circuit instead of inferred from a final voltage reading.
+
+That is harder than attaching a GUI to a text file. The tool needs a model of the domain, a reversible relationship between the representation and the underlying code, and enough provenance to connect an effect to its cause.
+
+<figure className="my-8">
+  <a href="https://www.youtube.com/watch?v=PUv66718DII" className="group block no-underline">
+    <img
+      src="/posts/bret-victor-feedback-loop/learnable-programming.png"
+      alt="Bret Victor's tree drawing demo with the rendered scene beside its source code"
+      width={480}
+      height={360}
+      loading="lazy"
+      decoding="async"
+      className="h-auto w-full rounded-lg border border-zinc-200 transition-opacity group-hover:opacity-90 dark:border-zinc-800"
+    />
+  </a>
+  <figcaption className="mt-2 text-sm leading-6 text-muted">
+    In the <a href="https://www.youtube.com/watch?v=PUv66718DII">tree-drawing demo from the talk</a>, Victor kept the rendered scene beside the source and made numeric values directly adjustable.
+  </figcaption>
+</figure>
+
+## A tool changes which ideas get explored
+
+We usually discuss developer speed as throughput. Faster tests mean more changes per day. Faster builds mean less waiting. Both are useful, though they miss the most interesting effect.
+
+Feedback latency changes the set of ideas a person is willing to test.
+
+If an experiment costs twenty minutes, I arrive with a plan and protect it. At two seconds, I can ask a half-formed question, notice an unexpected result, and follow it somewhere else because the tool has made cheap branches possible.
+
+This is why Victor's argument reached far beyond visual development tools. I believe his ideas helped inspire tools such as [Redux time-travel debugging](https://redux.js.org/usage/implementing-undo-history), [Storybook](https://storybook.js.org/), and hot module replacement. Each keeps the work visible while a developer changes it. I see the same idea in browser developer tools, notebooks, playgrounds, design tools with inspectable constraints, and local emulators. They reduce the distance between an intention and evidence about that intention.
+
+The danger is optimizing the visible stopwatch while leaving the rest of the loop untouched. A five-millisecond API response is little comfort when authentication takes an hour to configure, and instant code generation does not help if the developer cannot see which schema version produced it. A streaming model response can feel alive while tool calls, retries, and source material remain hidden.
+
+Speed at one layer can push waiting into another.
+
+## The talk was also about choosing a principle
+
+The software demonstrations occupy most recollections of the talk. Its title came from the second half.
+
+Victor said he had chosen a guiding principle for his work: creators need an immediate connection to what they create. He did not present it as a universal rule for every person. He described the process of finding a wrong in the world that mattered to him, then using his work to address it.
+
+That framing kept the talk from becoming a collection of interface tricks. The demos belonged together because they served one belief. Direct manipulation, time travel, live traces, and nearby output were design consequences of that belief.
+
+Developer platforms benefit from the same discipline. Teams can ship dozens of individually sensible features and still produce a scattered experience. A principle makes choices collide. If we believe a developer should see the consequence of an action quickly, then account setup, sample code, errors, logs, test data, and deployment previews all have to answer to it. The org chart does not get to decide where the experience breaks.
+
+## Where immediacy breaks down
+
+Some systems cannot provide instant truth. A distributed trace may finish after several services respond. A payment can remain pending. A model evaluation may take hours. Production data may be too sensitive or expensive to reproduce locally. Pretending otherwise creates a toy that teaches the wrong behavior.
+
+The principle still helps. When the final result is delayed, the platform can expose progress, intermediate state, and the reasons for waiting. It can make an operation cancellable. It can retain the inputs and versions needed to replay it. It can distinguish "queued" from "running" and show the boundary a request has reached.
+
+There is another limit. Direct manipulation works well when the domain has a faithful visual form. It can become misleading when important behavior is probabilistic, remote, or hidden behind policy. A smooth slider may imply continuity where the underlying system has cliffs.
+
+Good tools reveal those cliffs and make the boundaries visible.
+
+## What I take into platform work
+
+I now look at a developer workflow as a chain of decisions and evidence. Where does a person state an intention? How soon can they see an honest result? Can they connect that result to the input, version, request, or line of code that caused it? Can they make the next change without reconstructing the whole situation?
+
+For an SDK, that might mean a runnable example with test credentials already in place, typed request objects, streaming events that preserve their order, and errors carrying the exact field path that failed. For an API platform, it might mean live request logs linked from a response ID, webhook replay, editable prompts with version history, and evaluations that show the cases behind a score.
+
+I want the shortest loop that preserves the truth of the system.
+
+Victor's 2012 demos still feel fresh because many developer products continue to make people work like the hidden-paper painter. We change something, wait, search another screen, and try to remember which decision mattered. "Inventing on Principle" showed how much thought returns when the effect stays close enough to touch.

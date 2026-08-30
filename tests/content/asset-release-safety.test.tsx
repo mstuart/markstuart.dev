@@ -61,6 +61,8 @@ const restoredLogoPaths = [
 ].sort();
 
 const articleAssetPaths = [
+  "posts/bret-victor-feedback-loop/inventing-on-principle.png",
+  "posts/bret-victor-feedback-loop/learnable-programming.png",
   "posts/eslint-making-javascript-rules-programmable/eslint-logo-color.svg",
   "posts/eslint-making-javascript-rules-programmable/eslint-rule-flow-mobile.svg",
   "posts/eslint-making-javascript-rules-programmable/eslint-rule-flow.svg",

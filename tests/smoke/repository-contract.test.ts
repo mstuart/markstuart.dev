@@ -57,7 +57,7 @@ describe("repository quality contract", () => {
       with: { lycheeVersion: "v0.24.2", fail: true },
     });
     const args = (steps[1].with as { args: string }).args;
-    expect(args).toContain('--root-dir "${GITHUB_WORKSPACE}/public"');
+    expect(args).toContain('--root-dir "${{ github.workspace }}/public"');
     expect(args).toContain("--extensions md,mdx,ts,tsx");
     expect(args).toContain("medium\\.com|npmjs\\.com");
     expect(args).toContain("oreilly\\.com|retaildive\\.com");

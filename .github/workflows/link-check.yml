@@ -27,7 +27,7 @@ jobs:
           jobSummary: true
           format: markdown
           args: >-
-            --root-dir "${GITHUB_WORKSPACE}/public"
+            --root-dir "${{ github.workspace }}/public"
             --no-progress
             --extensions md,mdx,ts,tsx
             --max-retries 3

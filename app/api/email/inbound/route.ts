@@ -32,6 +32,19 @@ type InboundEvent = {
   data: { email_id?: string; to?: string[] };
 };
 
+function isInboundEvent(value: unknown): value is InboundEvent {
+  if (!value || typeof value !== "object") return false;
+  const { type, data } = value as Record<string, unknown>;
+  if (typeof type !== "string" || !data || typeof data !== "object") return false;
+
+  const { email_id: emailId, to } = data as Record<string, unknown>;
+  return (
+    (emailId === undefined || typeof emailId === "string") &&
+    (to === undefined ||
+      (Array.isArray(to) && to.every((recipient) => typeof recipient === "string")))
+  );
+}
+
 function mailboxAddress(address: Address | undefined): string | undefined {
   if (!address || !("address" in address) || !address.address) return undefined;
   return isValidEmail(address.address) ? address.address.trim() : undefined;
@@ -190,13 +203,12 @@ export async function POST(request: Request): Promise<Response> {
     throw error;
   }
   const eventId = request.headers.get("svix-id") ?? "";
-  let event: InboundEvent;
   try {
-    event = new Webhook(secret).verify(payload, {
+    new Webhook(secret).verify(payload, {
       "svix-id": eventId,
       "svix-timestamp": request.headers.get("svix-timestamp") ?? "",
       "svix-signature": request.headers.get("svix-signature") ?? "",
-    }) as InboundEvent;
+    });
   } catch (error) {
     logServerError({
       correlationId,
@@ -205,6 +217,17 @@ export async function POST(request: Request): Promise<Response> {
       error,
     });
     return publicError("invalid_signature", 401, correlationId);
+  }
+
+  let event: InboundEvent;
+  try {
+    const parsed: unknown = JSON.parse(payload);
+    if (!isInboundEvent(parsed)) {
+      return publicError("invalid_event", 400, correlationId);
+    }
+    event = parsed;
+  } catch {
+    return publicError("invalid_event", 400, correlationId);
   }
 
   if (event.type !== "email.received" || !event.data.email_id) {

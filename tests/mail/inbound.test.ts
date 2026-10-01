@@ -123,6 +123,18 @@ function oversizedWebhookRequest() {
   });
 }
 
+function malformedWebhookRequest() {
+  return new Request("https://markstuart.dev/api/email/inbound", {
+    method: "POST",
+    headers: {
+      "svix-id": "msg_malformed",
+      "svix-timestamp": "1724400000",
+      "svix-signature": "v1,signature",
+    },
+    body: "not-json",
+  });
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   process.env.RESEND_WEBHOOK_SECRET = "whsec_test";
@@ -151,6 +163,19 @@ describe("inbound deduplication", () => {
       error: { code: "payload_too_large" },
     });
     expect(verify).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects a signed payload that is not valid JSON", async () => {
+    verify.mockReturnValue(undefined);
+
+    const response = await POST(malformedWebhookRequest());
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({
+      error: { code: "invalid_event" },
+    });
+    expect(verify).toHaveBeenCalledOnce();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 

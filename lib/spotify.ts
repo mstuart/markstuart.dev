@@ -127,7 +127,7 @@ interface SpotifyImage {
 
 export function selectImage(images: SpotifyImage[], minimumWidth: number): SpotifyImage | undefined {
   const sorted = [...images].sort((a, b) => a.width - b.width);
-  return sorted.find((image) => image.width >= minimumWidth) ?? sorted[0];
+  return sorted.find((image) => image.width >= minimumWidth) ?? sorted.at(-1);
 }
 
 interface RawTrack {

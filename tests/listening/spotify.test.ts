@@ -69,6 +69,16 @@ describe("Spotify provider", () => {
         56
       )?.url
     ).toBe("small");
+    expect(
+      selectImage?.(
+        [
+          { url: "large", width: 640 },
+          { url: "medium", width: 300 },
+          { url: "small", width: 64 },
+        ],
+        1280
+      )?.url
+    ).toBe("large");
   });
 
   it("shares one in-flight access-token refresh across concurrent requests", async () => {
